@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --------------------------------------------------------------------------
+   Regras globais minimas.
+   Tudo o mais deve sair de classes utilitarias do Tailwind (ver DESIGN.md).
+   -------------------------------------------------------------------------- */
+
+/* Obrigatorio: sem isso os elementos controlados por Alpine piscam na tela
+   antes da hidratacao. DESIGN.md secao 9. */
+[x-cloak] {
+    display: none !important;
+}
+
+/* Barra de rolagem discreta em containers com overflow (tabelas largas,
+   lista de alertas). Mantem o visual limpo exigido pelo DESIGN.md. */
+@layer utilities {
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: #d1d5db transparent;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: #d1d5db;
+        border-radius: 9999px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background-color: #9ca3af;
+    }
+}
+
+/* Canvas do Chart.js precisa respeitar a altura do container. */
+canvas {
+    max-width: 100%;
+}

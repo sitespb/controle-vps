@@ -1,0 +1,16 @@
+{
+    "name": "controle-vps",
+    "version": "1.0.0",
+    "description": "Central de monitoramento de servidores VPS com CyberPanel",
+    "private": true,
+    "type": "commonjs",
+    "scripts": {
+        "build:css": "tailwindcss -i ./resources/css/app.css -o ./public/assets/css/app.css --minify",
+        "watch:css": "tailwindcss -i ./resources/css/app.css -o ./public/assets/css/app.css --watch"
+    },
+    "devDependencies": {
+        "alpinejs": "^3.14.9",
+        "chart.js": "^4.4.7",
+        "tailwindcss": "^3.4.19"
+    }
+}

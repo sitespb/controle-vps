@@ -1,0 +1,29 @@
+# Configuracao com credenciais - NUNCA versionar
+.env
+
+# Dependencias
+/vendor/
+/node_modules/
+
+# Arquivos gerados em runtime
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/cache/*
+!/storage/cache/.gitkeep
+/public/uploads/*
+!/public/uploads/.gitkeep
+
+# CSS compilado (gerado por `npm run build:css`)
+/public/assets/css/app.css
+
+# Configuracao real do agente
+/agent/config.php
+
+# Sistema operacional / editores
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.swp
+*.log
+.idea/
+.vscode/

@@ -1,0 +1,30 @@
+# ============================================================================
+#  Controle VPS - .htaccess da RAIZ
+#
+#  Necessario quando o DocumentRoot aponta para a raiz do projeto, que e o
+#  caso do vhost automatico do Laragon (http://controle-vps.test) e tambem
+#  do acesso por http://localhost/controle-vps/.
+#
+#  Encaminha toda requisicao para a pasta public/ e bloqueia acesso direto
+#  as pastas de codigo. As duas condicoes juntas tornam a regra a prova de
+#  loop: REDIRECT_STATUS fica preenchido depois do primeiro rewrite interno.
+# ============================================================================
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{ENV:REDIRECT_STATUS} ^$
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Nunca servir o .env nem arquivos de configuracao/logs
+<FilesMatch "^(\.env|\.env\.example|composer\.(json|lock)|package(-lock)?\.json|tailwind\.config\.js)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(log|sql|md|sh|ini)$">
+    Require all denied
+</FilesMatch>
