@@ -1,0 +1,26 @@
+# ============================================================================
+#  Normalizacao de fim de linha
+# ============================================================================
+#
+#  O install.sh e baixado e executado direto no Linux (curl | bash). Se o Git
+#  entregar o arquivo com CRLF - o padrao no Windows quando core.autocrlf=true
+#  - o bash falha com "$'\r': command not found", um erro que nao diz nada a
+#  quem esta instalando. Por isso todo script e todo codigo aqui e LF, em
+#  qualquer sistema operacional.
+
+*.sh   text eol=lf
+*.php  text eol=lf
+*.sql  text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.js   text eol=lf
+*.css  text eol=lf
+
+# Binarios: o Git nao deve tocar.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
