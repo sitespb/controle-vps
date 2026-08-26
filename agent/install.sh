@@ -4,12 +4,15 @@
 #  CONTROLE VPS - INSTALADOR DO AGENTE
 # ============================================================================
 #
-#  Uso:
-#      sudo bash install.sh --server-id 27 \
-#                           --token cvps_27_xxxxxxxx \
-#                           --url https://monitoramento.exemplo.com.br/api
+#  Uso (o comando pronto esta no painel, na tela do servidor):
+#      curl -fsSL https://raw.githubusercontent.com/sitespb/controle-vps/v1.1.0/agent/install.sh \
+#        | sudo bash -s -- --token cvps_27_xxxxxxxx \
+#                          --url https://monitoramento.exemplo.com.br/api
+#
+#  O --server-id nao e necessario: ele ja esta dentro do token.
 #
 #  Opcoes adicionais:
+#      --server-id 27        confere se o token pertence mesmo a este servidor
 #      --interval 300        segundos entre coletas (padrao 300 = 5 min)
 #      --path /opt/controle-vps-agent
 #      --no-cron             nao registra o agendamento
@@ -17,6 +20,7 @@
 #      --yes                 instala automaticamente as extensoes PHP que
 #                             faltarem, sem perguntar (uso nao interativo)
 #      --php /caminho/php    usa este binario em vez de procurar sozinho
+#      --ref v1.1.0          versao do agente a baixar (padrao: a deste script)
 #
 #  O que o script faz:
 #      1. escolhe o PHP 8.1+ do servidor - procurando primeiro os binarios
@@ -25,7 +29,8 @@
 #         e antigo demais
 #      2. confere as extensoes curl, json, openssl e mbstring; se faltar
 #         alguma, sugere o pacote certo para aquele PHP e pode instalar
-#      3. copia os arquivos do agente para o destino
+#      3. copia os arquivos do agente - baixando o pacote do repositorio
+#         publico quando o script foi executado sozinho
 #      4. gera o config.php com permissao 600
 #      5. roda o teste de conectividade e autenticacao
 #      6. registra o cron com o caminho completo do PHP escolhido
@@ -49,7 +54,31 @@ VERIFY_TLS="true"
 AUTO_YES=0
 PHP_BIN=""
 
-SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# ---------------------------------------------------------------------------
+# Origem do codigo do agente (modo bootstrap)
+# ---------------------------------------------------------------------------
+# Quando o install.sh e baixado sozinho - `curl ... | bash` - nao existe pasta
+# agent/ ao lado dele. Nesse caso o proprio script busca o restante no
+# repositorio publico, na MESMA referencia de onde ele veio.
+#
+# AGENT_REF e fixado numa TAG, nunca em `main`, de proposito: o painel gera o
+# comando de instalacao apontando para a versao que ele conhece. Assim um
+# painel antigo nunca instala um agente novo demais para ele.
+AGENT_REPO="sitespb/controle-vps"
+AGENT_REF="v1.1.0"
+
+# Executado por `curl ... | bash`, BASH_SOURCE fica VAZIO - e com `set -u`
+# isso seria "unbound variable" na primeira linha util do script. O fallback
+# para $0 resolve os dois modos: arquivo em disco e leitura pelo stdin.
+SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || echo /tmp)"
+BOOTSTRAP_TMP=""
+
+# Remove o download temporario aconteca o que acontecer.
+cleanup_bootstrap() {
+    [[ -n "$BOOTSTRAP_TMP" && -d "$BOOTSTRAP_TMP" ]] && rm -rf "$BOOTSTRAP_TMP"
+    return 0
+}
+trap cleanup_bootstrap EXIT
 
 # ---------------------------------------------------------------------------
 # Saida
@@ -84,8 +113,14 @@ while [[ $# -gt 0 ]]; do
         --no-verify-tls) VERIFY_TLS="false"; shift ;;
         --yes)           AUTO_YES=1; shift ;;
         --php)           PHP_BIN="${2:-}"; shift 2 ;;
+        --ref)           AGENT_REF="${2:-}"; shift 2 ;;
         -h|--help)
-            sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'
+            # Lido pelo stdin ($0 = "bash"), nao ha arquivo para reler.
+            if [[ -f "$0" ]]; then
+                sed -n '2,39p' "$0" | sed 's/^# \{0,1\}//'
+            else
+                echo "Ajuda completa em: https://github.com/${AGENT_REPO}/blob/${AGENT_REF}/agent/install.sh"
+            fi
             exit 0
             ;;
         *) die "Opcao desconhecida: $1  (use --help)" ;;
@@ -101,20 +136,27 @@ echo "  ============================================================"
 # ---------------------------------------------------------------------------
 title "Validando parametros"
 
-[[ -n "$SERVER_ID" ]]    || die "Informe --server-id (veja no painel, tela do servidor)."
 [[ -n "$SERVER_TOKEN" ]] || die "Informe --token (exibido uma unica vez no cadastro)."
 [[ -n "$CENTRAL_URL" ]]  || die "Informe --url (ex.: https://monitoramento.exemplo.com.br/api)."
 
-[[ "$SERVER_ID" =~ ^[0-9]+$ ]] || die "--server-id deve ser numerico."
-[[ "$INTERVAL"  =~ ^[0-9]+$ ]] || die "--interval deve ser numerico (segundos)."
+[[ "$INTERVAL" =~ ^[0-9]+$ ]] || die "--interval deve ser numerico (segundos)."
 
 if [[ ! "$SERVER_TOKEN" =~ ^cvps_[0-9]+_[a-f0-9]{64}$ ]]; then
     die "Formato de token invalido. Esperado: cvps_<id>_<64 caracteres hexadecimais>."
 fi
 
+# O ID do servidor JA VEM dentro do token (cvps_<id>_<hash>). Pedi-lo de novo
+# so criava uma chance a mais de erro de digitacao. Quando vier, conferimos.
 TOKEN_SERVER_ID="$(echo "$SERVER_TOKEN" | cut -d'_' -f2)"
-if [[ "$TOKEN_SERVER_ID" != "$SERVER_ID" ]]; then
-    die "O token pertence ao servidor #${TOKEN_SERVER_ID}, mas --server-id e ${SERVER_ID}."
+
+if [[ -z "$SERVER_ID" ]]; then
+    SERVER_ID="$TOKEN_SERVER_ID"
+else
+    [[ "$SERVER_ID" =~ ^[0-9]+$ ]] || die "--server-id deve ser numerico."
+
+    if [[ "$TOKEN_SERVER_ID" != "$SERVER_ID" ]]; then
+        die "O token pertence ao servidor #${TOKEN_SERVER_ID}, mas --server-id e ${SERVER_ID}."
+    fi
 fi
 
 if [[ ! "$CENTRAL_URL" =~ ^https:// ]]; then
@@ -408,7 +450,69 @@ fi
 # ---------------------------------------------------------------------------
 title "Instalando em ${INSTALL_PATH}"
 
-[[ -f "${SOURCE_DIR}/agent.php" ]] || die "agent.php nao encontrado em ${SOURCE_DIR}."
+# ---------------------------------------------------------------------------
+# Bootstrap: buscar o codigo do agente quando ele nao veio junto
+# ---------------------------------------------------------------------------
+# Acontece sempre que o instalador e baixado sozinho. Em vez de exigir que a
+# pessoa tenha o projeto na maquina local e faca scp, buscamos o agente no
+# repositorio publico, na referencia fixada em AGENT_REF.
+#
+# A confianca aqui vem do HTTPS somado a tag: o conteudo de uma tag nao muda
+# sozinho. Nao ha checksum publicado porque o tarball gerado pelo GitHub nao
+# tem hash estavel entre gerações - fixar a tag e a garantia real.
+bootstrap_agent() {
+    command -v tar >/dev/null 2>&1 || die "O comando 'tar' e necessario para baixar o agente."
+
+    local fetch=""
+
+    if command -v curl >/dev/null 2>&1; then
+        fetch="curl -fsSL --retry 2 -o"
+    elif command -v wget >/dev/null 2>&1; then
+        fetch="wget -q -O"
+    else
+        die "Nem curl nem wget encontrados. Instale um dos dois ou envie a pasta agent/ manualmente."
+    fi
+
+    BOOTSTRAP_TMP="$(mktemp -d)"
+
+    echo "         baixando o agente ${AGENT_REF} de github.com/${AGENT_REPO}"
+
+    # AGENT_REF normalmente e uma tag, mas aceitamos branch tambem: quem esta
+    # testando uma correcao quer poder pedir --ref main sem editar o script.
+    # Uma referencia inexistente devolve 404, e o erro precisa dizer isso - e
+    # nao "tar: arquivo corrompido" tres linhas depois.
+    local base="https://codeload.github.com/${AGENT_REPO}/tar.gz/refs"
+    local baixou=0
+
+    for tipo in tags heads; do
+        if $fetch "${BOOTSTRAP_TMP}/agente.tar.gz" "${base}/${tipo}/${AGENT_REF}" 2>/dev/null; then
+            baixou=1
+            break
+        fi
+    done
+
+    [[ "$baixou" -eq 1 ]] \
+        || die "Nao encontrei a referencia '${AGENT_REF}' em ${AGENT_REPO} (nem tag, nem branch). Confira --ref e a saida de internet do servidor."
+
+    tar -xzf "${BOOTSTRAP_TMP}/agente.tar.gz" -C "$BOOTSTRAP_TMP" \
+        || die "O arquivo baixado nao pode ser extraido."
+
+    # O GitHub empacota tudo dentro de <repo>-<ref>/, cujo nome varia conforme
+    # a tag. Procurar a pasta agent/ e mais robusto que montar o caminho.
+    local found
+    found="$(find "$BOOTSTRAP_TMP" -maxdepth 3 -type d -name agent -print -quit)"
+
+    [[ -n "$found" && -f "${found}/agent.php" ]] \
+        || die "O pacote ${AGENT_REF} nao contem a pasta agent/ esperada."
+
+    SOURCE_DIR="$found"
+
+    ok "Agente ${AGENT_REF} baixado."
+}
+
+if [[ ! -f "${SOURCE_DIR}/agent.php" ]]; then
+    bootstrap_agent
+fi
 
 mkdir -p "${INSTALL_PATH}/lib" "${INSTALL_PATH}/logs"
 

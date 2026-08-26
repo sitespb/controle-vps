@@ -97,8 +97,9 @@ final class ServerProvisionService
      * Monta as instrucoes de instalacao mostradas apos o cadastro.
      *
      * @return array{
-     *     install_command:string, config_block:string, cron_line:string,
-     *     api_url:string, interval:int, path:string
+     *     install_command:string, manual_command:string, config_block:string,
+     *     cron_line:string, api_url:string, interval:int, path:string,
+     *     script_url:string, agent_ref:string
      * }
      */
     public static function installationInstructions(int $serverId, string $token): array
@@ -107,10 +108,24 @@ final class ServerProvisionService
         $interval = (int) Config::get('monitoring.agent_interval', 300);
         $path     = '/opt/controle-vps-agent';
 
+        $repo = (string) Config::get('monitoring.agent_repo', 'sitespb/controle-vps');
+        $ref  = (string) Config::get('monitoring.agent_ref', 'v1.1.0');
+
+        $scriptUrl = sprintf('https://raw.githubusercontent.com/%s/%s/agent/install.sh', $repo, $ref);
+
+        // Comando unico: o instalador baixa o proprio agente da mesma tag.
+        // Nao pedimos --server-id porque ele ja esta dentro do token
+        // (cvps_<id>_<hash>) - um parametro a menos e um erro de digitacao a
+        // menos.
         $installCommand = implode("\n", [
-            '# 1. Envie a pasta agent/ do painel para o servidor e execute:',
+            sprintf('curl -fsSL %s \\', $scriptUrl),
+            sprintf('  | sudo bash -s -- --token %s \\', $token),
+            sprintf('                    --url %s', $apiUrl),
+        ]);
+
+        $manualCommand = implode("\n", [
+            '# Sem saida para a internet? Envie a pasta agent/ e rode:',
             sprintf('sudo bash %s/install.sh \\', $path),
-            sprintf('    --server-id %d \\', $serverId),
             sprintf('    --token %s \\', $token),
             sprintf('    --url %s', $apiUrl),
         ]);
@@ -140,11 +155,14 @@ final class ServerProvisionService
 
         return [
             'install_command' => $installCommand,
+            'manual_command'  => $manualCommand,
             'config_block'    => $configBlock,
             'cron_line'       => $cronLine,
             'api_url'         => $apiUrl,
             'interval'        => $interval,
             'path'            => $path,
+            'script_url'      => $scriptUrl,
+            'agent_ref'       => $ref,
         ];
     }
 

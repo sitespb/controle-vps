@@ -53,6 +53,17 @@ return [
     /* Intervalo esperado de coleta do agente, em segundos. */
     'agent_interval' => Env::int('AGENT_INTERVAL', 300),
 
+    /*
+     * De onde o instalador baixa o agente.
+     *
+     * `agent_ref` e uma TAG, nunca `main`: o comando que o painel exibe deve
+     * instalar a versao do agente que ESTE painel entende. Ao publicar uma
+     * versao nova do agente, suba a tag aqui junto com o painel - assim as
+     * duas pontas andam sempre no mesmo passo.
+     */
+    'agent_repo' => Env::get('AGENT_REPO', 'sitespb/controle-vps'),
+    'agent_ref'  => Env::get('AGENT_REF', 'v1.1.0'),
+
     /* Sem heartbeat por este periodo (segundos) => servidor OFFLINE. */
     'server_offline_after' => Env::int('SERVER_OFFLINE_AFTER', 600),
 

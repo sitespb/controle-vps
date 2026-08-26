@@ -120,30 +120,12 @@ $hasToken = $token !== null && $token !== '';
                     <div class="flex items-start gap-3">
                         <span class="flex-shrink-0 h-6 w-6 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">1</span>
                         <div class="min-w-0 flex-1">
-                            <p class="text-sm font-medium text-gray-900">Envie a pasta do agente para o servidor</p>
+                            <p class="text-sm font-medium text-gray-900">Rode este comando no VPS, como root</p>
                             <p class="text-xs text-gray-500 mt-1 mb-2">
-                                Copie a pasta <code class="px-1 py-0.5 bg-gray-100 rounded">agent/</code> deste projeto
-                                para <code class="px-1 py-0.5 bg-gray-100 rounded"><?= e($instructions['path']) ?></code> no VPS.
-                            </p>
-                            <div class="relative">
-                                <pre id="cmd-upload" class="bg-gray-900 text-gray-100 text-xs rounded-lg p-4 overflow-x-auto scrollbar-thin font-mono">scp -r agent/ root@<?= e($server['ip'] ?? 'IP_DO_SERVIDOR') ?>:<?= e($instructions['path']) ?></pre>
-                                <button type="button" data-copy="#cmd-upload"
-                                        class="absolute top-2 right-2 px-2 py-1 rounded bg-gray-800 text-gray-300 text-xs hover:bg-gray-700 transition-colors">
-                                    <span data-copy-label>Copiar</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-
-                <li>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 h-6 w-6 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">2</span>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-medium text-gray-900">Rode o instalador</p>
-                            <p class="text-xs text-gray-500 mt-1 mb-2">
-                                Ele cria o <code class="px-1 py-0.5 bg-gray-100 rounded">config.php</code>, ajusta as
-                                permissoes, registra o cron e faz um teste de conexao.
+                                E o unico passo. O instalador baixa o agente
+                                (<?= e($instructions['agent_ref']) ?>), escolhe o PHP 8.1+ do servidor,
+                                cria o <code class="px-1 py-0.5 bg-gray-100 rounded">config.php</code>,
+                                registra o cron e testa a conexao.
                             </p>
                             <div class="relative">
                                 <pre id="cmd-install" class="bg-gray-900 text-gray-100 text-xs rounded-lg p-4 overflow-x-auto scrollbar-thin font-mono"><?= e($instructions['install_command']) ?></pre>
@@ -163,7 +145,7 @@ $hasToken = $token !== null && $token !== '';
 
                 <li>
                     <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 h-6 w-6 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">3</span>
+                        <span class="flex-shrink-0 h-6 w-6 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">2</span>
                         <div class="min-w-0 flex-1">
                             <p class="text-sm font-medium text-gray-900">Conferindo manualmente (opcional)</p>
                             <p class="text-xs text-gray-500 mt-1 mb-2">
@@ -183,7 +165,7 @@ $hasToken = $token !== null && $token !== '';
 
                 <li>
                     <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 h-6 w-6 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">4</span>
+                        <span class="flex-shrink-0 h-6 w-6 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">3</span>
                         <div class="min-w-0 flex-1">
                             <p class="text-sm font-medium text-gray-900">Cron do agente</p>
                             <p class="text-xs text-gray-500 mt-1 mb-2">
@@ -208,7 +190,7 @@ $hasToken = $token !== null && $token !== '';
 
                 <li>
                     <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 h-6 w-6 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">5</span>
+                        <span class="flex-shrink-0 h-6 w-6 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">4</span>
                         <div class="min-w-0 flex-1">
                             <p class="text-sm font-medium text-gray-900">Primeira execucao</p>
                             <p class="text-xs text-gray-500 mt-1 mb-2">
