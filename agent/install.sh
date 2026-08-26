@@ -16,15 +16,19 @@
 #      --no-verify-tls       aceita certificado invalido no painel (homologacao)
 #      --yes                 instala automaticamente as extensoes PHP que
 #                             faltarem, sem perguntar (uso nao interativo)
+#      --php /caminho/php    usa este binario em vez de procurar sozinho
 #
 #  O que o script faz:
-#      1. confere os requisitos (PHP CLI e as extensoes curl, json, openssl,
-#         mbstring; se faltar alguma, detecta o gerenciador de pacotes e
-#         oferece o comando de instalacao, podendo instalar na hora)
-#      2. copia os arquivos do agente para o destino
-#      3. gera o config.php com permissao 600
-#      4. roda o teste de conectividade e autenticacao
-#      5. registra o cron
+#      1. escolhe o PHP 8.1+ do servidor - procurando primeiro os binarios
+#         gerenciados pelo painel (CyberPanel/lsphp, aaPanel, cPanel, Plesk)
+#         e so depois o PATH, porque o `php` do PATH costuma ser o do sistema
+#         e antigo demais
+#      2. confere as extensoes curl, json, openssl e mbstring; se faltar
+#         alguma, sugere o pacote certo para aquele PHP e pode instalar
+#      3. copia os arquivos do agente para o destino
+#      4. gera o config.php com permissao 600
+#      5. roda o teste de conectividade e autenticacao
+#      6. registra o cron com o caminho completo do PHP escolhido
 #
 #  O script NAO altera nada do CyberPanel, do OpenLiteSpeed ou do MySQL.
 #  Ele so instala o agente e agenda a coleta.
@@ -43,6 +47,7 @@ INSTALL_PATH="/opt/controle-vps-agent"
 SETUP_CRON=1
 VERIFY_TLS="true"
 AUTO_YES=0
+PHP_BIN=""
 
 SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -78,8 +83,9 @@ while [[ $# -gt 0 ]]; do
         --no-cron)       SETUP_CRON=0; shift ;;
         --no-verify-tls) VERIFY_TLS="false"; shift ;;
         --yes)           AUTO_YES=1; shift ;;
+        --php)           PHP_BIN="${2:-}"; shift 2 ;;
         -h|--help)
-            sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'
+            sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
         *) die "Opcao desconhecida: $1  (use --help)" ;;
@@ -126,16 +132,137 @@ if [[ "$EUID" -ne 0 ]]; then
     die "Rode como root: o agente precisa ler /etc/cyberpanel/mysqlPassword e /proc."
 fi
 
-command -v php >/dev/null 2>&1 || die "PHP CLI nao encontrado. Instale o pacote php-cli."
+# ---------------------------------------------------------------------------
+# Escolha do binario do PHP
+# ---------------------------------------------------------------------------
+# Em CyberPanel e aaPanel o `php` do PATH e o do SISTEMA - com frequencia 7.x -
+# enquanto o PHP 8 fica num caminho proprio do painel (lsphp83, /www/server/...).
+# Procurar so no PATH fazia o instalador recusar servidores perfeitamente
+# compativeis, que e o caso mais comum do produto. Por isso a cascata abaixo:
+# primeiro os PHP gerenciados pelo painel, do mais novo para o mais antigo,
+# depois os do PATH.
+#
+# Um binario so e aceito se for 8.1+. Nao aceitamos "o que existir": rodar o
+# agente num PHP velho falharia depois, no cron, em silencio.
 
-PHP_VERSION="$(php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;')"
-PHP_OK="$(php -r 'echo PHP_VERSION_ID >= 80100 ? 1 : 0;')"
+PHP_SEARCHED=()
+PHP_REJECTED=()
 
-if [[ "$PHP_OK" != "1" ]]; then
-    die "PHP ${PHP_VERSION} e antigo demais. O agente exige PHP 8.1 ou superior."
+php_version_of() {
+    "$1" -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;' 2>/dev/null
+}
+
+php_is_supported() {
+    [[ -x "$1" ]] || return 1
+    "$1" -r 'exit(PHP_VERSION_ID >= 80100 ? 0 : 1);' >/dev/null 2>&1
+}
+
+# Anota o candidato e devolve 0 quando ele serve.
+php_try() {
+    local bin="$1"
+
+    [[ -n "$bin" ]] || return 1
+
+    PHP_SEARCHED+=("$bin")
+
+    if [[ ! -x "$bin" ]]; then
+        return 1
+    fi
+
+    if php_is_supported "$bin"; then
+        return 0
+    fi
+
+    PHP_REJECTED+=("$bin ($(php_version_of "$bin"))")
+
+    return 1
+}
+
+detect_php() {
+    local candidate serie
+
+    # 1. CyberPanel / OpenLiteSpeed
+    for serie in 84 83 82 81; do
+        php_try "/usr/local/lsws/lsphp${serie}/bin/php" && return 0
+    done
+
+    # 2. aaPanel
+    for serie in 84 83 82 81; do
+        php_try "/www/server/php/${serie}/bin/php" && return 0
+    done
+
+    # 3. cPanel / EasyApache
+    for serie in 84 83 82 81; do
+        php_try "/opt/cpanel/ea-php${serie}/root/usr/bin/php" && return 0
+    done
+
+    # 4. Plesk
+    for serie in 8.4 8.3 8.2 8.1; do
+        php_try "/opt/plesk/php/${serie}/bin/php" && return 0
+    done
+
+    # 5. PATH, das versoes explicitas para a generica
+    for candidate in php8.4 php8.3 php8.2 php8.1 php; do
+        local resolved
+        resolved="$(command -v "$candidate" 2>/dev/null || true)"
+
+        [[ -n "$resolved" ]] && php_try "$resolved" && return 0
+    done
+
+    return 1
+}
+
+if [[ -n "$PHP_BIN" ]]; then
+    # Escolha explicita do operador: nao adivinhamos nada, mas ainda validamos.
+    [[ -x "$PHP_BIN" ]] || die "O PHP informado em --php nao existe ou nao e executavel: ${PHP_BIN}"
+
+    php_is_supported "$PHP_BIN" \
+        || die "O PHP informado em --php e $(php_version_of "$PHP_BIN"); o agente exige 8.1 ou superior."
+else
+    detect_php || {
+        fail "Nenhum PHP 8.1+ encontrado. Procurei em:"
+        for candidate in "${PHP_SEARCHED[@]}"; do
+            echo "         ${candidate}"
+        done
+
+        if [[ ${#PHP_REJECTED[@]} -gt 0 ]]; then
+            echo
+            fail "Encontrei estes, mas sao antigos demais:"
+            for candidate in "${PHP_REJECTED[@]}"; do
+                echo "         ${candidate}"
+            done
+        fi
+
+        echo
+        echo "  Saidas possiveis:"
+        echo "    - instale o PHP 8.1+ pelo seu painel (CyberPanel: Server > PHP);"
+        echo "    - ou aponte um binario existente: install.sh ... --php /caminho/do/php"
+        echo
+        exit 1
+    }
+
+    # O ultimo candidato anotado e o que passou.
+    PHP_BIN="${PHP_SEARCHED[-1]}"
 fi
 
-ok "PHP ${PHP_VERSION} ($(command -v php))"
+PHP_VERSION="$(php_version_of "$PHP_BIN")"
+
+# A "familia" do PHP muda o nome dos pacotes das extensoes: no lsphp do
+# CyberPanel a extensao pdo_mysql vem em lsphp83-mysqlnd, e nao em
+# php8.3-mysql. Sem isto, sugeririamos instalar pacote que nao existe.
+case "$PHP_BIN" in
+    /usr/local/lsws/lsphp*)  PHP_FLAVOR="lsphp" ;;
+    /www/server/php/*)       PHP_FLAVOR="aapanel" ;;
+    /opt/cpanel/ea-php*)     PHP_FLAVOR="cpanel" ;;
+    /opt/plesk/php/*)        PHP_FLAVOR="plesk" ;;
+    *)                       PHP_FLAVOR="system" ;;
+esac
+
+ok "PHP ${PHP_VERSION} (${PHP_BIN})"
+
+if [[ "$PHP_FLAVOR" != "system" ]]; then
+    echo "         binario do painel (${PHP_FLAVOR}) - o cron sera registrado com este caminho completo"
+fi
 
 # Gerenciador de pacotes - usado so para sugerir/instalar as extensoes que
 # faltarem. Se nao reconhecer nenhum, o script apenas orienta manualmente.
@@ -151,8 +278,25 @@ fi
 # Nome do pacote da extensao em cada gerenciador. Ex.: a extensao pdo_mysql
 # vem no pacote "php8.1-mysql" no Debian/Ubuntu, mas "php-mysqlnd" no
 # RHEL/AlmaLinux - por isso o caso especial.
+#
+# Quando o PHP escolhido pertence a um painel, o pacote NAO e o do PHP do
+# sistema: no lsphp do CyberPanel a extensao vem em "lsphp83-mysqlnd", e
+# instalar "php8.3-mysql" nao teria efeito nenhum sobre o binario em uso.
 pkg_name_for_ext() {
     local ext="$1"
+
+    if [[ "$PHP_FLAVOR" == "lsphp" ]]; then
+        # lsphp83 -> a serie sem ponto e a mesma do caminho do binario.
+        local serie="${PHP_VERSION/./}"
+
+        case "$ext" in
+            pdo_mysql) echo "lsphp${serie}-mysqlnd" ;;
+            *)         echo "lsphp${serie}-${ext}" ;;
+        esac
+
+        return
+    fi
+
     case "${PKG_MANAGER}:${ext}" in
         apt:pdo_mysql)               echo "php${PHP_VERSION}-mysql" ;;
         apt:*)                       echo "php${PHP_VERSION}-${ext}" ;;
@@ -168,7 +312,7 @@ OPTIONAL_EXT="pdo_mysql"
 MISSING=""
 MISSING_PKGS=""
 for ext in $REQUIRED_EXT; do
-    if php -m | grep -qi "^${ext}$"; then
+    if "$PHP_BIN" -m | grep -qi "^${ext}$"; then
         ok "extensao ${ext}"
     else
         MISSING="${MISSING} ${ext}"
@@ -178,7 +322,7 @@ done
 
 OPTIONAL_PKGS=""
 for ext in $OPTIONAL_EXT; do
-    if php -m | grep -qi "^${ext}$"; then
+    if "$PHP_BIN" -m | grep -qi "^${ext}$"; then
         ok "extensao ${ext}"
     else
         warn "extensao ${ext} ausente - a descoberta usara os vhosts do OpenLiteSpeed"
@@ -188,6 +332,21 @@ done
 
 if [[ -n "$MISSING" ]]; then
     fail "Extensoes obrigatorias ausentes:${MISSING}"
+
+    # Em cPanel, Plesk e aaPanel as extensoes se instalam PELA INTERFACE do
+    # painel; sair instalando pacote do sistema por baixo dele pode quebrar a
+    # instalacao. Nesses casos orientamos, mas nao mexemos.
+    case "$PHP_FLAVOR" in
+        aapanel)
+            die "Instale as extensoes${MISSING} em aaPanel > App Store > PHP ${PHP_VERSION} > Setting > Install extensions."
+            ;;
+        cpanel)
+            die "Instale as extensoes${MISSING} em WHM > EasyApache 4, na versao ea-php${PHP_VERSION/./}."
+            ;;
+        plesk)
+            die "Instale as extensoes${MISSING} pelo Plesk, em Tools & Settings > PHP Settings (PHP ${PHP_VERSION})."
+            ;;
+    esac
 
     if [[ -z "$PKG_MANAGER" ]]; then
         die "Gerenciador de pacotes nao reconhecido. Instale manualmente as extensoes PHP:${MISSING}"
@@ -222,7 +381,7 @@ if [[ -n "$MISSING" ]]; then
 
     STILL_MISSING=""
     for ext in $REQUIRED_EXT; do
-        php -m | grep -qi "^${ext}$" || STILL_MISSING="${STILL_MISSING} ${ext}"
+        "$PHP_BIN" -m | grep -qi "^${ext}$" || STILL_MISSING="${STILL_MISSING} ${ext}"
     done
     [[ -z "$STILL_MISSING" ]] || die "Ainda faltam extensoes apos a instalacao:${STILL_MISSING} (pode ser preciso reiniciar o PHP-FPM/servico correspondente)."
 
@@ -332,12 +491,12 @@ ok "config.php criado com permissao 600 (somente root)."
 # ---------------------------------------------------------------------------
 title "Testando conexao com o painel"
 
-if php "${INSTALL_PATH}/agent.php" --test --verbose; then
+if "$PHP_BIN" "${INSTALL_PATH}/agent.php" --test --verbose; then
     ok "Comunicacao com o painel funcionando."
     TEST_OK=1
 else
     fail "O teste de conexao falhou. O agente foi instalado, mas nao esta reportando."
-    warn "Corrija o problema apontado acima e rode: php ${INSTALL_PATH}/agent.php --test --verbose"
+    warn "Corrija o problema apontado acima e rode: ${PHP_BIN} ${INSTALL_PATH}/agent.php --test --verbose"
     TEST_OK=0
 fi
 
@@ -351,7 +510,9 @@ if [[ "$SETUP_CRON" -eq 1 ]]; then
     [[ "$CRON_MINUTES" -lt 1 ]] && CRON_MINUTES=1
     [[ "$CRON_MINUTES" -gt 59 ]] && CRON_MINUTES=59
 
-    PHP_BIN="$(command -v php)"
+    # O cron recebe o CAMINHO COMPLETO do PHP escolhido, e nao `php`: o
+    # ambiente do cron tem PATH minimo, e em CyberPanel/aaPanel o `php` do
+    # PATH e justamente o do sistema, antigo demais para o agente.
     CRON_LINE="*/${CRON_MINUTES} * * * * ${PHP_BIN} ${INSTALL_PATH}/agent.php >> ${INSTALL_PATH}/logs/cron.log 2>&1"
 
     # Remove a linha anterior deste mesmo agente antes de inserir a nova,
@@ -362,7 +523,7 @@ if [[ "$SETUP_CRON" -eq 1 ]]; then
     echo "       ${CRON_LINE}"
 else
     warn "Cron nao configurado (--no-cron). Adicione manualmente:"
-    echo "       */$(( INTERVAL / 60 )) * * * * $(command -v php) ${INSTALL_PATH}/agent.php >> ${INSTALL_PATH}/logs/cron.log 2>&1"
+    echo "       */$(( INTERVAL / 60 )) * * * * ${PHP_BIN} ${INSTALL_PATH}/agent.php >> ${INSTALL_PATH}/logs/cron.log 2>&1"
 fi
 
 # ---------------------------------------------------------------------------
@@ -383,9 +544,9 @@ echo "   Painel .......: ${CENTRAL_URL}"
 echo "   Intervalo ....: ${INTERVAL}s"
 echo
 echo "   Comandos uteis:"
-echo "     php ${INSTALL_PATH}/agent.php --verbose    executar agora, com detalhes"
-echo "     php ${INSTALL_PATH}/agent.php --test       so testar a conexao"
-echo "     php ${INSTALL_PATH}/agent.php --dry-run    coletar sem enviar"
+echo "     ${PHP_BIN} ${INSTALL_PATH}/agent.php --verbose    executar agora, com detalhes"
+echo "     ${PHP_BIN} ${INSTALL_PATH}/agent.php --test       so testar a conexao"
+echo "     ${PHP_BIN} ${INSTALL_PATH}/agent.php --dry-run    coletar sem enviar"
 echo "     tail -f ${INSTALL_PATH}/logs/agent-\$(date +%F).log"
 echo
 echo "   O agente somente COLETA e ENVIA. Ele nao executa nenhum comando"

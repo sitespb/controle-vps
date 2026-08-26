@@ -189,6 +189,11 @@ $hasToken = $token !== null && $token !== '';
                             <p class="text-xs text-gray-500 mt-1 mb-2">
                                 O instalador ja registra esta linha. Coleta a cada
                                 <?= (int) round($instructions['interval'] / 60) ?> minuto(s).
+                                Ele substitui <code class="font-mono">CAMINHO_DO_PHP</code> pelo
+                                binario PHP 8.1+ que encontrar no servidor — em CyberPanel e
+                                aaPanel o <code class="font-mono">php</code> do sistema costuma
+                                ser antigo demais. Para conferir depois:
+                                <code class="font-mono">crontab -l | grep agent.php</code>.
                             </p>
                             <div class="relative">
                                 <pre id="cron-line" class="bg-gray-900 text-gray-100 text-xs rounded-lg p-4 overflow-x-auto scrollbar-thin font-mono"><?= e($instructions['cron_line']) ?></pre>

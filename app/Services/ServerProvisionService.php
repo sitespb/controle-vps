@@ -122,8 +122,17 @@ final class ServerProvisionService
             "INTERVAL={$interval}",
         ]);
 
+        // CAMINHO_DO_PHP e um marcador PROPOSITAL, nao um esquecimento.
+        //
+        // O painel nao tem como saber qual binario existe no VPS: em
+        // CyberPanel o PHP 8 fica em /usr/local/lsws/lsphp83/bin/php, em
+        // aaPanel em /www/server/php/83/bin/php, e o `php` do PATH costuma
+        // ser o do sistema (7.x), que o agente nem consegue executar.
+        // Exibir um caminho fixo aqui produzia um cron que falha em silencio
+        // a cada 5 minutos. Quem resolve o caminho e o install.sh, que
+        // detecta o binario e registra a linha ja pronta.
         $cronLine = sprintf(
-            '*/%d * * * * /usr/bin/php %s/agent.php >> %s/logs/cron.log 2>&1',
+            '*/%d * * * * CAMINHO_DO_PHP %s/agent.php >> %s/logs/cron.log 2>&1',
             max(1, (int) round($interval / 60)),
             $path,
             $path
