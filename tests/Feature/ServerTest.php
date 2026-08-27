@@ -251,4 +251,62 @@ final class ServerTest extends TestCase
             'Recarregar a pagina nao pode exibir o token de novo.'
         );
     }
+
+    public function testTelaDoAgenteMostraOComandoUnicoDeInstalacao(): void
+    {
+        $created = ServerProvisionService::create(['name' => 'VPS Comando Unico'], $this->adminId);
+
+        $response = $this->request('GET', '/servidores/' . $created['server_id'] . '/agente');
+        $html     = $response->content();
+
+        $this->assertStatus(200, $response);
+
+        $this->assertContainsString(
+            'raw.githubusercontent.com',
+            $html,
+            'A tela deve trazer o comando que baixa o instalador.'
+        );
+
+        $this->assertContainsString(
+            'agent-watch',
+            $html,
+            'A tela deve trazer o bloco que acompanha o primeiro contato do agente.'
+        );
+
+        // O caminho do PHP nao pode ser chutado pelo painel: quem resolve e o
+        // instalador, no servidor. Ver PROGRESS.md, bug B2.
+        $this->assertNotContainsString(
+            '/usr/bin/php',
+            $html,
+            'A tela nao pode sugerir um caminho de PHP que ela nao tem como conhecer.'
+        );
+    }
+
+    public function testEstadoDoAgenteRespondeEmJson(): void
+    {
+        $created = ServerProvisionService::create(['name' => 'VPS Estado'], $this->adminId);
+
+        $response = $this->request('GET', '/api/v1/servers/' . $created['server_id'] . '/agent-status');
+
+        $this->assertStatus(200, $response);
+
+        $json = $this->decodeJson($response);
+
+        $this->assertTrue(
+            \array_key_exists('last_seen_at', $json['data']),
+            'O laco da tela compara last_seen_at: o campo precisa vir sempre.'
+        );
+
+        $this->assertNull(
+            $json['data']['last_seen_at'],
+            'Servidor recem-cadastrado ainda nao teve contato.'
+        );
+    }
+
+    public function testEstadoDoAgenteDeServidorInexistenteDa404(): void
+    {
+        $response = $this->request('GET', '/api/v1/servers/999999/agent-status');
+
+        $this->assertStatus(404, $response);
+    }
 }

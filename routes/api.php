@@ -65,6 +65,10 @@ $router->group(
         $router->get('/servers', [PanelController::class, 'servers']);
         $router->get('/servers/{id:\d+}/metrics', [PanelController::class, 'serverMetrics']);
 
+        // Consultado em laco pela tela de instalacao, enquanto o operador
+        // espera o agente dar o primeiro sinal de vida.
+        $router->get('/servers/{id:\d+}/agent-status', [PanelController::class, 'agentStatus']);
+
         $router->get('/sites', [PanelController::class, 'sites']);
         $router->get('/sites/{id:\d+}/checks', [PanelController::class, 'siteChecks']);
 

@@ -45,6 +45,35 @@ final class PanelController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/v1/servers/{id}/agent-status
+     *
+     * Consultado em laco pela tela de instalacao do agente, para responder
+     * sozinha a pergunta "deu certo?". Devolve so o que aquela tela precisa -
+     * um payload minusculo, porque e pedido a cada poucos segundos enquanto
+     * alguem espera o agente aparecer.
+     *
+     * Quem decide se "conectou" e o navegador, comparando last_seen_at com o
+     * valor que ele ja tinha. Assim um servidor que ja reportava ontem nao
+     * aparece como recem-conectado ao abrir a pagina.
+     */
+    public function agentStatus(Request $request): Response
+    {
+        $server = Server::find($request->routeInt('id'));
+
+        if ($server === null) {
+            throw HttpException::notFound('Servidor nao encontrado.');
+        }
+
+        return $this->apiOk([
+            'status'        => $server['status'],
+            'last_seen_at'  => $server['last_seen_at'],
+            'last_seen_ago' => time_ago($server['last_seen_at']),
+            'agent_version' => $server['agent_version'],
+            'checked_at'    => now_string(),
+        ]);
+    }
+
     /** GET /api/v1/servers */
     public function servers(Request $request): Response
     {
