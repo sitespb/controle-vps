@@ -861,8 +861,55 @@ do endpoint usa `"message"`. Vale a referência.
 
 ### Testes
 
-15 novos (136 no total): ida e volta da cifragem, IV nunca repetido, valor
+16 novos (137 no total): ida e volta da cifragem, IV nunca repetido, valor
 adulterado recusado, senha ilegível no banco, campo vazio mantém o segredo,
 parsing de destinatários, canal desligado, janela por domínio, falha não
 bloqueia a próxima, teto por hora, domínio silenciado, "ciente" se desfazendo
-sozinho, e acesso à tela por perfil.
+sozinho, formato da resposta dos testes, e acesso à tela por perfil.
+
+### Dois bugs que só o uso em produção revelou
+
+Ambos passaram por 136 testes verdes e pelo deploy. Nenhum teste os pegaria,
+porque os dois nascem de **integração** — um com o front-end do próprio
+painel, outro com o comportamento real da API de terceiro.
+
+**1. "Erro HTTP 200" no teste de WhatsApp.** O helper de API do painel
+(`public/assets/js/app.js`) trata `ok:false` no **envelope** como falha de
+requisição e monta a mensagem a partir de `payload.error.message`. O controller
+devolvia `error` como string, não como objeto — o helper não achava `.message`
+e caía no texto genérico, engolindo exatamente o motivo que o operador precisa
+ler.
+
+O teste de e-mail passava por acidente: retornava `ok:true` e nunca entrava
+nesse ramo. Só o caminho de falha expunha o problema.
+
+Correção: o resultado do teste viaja dentro de uma resposta **bem-sucedida** —
+do ponto de vista do HTTP a requisição funcionou mesmo; quem falhou foi o SMTP
+ou a RyzeAPI lá fora. Erro de validação de entrada continua sendo `apiError`,
+que é o caso em que a requisição realmente está errada.
+
+**2. Teste do WhatsApp aprovava instância com nome errado.** A tela dizia
+`Estado da instancia: connected` e o envio seguinte falhava com
+`Instance not found` — duas respostas contraditórias para a mesma configuração.
+
+A causa está na documentação da RyzeAPI: o filtro `?instanceName=` **só funciona
+com TokenAccount**. Com TokenInstance — que é o que recomendamos, por
+comprometer uma instância e não a conta inteira se vazar — o filtro é
+**ignorado**, e a API devolve a instância dona do token com qualquer nome que se
+peça. O teste lia isso como "o nome está certo", quando o nome nunca havia sido
+verificado.
+
+Correção: `instanceState()` passou a devolver também o **nome real**, e o teste
+compara com o configurado. Um nome errado agora diz qual é o certo, em vez de
+aprovar a configuração e falhar só no primeiro aviso de verdade — de
+madrugada, quando um site cai.
+
+A lição das duas: um teste de configuração que só confirma "consegui falar com
+o serviço" dá falso positivo. Ele precisa confirmar que falou com **o alvo
+certo**, e o caminho de falha precisa ser exercitado tanto quanto o de sucesso.
+
+### Estado em produção
+
+Ambos os canais validados de ponta a ponta em 27/08/2026: e-mail pelo SMTP do
+Gmail com senha de app, e WhatsApp pela instância `Atendimento` da RyzeAPI,
+com mensagem recebida no aparelho.
