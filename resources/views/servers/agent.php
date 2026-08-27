@@ -420,11 +420,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const visto = dados.last_seen_at || '';
 
             if (visto !== '' && visto !== inicial) {
+                // Instalar pela primeira vez e ver um servidor que ja rodava
+                // ha meses reportar de novo sao situacoes diferentes: chamar
+                // as duas de "primeiro contato" seria mentira na segunda.
+                const primeiraVez = inicial === '';
+                const versao = dados.agent_version ? ' - agente v' + dados.agent_version : '';
+
                 pintar('bg-green-500');
-                titulo.textContent = 'Agente conectado.';
-                detalhe.textContent = 'Primeiro contato recebido'
-                    + (dados.agent_version ? ' - agente v' + dados.agent_version : '')
-                    + '. A coleta segue pelo cron a partir de agora.';
+
+                titulo.textContent = primeiraVez
+                    ? 'Agente conectado.'
+                    : 'Agente reportando normalmente.';
+
+                detalhe.textContent = primeiraVez
+                    ? 'Primeiro contato recebido' + versao + '. A coleta segue pelo cron a partir de agora.'
+                    : 'Contato recebido agora' + versao + '.';
 
                 clearInterval(timer);
                 return;
