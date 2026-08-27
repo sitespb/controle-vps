@@ -94,6 +94,53 @@ final class Site extends Model
     }
 
     /**
+     * O operador marcou "ciente" neste dominio?
+     *
+     * Consultado antes de cada aviso. E uma leitura por site por ciclo, mas
+     * pela chave primaria - mais barato do que carregar a linha inteira so
+     * para ler um flag.
+     */
+    public static function isNotifyMuted(int $siteId): bool
+    {
+        return (int) Database::scalar(
+            'SELECT notify_muted FROM sites WHERE id = ?',
+            [$siteId]
+        ) === 1;
+    }
+
+    /** Liga ou desliga o "ciente" de um dominio. */
+    public static function setNotifyMuted(int $siteId, bool $muted, ?int $userId = null): void
+    {
+        Database::update('sites', [
+            'notify_muted'    => $muted ? 1 : 0,
+            'notify_muted_at' => $muted ? now_string() : null,
+            'notify_muted_by' => $muted ? $userId : null,
+            'updated_at'      => now_string(),
+        ], ['id' => $siteId]);
+    }
+
+    /**
+     * Desfaz o "ciente" quando o site volta a responder.
+     *
+     * E o que torna o switcher seguro de usar: quem silencia um dominio hoje
+     * nao precisa lembrar de reativa-lo, e uma queda futura volta a avisar
+     * normalmente. Esquecer um dominio silenciado para sempre seria pior do
+     * que o ruido que o switcher veio resolver.
+     *
+     * @return bool true quando havia algo a limpar
+     */
+    public static function clearNotifyMuted(int $siteId): bool
+    {
+        $affected = Database::statement(
+            'UPDATE sites SET notify_muted = 0, notify_muted_at = NULL, notify_muted_by = NULL, updated_at = ?
+             WHERE id = ? AND notify_muted = 1',
+            [now_string(), $siteId]
+        );
+
+        return $affected > 0;
+    }
+
+    /**
      * Marca como "nao descobertos" os dominios que sumiram da ultima lista
      * enviada pelo agente. Nao apaga: preserva historico (secao 21 do PLAN).
      *

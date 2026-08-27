@@ -67,6 +67,19 @@ return [
     /* Sem heartbeat por este periodo (segundos) => servidor OFFLINE. */
     'server_offline_after' => Env::int('SERVER_OFFLINE_AFTER', 600),
 
+    /*
+     * Limite de envio dos avisos (e-mail e WhatsApp).
+     *
+     * As duas camadas resolvem problemas diferentes: a janela por dominio
+     * evita que um site instavel avise a cada coleta; o teto por hora evita
+     * que a queda de um servidor inteiro dispare dezenas de mensagens de uma
+     * vez e o provedor bloqueie a conta.
+     */
+    'notify' => [
+        'window_minutes' => Env::int('NOTIFY_WINDOW_MINUTES', 360), // 6h por dominio
+        'hourly_cap'     => Env::int('NOTIFY_HOURLY_CAP', 20),      // por canal
+    ],
+
     /* Retencao de dados, em dias. 0 desativa a limpeza daquele conjunto. */
     'retention' => [
         'metrics'     => Env::int('METRICS_RETENTION_DAYS', 30),

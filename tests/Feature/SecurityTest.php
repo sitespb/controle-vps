@@ -243,6 +243,13 @@ final class SecurityTest extends TestCase
         $this->assertStatus(403, $this->request('GET', '/configuracoes'));
     }
 
+    public function testOperadorNaoAcessaAvisos(): void
+    {
+        $this->loginAs($this->operatorId, 'operator');
+
+        $this->assertStatus(403, $this->request('GET', '/avisos'));
+    }
+
     public function testOperadorNaoAcessaLogs(): void
     {
         $this->loginAs($this->operatorId, 'operator');
@@ -263,7 +270,7 @@ final class SecurityTest extends TestCase
     {
         $this->loginAs($this->adminId, 'admin');
 
-        foreach (['/', '/servidores', '/sites', '/metricas', '/alertas', '/usuarios', '/configuracoes', '/logs'] as $path) {
+        foreach (['/', '/servidores', '/sites', '/metricas', '/alertas', '/usuarios', '/configuracoes', '/avisos', '/logs'] as $path) {
             $this->assertStatus(200, $this->request('GET', $path), "Falhou em {$path}.");
         }
     }

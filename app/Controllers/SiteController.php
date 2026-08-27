@@ -13,6 +13,8 @@ use App\Models\Site;
 use App\Models\SiteCheck;
 use App\Repositories\AlertRepository;
 use App\Repositories\SiteRepository;
+use App\Services\AuditService;
+use App\Services\AuthService;
 use App\Services\HttpStatusService;
 
 /**
@@ -97,6 +99,41 @@ final class SiteController extends Controller
             'alerts'      => (new AlertRepository())->forSite($id, 10),
             'hours'       => $hours,
         ]);
+    }
+
+    /**
+     * Liga/desliga o "estou ciente" do dominio.
+     *
+     * Enquanto ligado, este dominio nao gera aviso por e-mail nem WhatsApp.
+     * A marcacao se desfaz sozinha quando o site volta a responder (ver
+     * AlertService::siteCameBack) - ninguem precisa lembrar de reativar.
+     */
+    public function toggleNotify(Request $request): Response
+    {
+        $this->authorizeRole('admin');
+
+        $id   = $request->routeInt('id');
+        $site = Site::find($id);
+
+        if ($site === null) {
+            throw HttpException::notFound('Site nao encontrado.');
+        }
+
+        $muted = !$request->input('ciente');
+
+        Site::setNotifyMuted($id, $muted, AuthService::id());
+
+        AuditService::log(
+            $muted ? 'site.notify.muted' : 'site.notify.unmuted',
+            sprintf('Avisos de %s %s', $site['domain'], $muted ? 'silenciados' : 'reativados'),
+            ['entity_type' => 'site', 'entity_id' => $id]
+        );
+
+        $this->flashSuccess($muted
+            ? sprintf('Voce esta ciente de %s. Nao enviaremos avisos deste dominio ate ele voltar ao ar.', $site['domain'])
+            : sprintf('Avisos de %s reativados.', $site['domain']));
+
+        return $this->redirect('/sites/' . $id);
     }
 
     private function validStatus(string $status): string

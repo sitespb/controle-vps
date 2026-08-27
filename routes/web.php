@@ -24,6 +24,7 @@ use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\LogController;
 use App\Controllers\MetricsController;
+use App\Controllers\NotifyController;
 use App\Controllers\ServerController;
 use App\Controllers\SettingsController;
 use App\Controllers\SiteController;
@@ -66,6 +67,9 @@ $router->group(['middleware' => ['auth']], static function ($router): void {
     $router->get('/sites', [SiteController::class, 'index']);
     $router->get('/sites/{id:\d+}', [SiteController::class, 'show']);
 
+    // "Estou ciente": silencia os avisos deste dominio ate ele voltar ao ar.
+    $router->post('/sites/{id:\d+}/ciente', [SiteController::class, 'toggleNotify'], ['role:admin', 'csrf']);
+
     // Monitoramento ---------------------------------------------------------
     $router->get('/metricas', [MetricsController::class, 'index']);
 
@@ -84,6 +88,15 @@ $router->group(['middleware' => ['auth']], static function ($router): void {
 
     $router->get('/configuracoes', [SettingsController::class, 'index'], ['role:admin']);
     $router->post('/configuracoes', [SettingsController::class, 'update'], ['role:admin', 'csrf']);
+
+    // Avisos ao administrador -----------------------------------------------
+    // Os testes tem throttle proprio: cada clique fala com um provedor
+    // externo, e um botao e facil de martelar sem querer.
+    $router->get('/avisos', [NotifyController::class, 'index'], ['role:admin']);
+    $router->post('/avisos/email', [NotifyController::class, 'updateEmail'], ['role:admin', 'csrf']);
+    $router->post('/avisos/whatsapp', [NotifyController::class, 'updateWhatsapp'], ['role:admin', 'csrf']);
+    $router->post('/avisos/email/testar', [NotifyController::class, 'testEmail'], ['role:admin', 'throttle:10,600,notify-test', 'csrf']);
+    $router->post('/avisos/whatsapp/testar', [NotifyController::class, 'testWhatsapp'], ['role:admin', 'throttle:10,600,notify-test', 'csrf']);
 
     $router->get('/logs', [LogController::class, 'index'], ['role:admin']);
 });

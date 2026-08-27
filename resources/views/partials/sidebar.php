@@ -140,6 +140,15 @@ $navClass = static function (bool $active): string {
                 <span x-show="!sidebarCollapsed" x-cloak class="nav-label ml-3 truncate">Sistema</span>
             </a>
 
+            <a href="<?= e(url('/avisos')) ?>" data-tooltip="Avisos"
+               class="group relative flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 <?= $navClass($activeNav === 'notify') ?>">
+                <svg class="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+                <span x-show="!sidebarCollapsed" x-cloak class="nav-label ml-3 truncate">Avisos</span>
+            </a>
+
             <a href="<?= e(url('/logs')) ?>" data-tooltip="Logs"
                class="group relative flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 <?= $navClass($activeNav === 'logs') ?>">
                 <svg class="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

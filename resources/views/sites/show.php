@@ -61,6 +61,53 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
 </div>
 
 <!-- ======================================================================
+     CIENTE - silencia os avisos deste dominio
+     ======================================================================
+     Aparece apenas para admin. Fica no topo, junto do status, porque e a
+     acao que o operador quer tomar no exato momento em que abre a pagina de
+     um site que caiu: "ja sei, para de me avisar".
+     ====================================================================== -->
+<?php if (($currentUser['role'] ?? '') === 'admin') : ?>
+    <?php $muted = (int) ($site['notify_muted'] ?? 0) === 1; ?>
+
+    <div class="bg-white rounded-xl shadow-sm border <?= $muted ? 'border-amber-200' : 'border-gray-200' ?> p-4 mb-6">
+        <form method="POST" action="<?= e(url('/sites/' . $site['id'] . '/ciente')) ?>"
+              class="flex items-center justify-between gap-4">
+            <?= csrf_field() ?>
+
+            <!-- Estado atual vai no POST; o controller inverte. Assim o
+                 switcher funciona sem JavaScript nenhum. -->
+            <?php if ($muted) : ?>
+                <input type="hidden" name="ciente" value="1">
+            <?php endif; ?>
+
+            <div class="min-w-0">
+                <p class="text-sm font-medium text-gray-900">
+                    <?= $muted ? 'Voce esta ciente deste dominio' : 'Avisos ativos para este dominio' ?>
+                </p>
+                <p class="text-xs text-gray-500 mt-0.5">
+                    <?php if ($muted) : ?>
+                        Nenhum aviso de indisponibilidade sera enviado
+                        <?php if ($site['notify_muted_at'] !== null) : ?>
+                            &middot; marcado <?= e(time_ago($site['notify_muted_at'])) ?>
+                        <?php endif; ?>
+                        &middot; volta sozinho quando o site responder de novo.
+                    <?php else : ?>
+                        Marque como ciente para parar de receber e-mail e WhatsApp deste dominio.
+                    <?php endif; ?>
+                </p>
+            </div>
+
+            <button type="submit" role="switch" aria-checked="<?= $muted ? 'true' : 'false' ?>"
+                    aria-label="<?= $muted ? 'Reativar avisos deste dominio' : 'Marcar como ciente e silenciar avisos' ?>"
+                    class="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary <?= $muted ? 'bg-amber-500' : 'bg-gray-300' ?>">
+                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform <?= $muted ? 'translate-x-6' : 'translate-x-1' ?>"></span>
+            </button>
+        </form>
+    </div>
+<?php endif; ?>
+
+<!-- ======================================================================
      STATUS PRINCIPAL
      ====================================================================== -->
 <div class="bg-white rounded-xl shadow-sm border <?= $isOffline ? 'border-red-200' : 'border-gray-200' ?> p-6 mb-6">

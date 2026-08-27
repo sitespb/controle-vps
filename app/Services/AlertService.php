@@ -9,6 +9,7 @@ use App\Core\Database;
 use App\Core\Logger;
 use App\Models\Alert;
 use App\Models\AlertEvent;
+use App\Models\Site;
 
 /**
  * Motor de alertas (secoes 18, 19, 28 e 29 do PLAN).
@@ -302,11 +303,31 @@ final class AlertService
                 'value'     => $httpStatus === null ? null : (float) $httpStatus,
             ]
         );
+
+        // Avisa o operador fora do painel. Quem decide se a mensagem sai de
+        // fato e o NotificationService: canal ligado, dominio nao silenciado,
+        // janela e teto respeitados.
+        //
+        // O try/catch e essencial: um SMTP fora do ar nao pode impedir que o
+        // alerta - que ja foi gravado acima - conte como registrado.
+        try {
+            NotificationService::siteOffline($siteId, $domain, $httpStatus, $error);
+        } catch (\Throwable $e) {
+            Logger::error('Falha ao enviar aviso de site offline: ' . $e->getMessage(), [
+                'site_id' => $siteId,
+                'domain'  => $domain,
+            ]);
+        }
     }
 
     /** @return bool true quando havia um alerta aberto e ele foi resolvido. */
     public static function siteCameBack(int $siteId, int $serverId, string $domain): bool
     {
+        // O "ciente" existe para calar um problema conhecido. Com o site de
+        // volta, o problema acabou - manter o silencio faria a proxima queda
+        // passar despercebida.
+        Site::clearNotifyMuted($siteId);
+
         return self::resolve(
             Alert::TYPE_SITE_OFFLINE,
             $serverId,

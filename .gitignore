@@ -27,3 +27,7 @@ Desktop.ini
 *.log
 .idea/
 .vscode/
+
+# Documentacao de terceiros usada como referencia local (846 KB).
+# Nao e nossa para redistribuir, e o repositorio e publico.
+/.agents/ryzeapi-full.txt

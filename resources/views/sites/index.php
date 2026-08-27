@@ -218,6 +218,10 @@ $hasFilters = !empty($filters['search'])
                                 <?php if ((int) $site['is_demo'] === 1) : ?>
                                     <span class="ml-1.5 px-1.5 py-0.5 bg-purple-100 text-purple-800 text-[10px] font-bold uppercase tracking-wider rounded">Demo</span>
                                 <?php endif; ?>
+                                <?php if ((int) ($site['notify_muted'] ?? 0) === 1) : ?>
+                                    <span title="Voce marcou ciente: avisos deste dominio estao silenciados ate ele voltar ao ar"
+                                          class="ml-1.5 px-1.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider rounded">Ciente</span>
+                                <?php endif; ?>
                             </td>
 
                             <td class="px-4 py-3 whitespace-nowrap">
