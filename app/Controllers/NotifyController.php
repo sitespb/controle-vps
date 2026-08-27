@@ -151,7 +151,7 @@ final class NotifyController extends Controller
         $to = trim((string) $request->string('to'));
 
         if ($to === '' || filter_var($to, \FILTER_VALIDATE_EMAIL) === false) {
-            return $this->json(['ok' => false, 'error' => 'Informe um e-mail valido para o teste.'], 422);
+            return $this->apiError('Informe um e-mail valido para o teste.', 422, 'invalid_email');
         }
 
         $resultado = NotificationService::testEmail($to);
@@ -160,7 +160,12 @@ final class NotifyController extends Controller
             'context' => ['destino' => $to, 'resultado' => $resultado['ok'] ? 'ok' : 'falha'],
         ]);
 
-        return $this->json([
+        // apiOk mesmo quando o teste falha, e nao apiError: do ponto de vista
+        // do HTTP a requisicao funcionou - o que falhou foi o SMTP la fora. O
+        // helper de API do painel trata `ok:false` no envelope como erro de
+        // requisicao e substitui a mensagem por um texto generico, engolindo
+        // justamente o motivo que o operador precisa ler.
+        return $this->apiOk([
             'ok'     => $resultado['ok'],
             'error'  => $resultado['error'],
             'detail' => $resultado['detail'],
@@ -182,7 +187,9 @@ final class NotifyController extends Controller
             ],
         ]);
 
-        return $this->json([
+        // Ver o comentario em testEmail(): o resultado do teste viaja dentro
+        // de uma resposta bem-sucedida, para que a mensagem real chegue a tela.
+        return $this->apiOk([
             'ok'     => $resultado['ok'],
             'error'  => $resultado['error'],
             'detail' => $resultado['detail'],

@@ -276,6 +276,43 @@ final class NotificationTest extends TestCase
     }
 
     // =================================================================
+    // Formato da resposta dos testes de canal
+    // =================================================================
+
+    public function testFalhaNoTesteChegaComOMotivoNaTela(): void
+    {
+        // O helper de API do painel trata `ok:false` no ENVELOPE como erro de
+        // requisicao e troca a mensagem por um texto generico ("Erro HTTP
+        // 200"). Por isso o resultado do teste viaja dentro de uma resposta
+        // bem-sucedida: o envelope diz que a requisicao funcionou, e o corpo
+        // diz que o SMTP/WhatsApp la fora falhou - com o motivo legivel.
+        $adminId = \App\Models\User::create([
+            'name'          => 'Admin dos Avisos',
+            'email'         => 'admin.avisos@teste.local',
+            'password_hash' => \App\Models\User::hashPassword('SenhaDeTeste@2026'),
+            'role'          => 'admin',
+            'status'        => 'active',
+        ]);
+
+        $this->loginAs($adminId, 'admin');
+
+        // Sem instancia nem token configurados, o cliente falha sem rede.
+        $response = $this->request('POST', '/avisos/whatsapp/testar', [
+            'to'     => '5583999999999',
+            '_token' => $this->csrfToken(),
+        ]);
+
+        $this->assertStatus(200, $response, 'A requisicao em si funcionou; quem falhou foi o servico externo.');
+
+        $json = $this->decodeJson($response);
+
+        $this->assertTrue($json['ok'], 'O envelope precisa indicar sucesso para a mensagem real chegar a tela.');
+        $this->assertFalse($json['data']['ok'], 'O corpo e que carrega o resultado do teste.');
+        $this->assertNotEquals('', (string) $json['data']['error'], 'O motivo nao pode chegar vazio.');
+        $this->assertContainsString('configurados', (string) $json['data']['error']);
+    }
+
+    // =================================================================
     // Auxiliares
     // =================================================================
 
