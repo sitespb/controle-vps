@@ -5,7 +5,7 @@
 # ============================================================================
 #
 #  Uso (o comando pronto esta no painel, na tela do servidor):
-#      curl -fsSL https://raw.githubusercontent.com/sitespb/controle-vps/v1.1.0/agent/install.sh \
+#      curl -fsSL https://raw.githubusercontent.com/sitespb/controle-vps/v1.1.1/agent/install.sh \
 #        | sudo bash -s -- --token cvps_27_xxxxxxxx \
 #                          --url https://monitoramento.exemplo.com.br/api
 #
@@ -20,7 +20,9 @@
 #      --yes                 instala automaticamente as extensoes PHP que
 #                             faltarem, sem perguntar (uso nao interativo)
 #      --php /caminho/php    usa este binario em vez de procurar sozinho
-#      --ref v1.1.0          versao do agente a baixar (padrao: a deste script)
+#      --ref v1.1.1          versao do agente a baixar (padrao: a deste script)
+#      --force               substitui um agente ja instalado que pertence a
+#                             OUTRO servidor (sem isto, o script recusa)
 #
 #  O que o script faz:
 #      1. escolhe o PHP 8.1+ do servidor - procurando primeiro os binarios
@@ -53,6 +55,7 @@ SETUP_CRON=1
 VERIFY_TLS="true"
 AUTO_YES=0
 PHP_BIN=""
+FORCE=0
 
 # ---------------------------------------------------------------------------
 # Origem do codigo do agente (modo bootstrap)
@@ -65,7 +68,7 @@ PHP_BIN=""
 # comando de instalacao apontando para a versao que ele conhece. Assim um
 # painel antigo nunca instala um agente novo demais para ele.
 AGENT_REPO="sitespb/controle-vps"
-AGENT_REF="v1.1.0"
+AGENT_REF="v1.1.1"
 
 # Executado por `curl ... | bash`, BASH_SOURCE fica VAZIO - e com `set -u`
 # isso seria "unbound variable" na primeira linha util do script. O fallback
@@ -114,10 +117,11 @@ while [[ $# -gt 0 ]]; do
         --yes)           AUTO_YES=1; shift ;;
         --php)           PHP_BIN="${2:-}"; shift 2 ;;
         --ref)           AGENT_REF="${2:-}"; shift 2 ;;
+        --force)         FORCE=1; shift ;;
         -h|--help)
             # Lido pelo stdin ($0 = "bash"), nao ha arquivo para reler.
             if [[ -f "$0" ]]; then
-                sed -n '2,39p' "$0" | sed 's/^# \{0,1\}//'
+                sed -n '2,41p' "$0" | sed 's/^# \{0,1\}//'
             else
                 echo "Ajuda completa em: https://github.com/${AGENT_REPO}/blob/${AGENT_REF}/agent/install.sh"
             fi
@@ -449,6 +453,35 @@ fi
 # 3. Instalacao dos arquivos
 # ---------------------------------------------------------------------------
 title "Instalando em ${INSTALL_PATH}"
+
+# ---------------------------------------------------------------------------
+# Protecao: ja existe um agente de OUTRO servidor neste diretorio
+# ---------------------------------------------------------------------------
+# Sem esta checagem, reinstalar por engano no caminho padrao troca a
+# identidade do agente: o servidor antigo para de reportar e os dados deste
+# VPS passam a chegar no painel como se fossem de outro. O config anterior
+# fica salvo em .bak, mas ninguem percebe o problema ate dar falta dos dados.
+# Trocar a identidade tem que ser um ato deliberado.
+EXISTING_CONFIG="${INSTALL_PATH}/config.php"
+
+if [[ -f "$EXISTING_CONFIG" ]]; then
+    EXISTING_ID="$(grep -oE "'SERVER_ID'[[:space:]]*=>[[:space:]]*[0-9]+" "$EXISTING_CONFIG" 2>/dev/null | grep -oE '[0-9]+$' || true)"
+
+    if [[ -n "$EXISTING_ID" && "$EXISTING_ID" != "$SERVER_ID" ]]; then
+        fail "Ja existe um agente em ${INSTALL_PATH}, e ele pertence ao servidor #${EXISTING_ID}."
+        echo
+        echo "  Continuar faria o servidor #${EXISTING_ID} parar de reportar, e os dados"
+        echo "  deste VPS passariam a chegar no painel como se fossem do #${SERVER_ID}."
+        echo
+        echo "  Se e mesmo isso que voce quer:  ... --force"
+        echo "  Para instalar os dois lado a lado:  ... --path /opt/outro-agente"
+        echo
+
+        [[ "$FORCE" -eq 1 ]] || exit 1
+
+        warn "--force informado: assumindo a identidade do servidor #${SERVER_ID} no lugar do #${EXISTING_ID}."
+    fi
+fi
 
 # ---------------------------------------------------------------------------
 # Bootstrap: buscar o codigo do agente quando ele nao veio junto
