@@ -214,6 +214,32 @@ final class NotificationService
 
         $detail = ['Estado da instancia: ' . ($estado['state'] ?? 'desconhecido')];
 
+        $configurada = (string) ($config['instance'] ?? '');
+        $real        = (string) ($estado['name'] ?? '');
+
+        // O filtro por nome da RyzeAPI e ignorado quando se usa TokenInstance:
+        // ela devolve a instancia dona do token, com qualquer nome pedido. Sem
+        // esta comparacao, um nome errado passaria como "conectado" aqui e so
+        // falharia no primeiro envio real, com um "Instance not found" que nao
+        // aponta para o campo errado.
+        if ($real !== '' && strcasecmp($real, $configurada) !== 0) {
+            return [
+                'ok'    => false,
+                'error' => sprintf(
+                    'O token pertence a instancia "%s", mas voce configurou "%s". '
+                    . 'Corrija o nome da instancia para "%s" e salve.',
+                    $real,
+                    $configurada,
+                    $real
+                ),
+                'detail' => array_merge($detail, ['Nome real da instancia: ' . $real]),
+            ];
+        }
+
+        if ($real !== '') {
+            $detail[] = 'Nome da instancia confere: ' . $real;
+        }
+
         if (!$estado['connected']) {
             return [
                 'ok'     => false,

@@ -90,12 +90,25 @@ final class RyzeApiClient
      * Consultar antes de enviar responde a pergunta util ("a instancia esta
      * conectada?") sem gastar uma mensagem de WhatsApp de verdade.
      *
-     * @return array{ok:bool,error:?string,state:?string,connected:bool}
+     * IMPORTANTE: o filtro `?instanceName=` da API so funciona com
+     * TokenAccount. Com TokenInstance - que e o que recomendamos - ele e
+     * IGNORADO, e a resposta traz a instancia dona do token, qualquer que
+     * seja o nome pedido. Por isso devolvemos tambem o nome REAL: sem
+     * compara-lo, um nome digitado errado passaria no teste como "conectado"
+     * e so falharia no primeiro envio de verdade, com "Instance not found".
+     *
+     * @return array{ok:bool,error:?string,state:?string,name:?string,connected:bool}
      */
     public function instanceState(): array
     {
         if ($this->instance === '' || $this->token === '') {
-            return ['ok' => false, 'error' => 'Instancia ou token nao configurados.', 'state' => null, 'connected' => false];
+            return [
+                'ok'        => false,
+                'error'     => 'Instancia ou token nao configurados.',
+                'state'     => null,
+                'name'      => null,
+                'connected' => false,
+            ];
         }
 
         $response = $this->request(
@@ -104,52 +117,78 @@ final class RyzeApiClient
         );
 
         if (!$response['ok']) {
-            return ['ok' => false, 'error' => $response['error'], 'state' => null, 'connected' => false];
+            return [
+                'ok'        => false,
+                'error'     => $response['error'],
+                'state'     => null,
+                'name'      => null,
+                'connected' => false,
+            ];
         }
 
-        $state = $this->extractState($response['data']);
+        $node  = $this->extractInstance($response['data']);
+        $state = null;
+        $name  = null;
+
+        if ($node !== null) {
+            foreach (['connection.state', 'state', 'status'] as $caminho) {
+                $valor = $caminho === 'connection.state'
+                    ? ($node['connection']['state'] ?? null)
+                    : ($node[$caminho] ?? null);
+
+                if (\is_string($valor) && $valor !== '') {
+                    $state = strtolower($valor);
+                    break;
+                }
+            }
+
+            // `name` do no da instancia - NAO `connection.name`, que e o nome
+            // do perfil do WhatsApp e nada tem a ver com a instancia.
+            if (isset($node['name']) && \is_string($node['name'])) {
+                $name = $node['name'];
+            }
+        }
 
         return [
             'ok'        => true,
             'error'     => null,
             'state'     => $state,
+            'name'      => $name,
             'connected' => $state === 'connected',
         ];
     }
 
     /**
-     * O formato do envelope varia entre versoes da API (lista direta, dentro
-     * de `data`, com ou sem `connection`). Procurar o estado em vez de assumir
-     * um caminho fixo evita que uma mudanca de casca quebre o teste.
+     * Localiza o no da instancia na resposta.
      *
-     * @param array<string,mixed> $payload
+     * O envelope varia entre versoes (lista direta, dentro de `data`, objeto
+     * unico). Procurar o no em vez de assumir um caminho fixo evita que uma
+     * mudanca de casca quebre o teste.
+     *
+     * @param  array<string,mixed> $payload
+     * @return array<string,mixed>|null
      */
-    private function extractState(array $payload): ?string
+    private function extractInstance(array $payload): ?array
     {
-        $candidates = [$payload];
+        $candidates = [];
 
         foreach (['data', 'instances', 'instance'] as $wrapper) {
-            if (isset($payload[$wrapper]) && \is_array($payload[$wrapper])) {
-                $candidates[] = $payload[$wrapper];
-
-                // Lista de instancias: a primeira e a que pedimos pelo filtro.
-                if (isset($payload[$wrapper][0]) && \is_array($payload[$wrapper][0])) {
-                    $candidates[] = $payload[$wrapper][0];
-                }
+            if (!isset($payload[$wrapper]) || !\is_array($payload[$wrapper])) {
+                continue;
             }
+
+            if (isset($payload[$wrapper][0]) && \is_array($payload[$wrapper][0])) {
+                $candidates[] = $payload[$wrapper][0];
+            }
+
+            $candidates[] = $payload[$wrapper];
         }
 
+        $candidates[] = $payload;
+
         foreach ($candidates as $node) {
-            if (isset($node['connection']['state']) && \is_string($node['connection']['state'])) {
-                return strtolower($node['connection']['state']);
-            }
-
-            if (isset($node['state']) && \is_string($node['state'])) {
-                return strtolower($node['state']);
-            }
-
-            if (isset($node['status']) && \is_string($node['status'])) {
-                return strtolower($node['status']);
+            if (isset($node['connection']) || isset($node['name']) || isset($node['state'])) {
+                return $node;
             }
         }
 
