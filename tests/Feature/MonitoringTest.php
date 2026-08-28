@@ -361,6 +361,11 @@ final class MonitoringTest extends TestCase
             'updated_at' => now_string(),
         ]);
 
+        // O alerta so sai depois de N verificacoes seguidas com falha (ver
+        // AlertService::siteWentOffline). Registramos o historico que uma
+        // queda real produziria.
+        $this->registrarChecks($siteId, 'offline', 3);
+
         AlertService::siteWentOffline($siteId, $this->serverId, 'loja.teste.com.br', 503, null);
 
         $alert = Alert::findOpenByFingerprint(
@@ -377,6 +382,86 @@ final class MonitoringTest extends TestCase
         $this->assertNull(
             Alert::findOpenByFingerprint(Alert::fingerprint(Alert::TYPE_SITE_OFFLINE, $this->serverId, $siteId))
         );
+    }
+
+    public function testFalhaIsoladaNaoGeraAlerta(): void
+    {
+        $siteId = Database::insert('sites', [
+            'server_id'   => $this->serverId,
+            'domain'      => 'intermitente.teste.com.br',
+            'status'      => 'offline',
+            'http_status' => null,
+            'discovered'  => 1,
+            'created_at'  => now_string(),
+            'updated_at'  => now_string(),
+        ]);
+
+        // O historico real de um pico de latencia: varias leituras boas e uma
+        // ruim no fim. Foi exatamente o que gerou o falso alarme em producao.
+        $this->registrarChecks($siteId, 'online', 5);
+        $this->registrarChecks($siteId, 'offline', 1);
+
+        AlertService::siteWentOffline($siteId, $this->serverId, 'intermitente.teste.com.br', null, 'Sem resposta do dominio');
+
+        $this->assertNull(
+            Alert::findOpenByFingerprint(Alert::fingerprint(Alert::TYPE_SITE_OFFLINE, $this->serverId, $siteId)),
+            'Uma falha isolada nao pode virar aviso: falso alarme corroi a confianca no monitoramento.'
+        );
+
+        // Segunda falha seguida: ainda nao.
+        $this->registrarChecks($siteId, 'offline', 1);
+        AlertService::siteWentOffline($siteId, $this->serverId, 'intermitente.teste.com.br', null, 'Sem resposta do dominio');
+
+        $this->assertNull(
+            Alert::findOpenByFingerprint(Alert::fingerprint(Alert::TYPE_SITE_OFFLINE, $this->serverId, $siteId)),
+            'Com 3 confirmacoes exigidas, duas falhas ainda nao bastam.'
+        );
+
+        // Terceira: agora e queda de verdade.
+        $this->registrarChecks($siteId, 'offline', 1);
+        AlertService::siteWentOffline($siteId, $this->serverId, 'intermitente.teste.com.br', null, 'Sem resposta do dominio');
+
+        $this->assertNotNull(
+            Alert::findOpenByFingerprint(Alert::fingerprint(Alert::TYPE_SITE_OFFLINE, $this->serverId, $siteId)),
+            'Tres falhas seguidas sao queda real e precisam avisar.'
+        );
+    }
+
+    public function testRecuperacaoNoMeioZeraAContagem(): void
+    {
+        $siteId = Database::insert('sites', [
+            'server_id'  => $this->serverId,
+            'domain'     => 'oscila.teste.com.br',
+            'status'     => 'offline',
+            'discovered' => 1,
+            'created_at' => now_string(),
+            'updated_at' => now_string(),
+        ]);
+
+        // Duas falhas, o site volta, e cai de novo. Somadas dariam tres - mas
+        // nao sao CONSECUTIVAS, e por isso nao contam.
+        $this->registrarChecks($siteId, 'offline', 2);
+        $this->registrarChecks($siteId, 'online', 1);
+        $this->registrarChecks($siteId, 'offline', 1);
+
+        AlertService::siteWentOffline($siteId, $this->serverId, 'oscila.teste.com.br', null, 'timeout');
+
+        $this->assertNull(
+            Alert::findOpenByFingerprint(Alert::fingerprint(Alert::TYPE_SITE_OFFLINE, $this->serverId, $siteId)),
+            'A contagem precisa ser de falhas seguidas, nao de falhas somadas.'
+        );
+    }
+
+    /** Insere N verificacoes com o mesmo status, na ordem em que aconteceriam. */
+    private function registrarChecks(int $siteId, string $status, int $quantidade): void
+    {
+        for ($i = 0; $i < $quantidade; $i++) {
+            Database::insert('site_checks', [
+                'site_id'    => $siteId,
+                'status'     => $status,
+                'created_at' => now_string(),
+            ]);
+        }
     }
 
     public function testAlertaDeSslVencendoEExpirado(): void

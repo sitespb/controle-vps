@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Core\Database;
 use App\Core\Model;
+use App\Models\Site;
 
 final class SiteCheck extends Model
 {
@@ -89,6 +90,70 @@ final class SiteCheck extends Model
         }
 
         return round(((int) $row['online'] / $total) * 100, 2);
+    }
+
+    /**
+     * As ultimas N verificacoes deste site foram TODAS offline?
+     *
+     * ---------------------------------------------------------------------
+     * POR QUE ISTO EXISTE
+     * ---------------------------------------------------------------------
+     * Uma unica verificacao que falha nao prova que o site caiu. Um pico de
+     * latencia, um redirecionamento lento, um segundo de perda de pacote - e
+     * o agente registra offline num ciclo e online no seguinte. Avisar em
+     * cima disso gera falso alarme, e falso alarme corroi a confianca no
+     * monitoramento inteiro: quem recebe tres avisos errados para de olhar o
+     * quarto, que e o de verdade.
+     *
+     * Confirmar em ciclos CONSECUTIVOS e melhor do que repetir a requisicao
+     * na hora: as coletas sao espacadas em minutos, entao duas falhas
+     * seguidas dizem "esta fora ha um tempo", enquanto tres tentativas
+     * separadas por milissegundos so repetiriam o mesmo instante ruim.
+     *
+     * Menos de N verificacoes no historico devolve false: sem base para
+     * afirmar, nao afirmamos.
+     */
+    public static function offlineConfirmed(int $siteId, int $confirmations): bool
+    {
+        $confirmations = max(1, $confirmations);
+
+        $rows = Database::select(
+            'SELECT status FROM site_checks WHERE site_id = ? ORDER BY id DESC LIMIT ' . $confirmations,
+            [$siteId]
+        );
+
+        if (\count($rows) < $confirmations) {
+            return false;
+        }
+
+        foreach ($rows as $row) {
+            if ((string) $row['status'] !== Site::STATUS_OFFLINE) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /** Quantas verificacoes seguidas, a partir da mais recente, estao offline. */
+    public static function consecutiveOffline(int $siteId, int $lookback = 10): int
+    {
+        $rows = Database::select(
+            'SELECT status FROM site_checks WHERE site_id = ? ORDER BY id DESC LIMIT ' . max(1, $lookback),
+            [$siteId]
+        );
+
+        $total = 0;
+
+        foreach ($rows as $row) {
+            if ((string) $row['status'] !== Site::STATUS_OFFLINE) {
+                break;
+            }
+
+            $total++;
+        }
+
+        return $total;
     }
 
     public static function pruneOlderThan(int $days, int $batchSize = 5000): int

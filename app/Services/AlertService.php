@@ -10,6 +10,7 @@ use App\Core\Logger;
 use App\Models\Alert;
 use App\Models\AlertEvent;
 use App\Models\Site;
+use App\Models\SiteCheck;
 
 /**
  * Motor de alertas (secoes 18, 19, 28 e 29 do PLAN).
@@ -288,6 +289,28 @@ final class AlertService
     /** Site indisponivel (secao 29). */
     public static function siteWentOffline(int $siteId, int $serverId, string $domain, ?int $httpStatus, ?string $error): void
     {
+        // ------------------------------------------------------------------
+        // CONFIRMACAO: uma falha isolada nao vira alerta
+        // ------------------------------------------------------------------
+        // Um pico de latencia, um redirecionamento lento ou um segundo de
+        // perda de pacote fazem o agente registrar offline num ciclo e online
+        // no seguinte. Avisar em cima disso gera falso alarme - e falso
+        // alarme corroi a confianca no monitoramento inteiro: quem recebe
+        // tres avisos errados para de olhar o quarto, que e o de verdade.
+        //
+        // O portao fica AQUI, e nao em quem chama, porque sao dois caminhos
+        // independentes (a ingestao da coleta e o cron de alertas) e ambos
+        // precisam da mesma regra. Duplicar a condicao seria criar a chance
+        // de um deles escapar numa alteracao futura.
+        //
+        // O STATUS do site continua mudando na hora: a tela mostra a
+        // realidade agora, e so o aviso espera confirmacao.
+        $confirmations = max(1, (int) Config::get('monitoring.http.offline_confirmations', 3));
+
+        if (!SiteCheck::offlineConfirmed($siteId, $confirmations)) {
+            return;
+        }
+
         $detail = $httpStatus !== null
             ? sprintf('retornou HTTP %d', $httpStatus)
             : sprintf('nao respondeu (%s)', $error ?? 'sem resposta');

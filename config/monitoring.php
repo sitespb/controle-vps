@@ -48,6 +48,17 @@ return [
         'offline_min'  => 500,
         'offline_max'  => 599,
         'slow_response' => 3000, // ms - acima disso o site entra em "atencao"
+
+        /*
+         * Verificacoes CONSECUTIVAS com falha antes de o aviso sair.
+         *
+         * Com coleta a cada 5 minutos, 3 confirmacoes significam avisar ~10
+         * minutos depois da primeira falha - tempo suficiente para descartar
+         * um pico de latencia, e curto o bastante para uma queda real nao
+         * passar despercebida. O STATUS do site continua mudando na hora; so
+         * o aviso espera.
+         */
+        'offline_confirmations' => Env::int('OFFLINE_CONFIRMATIONS', 3),
     ],
 
     /* Intervalo esperado de coleta do agente, em segundos. */
