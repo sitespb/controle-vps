@@ -11,10 +11,13 @@ use App\Core\Database;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
+use App\Models\SecureSetting;
 use App\Models\Setting;
+use App\Services\AuditService;
 use App\Services\AuthService;
 use App\Services\RetentionService;
 use App\Services\SettingsService;
+use App\Services\TurnstileService;
 
 /**
  * Configuracoes do sistema (secao 19 do PLAN).
@@ -29,15 +32,90 @@ final class SettingsController extends Controller
     {
         $this->authorizeRole('admin');
 
+        $turnstile = SecureSetting::all(SecureSetting::SCOPE_TURNSTILE);
+
         return $this->view('settings/index', [
-            'title'       => 'Configuracoes do sistema',
+            'title'       => 'Configuracoes',
             'activeNav'   => 'settings',
             'groups'      => Setting::grouped(),
             'groupLabels' => SettingsService::groupLabels(),
             'system'      => $this->systemInfo(),
             'tableStats'  => RetentionService::tableStats(),
             'volume'      => RetentionService::volumeSummary(),
+
+            'aba'            => $request->string('aba') === 'recaptcha' ? 'recaptcha' : 'sistema',
+            'turnstile'      => $turnstile,
+            'turnstileAtivo' => ($turnstile['enabled'] ?? '0') === '1',
+
+            // Booleano, e nao a chave: revelar parte de um segredo nao ajuda a
+            // reconhece-lo e so aumenta o que um ombro curioso leva da tela.
+            'turnstileHasSecret' => ($turnstile['secret_key'] ?? '') !== '',
+
+            // Dominio sugerido ao cadastrar o widget na Cloudflare.
+            'hostname' => (string) (parse_url((string) Config::get('app.url', ''), \PHP_URL_HOST) ?: 'seu-dominio'),
         ]);
+    }
+
+    /**
+     * Grava a configuracao do Turnstile.
+     *
+     * Fica neste controller, e nao num proprio, porque para o operador e a
+     * mesma tela: aba "Recaptcha" dentro de Configuracoes. Os valores vao para
+     * o armazenamento cifrado (SecureSetting), e nao para a tabela `settings`,
+     * porque a chave secreta e credencial - e as settings comuns sao cacheadas
+     * em arquivo, o que deixaria o segredo em texto claro no disco.
+     */
+    public function updateTurnstile(Request $request): Response
+    {
+        $this->authorizeRole('admin');
+
+        $siteKey = trim((string) $request->string('site_key'));
+        $secret  = (string) $request->string('secret_key');
+        $ligar   = (bool) $request->input('enabled');
+
+        // Ligar sem as chaves produziria uma tela de login com um widget que
+        // nunca valida - ninguem entraria, e a causa nao estaria em lugar
+        // nenhum. Melhor recusar aqui, com a tela ainda aberta.
+        if ($ligar) {
+            $secretGravado = SecureSetting::get(SecureSetting::SCOPE_TURNSTILE, 'secret_key');
+
+            if ($siteKey === '' || ($secret === '' && $secretGravado === '')) {
+                $this->flashError('Informe a chave do site e a chave secreta antes de ativar a verificacao.');
+
+                return $this->redirect('/configuracoes?aba=recaptcha');
+            }
+        }
+
+        SecureSetting::save(SecureSetting::SCOPE_TURNSTILE, [
+            'enabled'    => $ligar ? '1' : '0',
+            'site_key'   => $siteKey,
+            'secret_key' => $secret,
+        ], AuthService::id());
+
+        AuditService::log('settings.turnstile.update', 'Configuracao do Turnstile alterada', [
+            'context' => ['ativo' => $ligar ? '1' : '0'],
+        ]);
+
+        $this->flashSuccess('Configuracao do Turnstile salva.');
+
+        return $this->redirect('/configuracoes?aba=recaptcha');
+    }
+
+    /** Testa as chaves contra a Cloudflare, sem precisar resolver um captcha. */
+    public function testTurnstile(Request $request): Response
+    {
+        $this->authorizeRole('admin');
+
+        $resultado = TurnstileService::testKeys();
+
+        AuditService::log('settings.turnstile.test', 'Teste das chaves do Turnstile', [
+            'context' => ['resultado' => $resultado['ok'] ? 'ok' : 'falha'],
+        ]);
+
+        // apiOk mesmo quando o teste falha: do ponto de vista do HTTP a
+        // requisicao funcionou - quem recusou foi a Cloudflare. Ver o mesmo
+        // raciocinio em NotifyController::testEmail().
+        return $this->apiOk($resultado);
     }
 
     public function update(Request $request): Response

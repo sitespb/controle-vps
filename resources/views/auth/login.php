@@ -4,7 +4,10 @@
  *
  * @var array<string,string> $errors
  * @var array<string,mixed>  $old
+ * @var string               $turnstileKey  vazio quando o captcha esta desligado
  */
+
+$turnstileKey = $turnstileKey ?? '';
 ?>
 <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
 
@@ -67,11 +70,28 @@
             <?php endif; ?>
         </div>
 
+        <?php if ($turnstileKey !== '') : ?>
+            <!-- Cloudflare Turnstile.
+                 Renderizado so quando o captcha esta ativo E com as duas
+                 chaves preenchidas (ver TurnstileService::isEnabled): um
+                 widget que nunca valida impediria o login sem proteger nada. -->
+            <div class="flex justify-center">
+                <div class="cf-turnstile"
+                     data-sitekey="<?= e($turnstileKey) ?>"
+                     data-language="pt-br"
+                     data-theme="light"></div>
+            </div>
+        <?php endif; ?>
+
         <button type="submit"
                 class="w-full py-2.5 px-4 bg-primary text-white text-sm font-medium rounded-lg hover:bg-red-800 transition-colors">
             Entrar
         </button>
     </form>
+
+    <?php if ($turnstileKey !== '') : ?>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <?php endif; ?>
 
     <div class="mt-6 pt-5 border-t border-gray-200">
         <p class="text-xs text-gray-500 leading-relaxed">

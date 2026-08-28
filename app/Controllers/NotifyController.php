@@ -9,7 +9,7 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
 use App\Models\NotificationLog;
-use App\Models\NotificationSetting;
+use App\Models\SecureSetting;
 use App\Services\AuditService;
 use App\Services\AuthService;
 use App\Services\NotificationService;
@@ -32,8 +32,8 @@ final class NotifyController extends Controller
     {
         $this->authorizeRole('admin');
 
-        $email    = NotificationSetting::all(NotificationSetting::CHANNEL_EMAIL);
-        $whatsapp = NotificationSetting::all(NotificationSetting::CHANNEL_WHATSAPP);
+        $email    = SecureSetting::all(SecureSetting::SCOPE_EMAIL);
+        $whatsapp = SecureSetting::all(SecureSetting::SCOPE_WHATSAPP);
 
         return $this->view('notify/index', [
             'title'     => 'Avisos',
@@ -81,7 +81,7 @@ final class NotifyController extends Controller
                 return $this->redirect('/avisos?aba=email');
             }
 
-            if (NotificationSetting::recipients(NotificationSetting::CHANNEL_EMAIL) === []
+            if (SecureSetting::recipients(SecureSetting::SCOPE_EMAIL) === []
                 && $this->parseCount($values['recipients'], 'email') === 0
             ) {
                 $this->flashError('Informe ao menos um destinatario valido antes de ativar os avisos por e-mail.');
@@ -90,8 +90,8 @@ final class NotifyController extends Controller
             }
         }
 
-        NotificationSetting::save(
-            NotificationSetting::CHANNEL_EMAIL,
+        SecureSetting::save(
+            SecureSetting::SCOPE_EMAIL,
             $values,
             AuthService::id()
         );
@@ -123,8 +123,8 @@ final class NotifyController extends Controller
             return $this->redirect('/avisos?aba=whatsapp');
         }
 
-        NotificationSetting::save(
-            NotificationSetting::CHANNEL_WHATSAPP,
+        SecureSetting::save(
+            SecureSetting::SCOPE_WHATSAPP,
             $values,
             AuthService::id()
         );

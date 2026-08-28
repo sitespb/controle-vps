@@ -7,7 +7,7 @@ namespace App\Services;
 use App\Core\Config;
 use App\Core\Logger;
 use App\Models\NotificationLog;
-use App\Models\NotificationSetting;
+use App\Models\SecureSetting;
 use App\Models\Site;
 
 /**
@@ -54,7 +54,7 @@ final class NotificationService
     {
         $result = [];
 
-        foreach ([NotificationSetting::CHANNEL_EMAIL, NotificationSetting::CHANNEL_WHATSAPP] as $channel) {
+        foreach ([SecureSetting::SCOPE_EMAIL, SecureSetting::SCOPE_WHATSAPP] as $channel) {
             try {
                 $result[$channel] = self::dispatch($channel, $siteId, $domain, $httpStatus, $error);
             } catch (\Throwable $e) {
@@ -77,11 +77,11 @@ final class NotificationService
         ?int $httpStatus,
         ?string $error
     ): string {
-        if (!NotificationSetting::isEnabled($channel)) {
+        if (!SecureSetting::isEnabled($channel)) {
             return 'disabled';
         }
 
-        $recipients = NotificationSetting::recipients($channel);
+        $recipients = SecureSetting::recipients($channel);
 
         if ($recipients === []) {
             return 'disabled';
@@ -140,7 +140,7 @@ final class NotificationService
         $enviou  = false;
 
         foreach ($recipients as $recipient) {
-            $outcome = $channel === NotificationSetting::CHANNEL_EMAIL
+            $outcome = $channel === SecureSetting::SCOPE_EMAIL
                 ? self::sendEmail($recipient, $message)
                 : self::sendWhatsApp($recipient, $message);
 
@@ -167,7 +167,7 @@ final class NotificationService
     /** @return array{ok:bool,error:?string,detail:array<int,string>} */
     public static function testEmail(string $to): array
     {
-        $config = NotificationSetting::all(NotificationSetting::CHANNEL_EMAIL);
+        $config = SecureSetting::all(SecureSetting::SCOPE_EMAIL);
 
         $assunto = '[Controle VPS] Teste de configuracao';
         $texto   = "Este e um e-mail de teste do Controle VPS.\n\n"
@@ -181,7 +181,7 @@ final class NotificationService
         ));
 
         NotificationLog::record([
-            'channel'   => NotificationSetting::CHANNEL_EMAIL,
+            'channel'   => SecureSetting::SCOPE_EMAIL,
             'event'     => NotificationLog::EVENT_TEST,
             'recipient' => $to,
             'status'    => $resultado['ok'] ? NotificationLog::STATUS_SENT : NotificationLog::STATUS_FAILED,
@@ -203,7 +203,7 @@ final class NotificationService
      */
     public static function testWhatsApp(?string $number = null): array
     {
-        $config = NotificationSetting::all(NotificationSetting::CHANNEL_WHATSAPP);
+        $config = SecureSetting::all(SecureSetting::SCOPE_WHATSAPP);
         $client = RyzeApiClient::fromConfig($config);
 
         $estado = $client->instanceState();
@@ -262,7 +262,7 @@ final class NotificationService
         );
 
         NotificationLog::record([
-            'channel'   => NotificationSetting::CHANNEL_WHATSAPP,
+            'channel'   => SecureSetting::SCOPE_WHATSAPP,
             'event'     => NotificationLog::EVENT_TEST,
             'recipient' => $number,
             'status'    => $envio['ok'] ? NotificationLog::STATUS_SENT : NotificationLog::STATUS_FAILED,
@@ -286,7 +286,7 @@ final class NotificationService
      */
     private static function sendEmail(string $to, array $message): array
     {
-        $config    = NotificationSetting::all(NotificationSetting::CHANNEL_EMAIL);
+        $config    = SecureSetting::all(SecureSetting::SCOPE_EMAIL);
         $resultado = Mailer::fromConfig($config)->send($to, $message['subject'], $message['text'], $message['html']);
 
         return ['ok' => $resultado['ok'], 'error' => $resultado['error']];
@@ -298,7 +298,7 @@ final class NotificationService
      */
     private static function sendWhatsApp(string $number, array $message): array
     {
-        $config = NotificationSetting::all(NotificationSetting::CHANNEL_WHATSAPP);
+        $config = SecureSetting::all(SecureSetting::SCOPE_WHATSAPP);
         $envio  = RyzeApiClient::fromConfig($config)->sendText($number, $message['text']);
 
         return ['ok' => $envio['ok'], 'error' => $envio['error']];

@@ -913,3 +913,65 @@ certo**, e o caminho de falha precisa ser exercitado tanto quanto o de sucesso.
 Ambos os canais validados de ponta a ponta em 27/08/2026: e-mail pelo SMTP do
 Gmail com senha de app, e WhatsApp pela instância `Atendimento` da RyzeAPI,
 com mensagem recebida no aparelho.
+
+---
+
+## 14. Captcha no login — Cloudflare Turnstile (27/08/2026)
+
+Menu: **Sistema** passou a se chamar **Geral**, e `/configuracoes` ganhou duas
+abas — *Sistema* (o que já existia) e *Recaptcha*.
+
+### O armazenamento cifrado foi generalizado
+
+`notification_settings` virou **`secure_settings`**, e a coluna `channel` virou
+`scope` (`email`, `whatsapp`, `turnstile`).
+
+A chave secreta do Turnstile é exatamente a mesma coisa que a senha do SMTP e o
+token da RyzeAPI — credencial de terceiro que não pode ficar legível num dump —
+mas não tem relação nenhuma com notificação. Havia duas saídas: uma segunda
+tabela com comportamento idêntico, ou generalizar esta. Duas tabelas iguais
+convidariam uma terceira, e uma tabela chamada `notification_settings`
+guardando captcha seria uma pegadinha para quem lesse o schema depois.
+
+Renomear com um dia de vida custou uma migration e cinco arquivos. Daqui a seis
+meses custaria muito mais. `RENAME TABLE` é atômico e preserva as linhas — os
+segredos já gravados continuam válidos com a mesma `APP_KEY`.
+
+### Duas decisões de comportamento
+
+**Falha de rede na Cloudflare NÃO bloqueia o login.** É a decisão mais
+importante do `TurnstileService`. O captcha protege contra força bruta, e para
+isso já existem duas camadas independentes: rate limit por IP e contagem de
+tentativas por usuário. Se um problema na Cloudflare trancasse o painel, o
+administrador ficaria de fora justamente quando talvez precise investigar uma
+queda. Token inválido ou ausente continua sendo recusado; o que liberamos é
+apenas o caso *"não consegui perguntar"*.
+
+**"Ligado" sem as duas chaves não conta como ativo.** Exibir um widget que
+nunca valida deixaria a tela de login intransponível e sem explicação em lugar
+nenhum. O formulário também recusa a ativação nesse estado.
+
+### O teste que não precisa de captcha resolvido
+
+Validar as chaves normalmente exigiria abrir a tela de login e resolver o
+widget. O truque: mandamos a chave secreta com um token propositalmente
+inválido. A Cloudflare valida o **segredo primeiro** — se estiver errado
+responde `invalid-input-secret`; se estiver certo, a reclamação passa a ser
+sobre o token (`invalid-input-response`). O erro que volta diz exatamente qual
+das duas coisas está errada.
+
+### Verificação antes da senha
+
+`TurnstileService::verify()` roda **antes** de `AuthService::attempt()`. Um bot
+que nem passou pelo widget não deve consumir uma tentativa da contagem de força
+bruta daquele e-mail — senão ele bloqueia a conta de um usuário legítimo apenas
+martelando o formulário.
+
+### Testes
+
+10 novos (147 no total). Um merece nota: o que verifica que o login é recusado
+sem captcha carrega um **controle positivo** — primeiro prova que aquelas
+credenciais *entram* com o captcha desligado, e só então que são barradas com
+ele ligado. Sem isso, o teste passaria mesmo que o login estivesse falhando por
+qualquer outro motivo (CSRF, validação, senha errada no setup), dando a falsa
+impressão de que o captcha está funcionando.

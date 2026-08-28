@@ -89,6 +89,10 @@ $router->group(['middleware' => ['auth']], static function ($router): void {
     $router->get('/configuracoes', [SettingsController::class, 'index'], ['role:admin']);
     $router->post('/configuracoes', [SettingsController::class, 'update'], ['role:admin', 'csrf']);
 
+    // Aba Recaptcha (Cloudflare Turnstile) da mesma tela.
+    $router->post('/configuracoes/turnstile', [SettingsController::class, 'updateTurnstile'], ['role:admin', 'csrf']);
+    $router->post('/configuracoes/turnstile/testar', [SettingsController::class, 'testTurnstile'], ['role:admin', 'throttle:10,600,turnstile-test', 'csrf']);
+
     // Avisos ao administrador -----------------------------------------------
     // Os testes tem throttle proprio: cada clique fala com um provedor
     // externo, e um botao e facil de martelar sem querer.

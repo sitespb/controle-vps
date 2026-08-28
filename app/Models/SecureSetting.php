@@ -9,21 +9,27 @@ use App\Core\Database;
 use App\Core\Logger;
 
 /**
- * Configuracao dos canais de aviso (e-mail e WhatsApp).
+ * Configuracao que contem SEGREDO, agrupada por escopo.
  *
- * Guarda pares chave/valor por canal. Os campos marcados como segredo -
- * senha do SMTP, token da RyzeAPI - sao cifrados na gravacao e decifrados na
+ * Hoje: avisos por e-mail (senha do SMTP), avisos por WhatsApp (token da
+ * RyzeAPI) e o Turnstile do Cloudflare (chave secreta). Coisas diferentes,
+ * mesma exigencia: sao credenciais de terceiros que nao podem ficar legiveis
+ * num dump do banco.
+ *
+ * Os campos listados em SECRETS sao cifrados na gravacao e decifrados na
  * leitura; nada fora desta classe precisa saber disso.
  *
- * Nao ha cache: a leitura acontece quando um aviso vai ser enviado ou quando a
- * tela de Avisos abre, nao em toda pagina. Cachear segredos em arquivo seria
- * desfazer a cifragem (ver o comentario da migration 018).
+ * Nao ha cache: a leitura acontece ao enviar um aviso, ao abrir a tela de
+ * configuracao ou ao validar um login - nunca em toda pagina. Cachear
+ * segredos em arquivo seria desfazer a cifragem (ver a migration 018).
  */
-final class NotificationSetting
+final class SecureSetting
 {
-    public const CHANNEL_EMAIL = 'email';
+    public const SCOPE_EMAIL = 'email';
 
-    public const CHANNEL_WHATSAPP = 'whatsapp';
+    public const SCOPE_TURNSTILE = 'turnstile';
+
+    public const SCOPE_WHATSAPP = 'whatsapp';
 
     /**
      * Campos que sao gravados cifrados.
@@ -35,8 +41,9 @@ final class NotificationSetting
      * @var array<string,array<int,string>>
      */
     public const SECRETS = [
-        self::CHANNEL_EMAIL    => ['smtp_password'],
-        self::CHANNEL_WHATSAPP => ['token'],
+        self::SCOPE_EMAIL     => ['smtp_password'],
+        self::SCOPE_WHATSAPP  => ['token'],
+        self::SCOPE_TURNSTILE => ['secret_key'],
     ];
 
     /**
@@ -46,7 +53,7 @@ final class NotificationSetting
      * @var array<string,array<string,string>>
      */
     public const DEFAULTS = [
-        self::CHANNEL_EMAIL => [
+        self::SCOPE_EMAIL => [
             'enabled'        => '0',
             'smtp_host'      => 'smtp.gmail.com',
             'smtp_port'      => '587',
@@ -57,12 +64,17 @@ final class NotificationSetting
             'from_name'      => 'Controle VPS',
             'recipients'     => '',
         ],
-        self::CHANNEL_WHATSAPP => [
+        self::SCOPE_WHATSAPP => [
             'enabled'       => '0',
             'base_url'      => 'https://ryzeapi.cloud',
             'instance'      => '',
             'token'         => '',
             'recipients'    => '',
+        ],
+        self::SCOPE_TURNSTILE => [
+            'enabled'    => '0',
+            'site_key'   => '',
+            'secret_key' => '',
         ],
     ];
 
@@ -71,17 +83,17 @@ final class NotificationSetting
      *
      * @return array<string,string>
      */
-    public static function all(string $channel): array
+    public static function all(string $scope): array
     {
-        $values = self::DEFAULTS[$channel] ?? [];
+        $values = self::DEFAULTS[$scope] ?? [];
 
-        if (!Database::tableExists('notification_settings')) {
+        if (!Database::tableExists('secure_settings')) {
             return $values;
         }
 
         $rows = Database::select(
-            'SELECT `key`, `value`, `is_secret` FROM notification_settings WHERE channel = ?',
-            [$channel]
+            'SELECT `key`, `value`, `is_secret` FROM secure_settings WHERE scope = ?',
+            [$scope]
         );
 
         foreach ($rows as $row) {
@@ -96,7 +108,7 @@ final class NotificationSetting
                     // a tela pedir o segredo de novo, em vez de derrubar a
                     // pagina inteira de configuracao.
                     Logger::error('Segredo de aviso ilegivel: ' . $e->getMessage(), [
-                        'channel' => $channel,
+                        'channel' => $scope,
                         'key'     => $key,
                     ]);
 
@@ -111,16 +123,16 @@ final class NotificationSetting
     }
 
     /** Um valor isolado, ja decifrado quando for segredo. */
-    public static function get(string $channel, string $key, string $default = ''): string
+    public static function get(string $scope, string $key, string $default = ''): string
     {
-        $all = self::all($channel);
+        $all = self::all($scope);
 
         return $all[$key] ?? $default;
     }
 
-    public static function isEnabled(string $channel): bool
+    public static function isEnabled(string $scope): bool
     {
-        return self::get($channel, 'enabled', '0') === '1';
+        return self::get($scope, 'enabled', '0') === '1';
     }
 
     /**
@@ -133,9 +145,9 @@ final class NotificationSetting
      *
      * @param array<string,string> $values
      */
-    public static function save(string $channel, array $values, ?int $userId = null): void
+    public static function save(string $scope, array $values, ?int $userId = null): void
     {
-        $secrets = self::SECRETS[$channel] ?? [];
+        $secrets = self::SECRETS[$scope] ?? [];
         $now     = now_string();
 
         foreach ($values as $key => $value) {
@@ -155,10 +167,10 @@ final class NotificationSetting
             }
 
             Database::statement(
-                'INSERT INTO notification_settings (`channel`, `key`, `value`, `is_secret`, `updated_by`, `created_at`, `updated_at`)
+                'INSERT INTO secure_settings (`scope`, `key`, `value`, `is_secret`, `updated_by`, `created_at`, `updated_at`)
                  VALUES (?, ?, ?, ?, ?, ?, ?)
                  ON DUPLICATE KEY UPDATE `value` = VALUES(`value`), `updated_by` = VALUES(`updated_by`), `updated_at` = VALUES(`updated_at`)',
-                [$channel, $key, $value, $isSecret ? 1 : 0, $userId, $now, $now]
+                [$scope, $key, $value, $isSecret ? 1 : 0, $userId, $now, $now]
             );
         }
     }
@@ -171,9 +183,9 @@ final class NotificationSetting
      *
      * @return array<int,string>
      */
-    public static function recipients(string $channel): array
+    public static function recipients(string $scope): array
     {
-        $raw = self::get($channel, 'recipients', '');
+        $raw = self::get($scope, 'recipients', '');
 
         if (trim($raw) === '') {
             return [];
@@ -189,7 +201,7 @@ final class NotificationSetting
                 continue;
             }
 
-            $valid = $channel === self::CHANNEL_EMAIL
+            $valid = $scope === self::SCOPE_EMAIL
                 ? filter_var($part, \FILTER_VALIDATE_EMAIL) !== false
                 : preg_match('/^\+?[0-9]{10,15}$/', preg_replace('/\D/', '', $part) ?? '') === 1;
 
@@ -197,7 +209,7 @@ final class NotificationSetting
                 continue;
             }
 
-            if ($channel === self::CHANNEL_WHATSAPP) {
+            if ($scope === self::SCOPE_WHATSAPP) {
                 $part = preg_replace('/\D/', '', $part) ?? $part;
             }
 

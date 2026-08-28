@@ -10,6 +10,7 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Core\Validator;
 use App\Services\AuthService;
+use App\Services\TurnstileService;
 
 /**
  * Login e logout do painel (secoes 23 e 33 do PLAN).
@@ -19,8 +20,9 @@ final class AuthController extends Controller
     public function showLogin(Request $request): Response
     {
         return $this->view('auth/login', [
-            'title'     => 'Entrar',
-            'activeNav' => 'login',
+            'title'          => 'Entrar',
+            'activeNav'      => 'login',
+            'turnstileKey'   => TurnstileService::isEnabled() ? TurnstileService::siteKey() : '',
         ], 'layouts/auth');
     }
 
@@ -39,6 +41,22 @@ final class AuthController extends Controller
             Session::flashErrors($validator->errors());
             Session::flashInput(['email' => $request->string('email')]);
             $this->flashError('Verifique os dados informados.');
+
+            return $this->redirect('/login');
+        }
+
+        // O captcha e verificado ANTES de tocar na senha: um bot que nem
+        // passou pelo widget nao deve nem consumir uma tentativa da contagem
+        // de forca bruta daquele e-mail - senao ele bloqueia a conta de um
+        // usuario legitimo so martelando o formulario.
+        $captcha = TurnstileService::verify(
+            (string) $request->input(TurnstileService::FIELD, ''),
+            $request->ip()
+        );
+
+        if (!$captcha['ok']) {
+            Session::flashInput(['email' => $request->string('email')]);
+            $this->flashError((string) $captcha['error']);
 
             return $this->redirect('/login');
         }

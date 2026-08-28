@@ -8,7 +8,7 @@ use App\Core\Config;
 use App\Core\Crypto;
 use App\Core\Database;
 use App\Models\NotificationLog;
-use App\Models\NotificationSetting;
+use App\Models\SecureSetting;
 use App\Models\Site;
 use App\Services\AlertService;
 use App\Services\NotificationService;
@@ -38,7 +38,7 @@ final class NotificationTest extends TestCase
     protected function setUp(): void
     {
         Database::statement('DELETE FROM servers');
-        $this->truncate('notification_settings', 'notification_log');
+        $this->truncate('secure_settings', 'notification_log');
 
         $created        = ServerProvisionService::create(['name' => 'VPS dos Avisos'], null);
         $this->serverId = $created['server_id'];
@@ -103,14 +103,14 @@ final class NotificationTest extends TestCase
 
     public function testSenhaNaoFicaEmTextoPuroNoBanco(): void
     {
-        NotificationSetting::save(NotificationSetting::CHANNEL_EMAIL, [
+        SecureSetting::save(SecureSetting::SCOPE_EMAIL, [
             'smtp_host'     => 'smtp.gmail.com',
             'smtp_password' => 'senha-super-secreta',
         ]);
 
         $bruto = (string) Database::scalar(
-            'SELECT `value` FROM notification_settings WHERE channel = ? AND `key` = ?',
-            [NotificationSetting::CHANNEL_EMAIL, 'smtp_password']
+            'SELECT `value` FROM secure_settings WHERE scope = ? AND `key` = ?',
+            [SecureSetting::SCOPE_EMAIL, 'smtp_password']
         );
 
         $this->assertNotContainsString('senha-super-secreta', $bruto, 'A senha nao pode ficar legivel no banco.');
@@ -119,27 +119,27 @@ final class NotificationTest extends TestCase
         // E a leitura devolve decifrado, sem quem chama precisar saber.
         $this->assertEquals(
             'senha-super-secreta',
-            NotificationSetting::get(NotificationSetting::CHANNEL_EMAIL, 'smtp_password')
+            SecureSetting::get(SecureSetting::SCOPE_EMAIL, 'smtp_password')
         );
     }
 
     public function testSalvarSemDigitarSenhaMantemAAtual(): void
     {
-        NotificationSetting::save(NotificationSetting::CHANNEL_EMAIL, ['smtp_password' => 'primeira']);
+        SecureSetting::save(SecureSetting::SCOPE_EMAIL, ['smtp_password' => 'primeira']);
 
         // Segunda gravacao mexe so no host - a senha vem vazia do formulario.
-        NotificationSetting::save(NotificationSetting::CHANNEL_EMAIL, [
+        SecureSetting::save(SecureSetting::SCOPE_EMAIL, [
             'smtp_host'     => 'smtp.outro.com',
             'smtp_password' => '',
         ]);
 
         $this->assertEquals(
             'primeira',
-            NotificationSetting::get(NotificationSetting::CHANNEL_EMAIL, 'smtp_password'),
+            SecureSetting::get(SecureSetting::SCOPE_EMAIL, 'smtp_password'),
             'Campo de senha vazio significa "mantenha", nunca "apague".'
         );
 
-        $this->assertEquals('smtp.outro.com', NotificationSetting::get(NotificationSetting::CHANNEL_EMAIL, 'smtp_host'));
+        $this->assertEquals('smtp.outro.com', SecureSetting::get(SecureSetting::SCOPE_EMAIL, 'smtp_host'));
     }
 
     // =================================================================
@@ -148,11 +148,11 @@ final class NotificationTest extends TestCase
 
     public function testDestinatariosAceitamVariosSeparadoresEDescartamInvalidos(): void
     {
-        NotificationSetting::save(NotificationSetting::CHANNEL_EMAIL, [
+        SecureSetting::save(SecureSetting::SCOPE_EMAIL, [
             'recipients' => "a@x.com.br, b@y.com.br;  c@z.com.br\nnao-e-email\n\n a@x.com.br ",
         ]);
 
-        $lista = NotificationSetting::recipients(NotificationSetting::CHANNEL_EMAIL);
+        $lista = SecureSetting::recipients(SecureSetting::SCOPE_EMAIL);
 
         $this->assertCount(3, $lista, 'Invalido descartado e duplicado colapsado.');
         $this->assertEquals('a@x.com.br', $lista[0]);
@@ -160,11 +160,11 @@ final class NotificationTest extends TestCase
 
     public function testNumerosDeWhatsappFicamSoComDigitos(): void
     {
-        NotificationSetting::save(NotificationSetting::CHANNEL_WHATSAPP, [
+        SecureSetting::save(SecureSetting::SCOPE_WHATSAPP, [
             'recipients' => '+55 (83) 99999-9999, 123',
         ]);
 
-        $lista = NotificationSetting::recipients(NotificationSetting::CHANNEL_WHATSAPP);
+        $lista = SecureSetting::recipients(SecureSetting::SCOPE_WHATSAPP);
 
         $this->assertCount(1, $lista, 'Numero curto demais nao e telefone valido.');
         $this->assertEquals('5583999999999', $lista[0]);
@@ -318,7 +318,7 @@ final class NotificationTest extends TestCase
 
     private function ativarEmail(): void
     {
-        NotificationSetting::save(NotificationSetting::CHANNEL_EMAIL, [
+        SecureSetting::save(SecureSetting::SCOPE_EMAIL, [
             'enabled'    => '1',
             'smtp_host'  => '127.0.0.1',
             'smtp_port'  => '2525',
