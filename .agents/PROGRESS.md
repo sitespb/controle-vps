@@ -967,6 +967,28 @@ que nem passou pelo widget não deve consumir uma tentativa da contagem de forç
 bruta daquele e-mail — senão ele bloqueia a conta de um usuário legítimo apenas
 martelando o formulário.
 
+### ⚠️ Produção é MariaDB, o ambiente local é MySQL 8
+
+A migration 019 **falhou pela metade** no primeiro deploy. O terceiro comando
+era `ALTER TABLE ... RENAME INDEX`, sintaxe de MySQL 5.7+ que o MariaDB de
+produção não reconhece.
+
+Os dois primeiros comandos tinham funcionado (tabela e coluna renomeadas, os 14
+segredos intactos), mas o migrator só grava o registro quando **todos** os
+comandos passam — então a 019 ficou aplicada de fato e pendente no histórico.
+Um `migrate` seguinte tentaria renomear uma tabela que já não existe.
+
+Correção: o comando foi removido. O índice único continua se chamando
+`uq_notification_settings` mesmo na tabela `secure_settings`. A alternativa
+(`DROP INDEX` + `ADD UNIQUE`) deixaria a tabela alguns instantes **sem a
+restrição de unicidade** — que é justamente o que faz o
+`ON DUPLICATE KEY UPDATE` do `SecureSetting::save()` não duplicar linhas.
+Trocar um risco real por um ganho cosmético seria mau negócio.
+
+**Para as próximas migrations:** o ambiente local aceita sintaxe que produção
+recusa. Vale conferir compatibilidade com MariaDB antes de escrever qualquer
+`ALTER` fora do trivial — e preferir comandos que funcionem nos dois.
+
 ### Testes
 
 10 novos (147 no total). Um merece nota: o que verifica que o login é recusado
