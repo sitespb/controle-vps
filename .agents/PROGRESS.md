@@ -989,11 +989,80 @@ Trocar um risco real por um ganho cosmético seria mau negócio.
 recusa. Vale conferir compatibilidade com MariaDB antes de escrever qualquer
 `ALTER` fora do trivial — e preferir comandos que funcionem nos dois.
 
-### Testes
+### Testes do captcha
 
-10 novos (147 no total). Um merece nota: o que verifica que o login é recusado
+10 novos. Um merece nota: o que verifica que o login é recusado
 sem captcha carrega um **controle positivo** — primeiro prova que aquelas
 credenciais *entram* com o captcha desligado, e só então que são barradas com
 ele ligado. Sem isso, o teste passaria mesmo que o login estivesse falhando por
 qualquer outro motivo (CSRF, validação, senha errada no setup), dando a falsa
 impressão de que o captcha está funcionando.
+
+---
+
+## 15. Falso alarme de site offline (28/08/2026)
+
+Chegou aviso de site fora do ar, e o site estava no ar. O caso concreto:
+`clubevanilla.com`.
+
+### Duas causas, e a segunda invalidava a medição inteira
+
+**1. Uma única falha virava aviso.** Não havia confirmação temporal. O que
+parecia repetição no `HttpCheckService` é outra coisa: se o HTTPS não responde
+nada, o agente tenta uma vez em HTTP simples — *fallback de protocolo*, para
+não marcar como offline um site legitimamente sem TLS. Um pico de latência
+bastava para disparar o aviso.
+
+**2. O agente estava cronometrando o próprio timeout.** O histórico mostrava
+tempos grudados em 10.400 ms, com `CHECK_TIMEOUT = 10s`. Um site realmente
+lento teria variação — 3 s, 7 s, 12 s. Aquela constância era o cURL desistindo,
+e o número gravado no banco era o limite, não o site.
+
+Medido de fora, o `clubevanilla.com` levava **12,6 s**, com detalhamento:
+
+```
+dns:            0,038s
+conexao:        0,040s
+tls:            0,061s
+primeiro byte: 10,185s   <-- backend
+total:         10,474s
+```
+
+Rede instantânea; dez segundos inteiros o backend montando a página. Problema
+de aplicação do site, não de monitoramento — mas que o monitoramento reportava
+errado, como *offline* em vez de *lento*.
+
+> **Hipótese descartada:** suspeitei de cadeia longa de redirecionamento, já que
+> o histórico gravava `301` e o agente segue até 3 saltos. O `curl` mostrou
+> `saltos: 0`. Os `301` eram timeout no meio do caminho, não redirecionamento.
+> Vale o registro: a medição de fora derrubou uma explicação que encaixava bem
+> nos dados parciais.
+
+### Correções
+
+**Confirmação por ciclos consecutivos.** O aviso só sai após N verificações
+seguidas com falha — padrão 3, em `monitoring.http.offline_confirmations`. Com
+coleta a cada 5 minutos, isso é avisar ~10 minutos depois da primeira falha.
+
+Confirmar em ciclos é melhor do que repetir a requisição na hora: as coletas
+são espaçadas em minutos, então duas falhas seguidas dizem *"está fora há um
+tempo"*, enquanto três tentativas separadas por milissegundos apenas repetiriam
+o mesmo instante ruim.
+
+O portão fica **dentro** de `AlertService::siteWentOffline`, não em quem chama:
+são dois caminhos independentes (a ingestão da coleta e o cron de alertas) e
+duplicar a condição criaria a chance de um deles escapar numa alteração futura.
+
+O **status** do site continua mudando na hora — a tela mostra a realidade
+agora; só o aviso espera confirmação.
+
+**`CHECK_TIMEOUT` padrão: 10 s → 15 s** (v1.2.0). Um falso "offline" custa mais
+caro que um ciclo de coleta mais longo. No servidor de produção foi para 20 s,
+por causa desse site específico; o ciclo completo com 36 domínios passou a
+levar ~31 s, folgado nos 5 minutos entre coletas.
+
+### Testes
+
+2 novos (149 no total): cinco leituras boas e uma ruim não geram aviso, e três
+seguidas geram; e a contagem exige falhas **consecutivas** — duas falhas, uma
+recuperação e outra falha não somam três.
