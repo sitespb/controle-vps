@@ -287,14 +287,19 @@ mysqldump -u usuario -p banco | gzip > /backup/antes-da-atualizacao.sql.gz
 php bin/console.php migrate:status
 php bin/console.php migrate
 
-# 4. Se a interface mudou
-npm install && npm run build:css
-
-# 5. Limpe o cache de configurações
+# 4. Limpe o cache de configurações
 rm -f storage/cache/settings.php
+
+# 5. O OPcache guarda o código antigo em memória — sem isto, os
+#    arquivos novos ficam no disco sem entrar em uso
+pkill lsphp   # ou: systemctl restart lsws
 ```
 
 As migrations são idempotentes (`CREATE TABLE IF NOT EXISTS`, `INSERT IGNORE`) e controladas pela tabela `migrations` — rodar de novo não duplica nada.
+
+> **Node não é necessário no servidor.** O `public/assets/css/app.css` é versionado no repositório e viaja junto com os arquivos. Quem **desenvolve** roda `npm run build:css` antes de commitar; quem faz o deploy só copia.
+>
+> Isso é deliberado: enquanto o CSS ficava fora do repositório, o deploy não o levava e a interface quebrava em silêncio — nenhum erro, nenhum log, testes passando, apenas um botão invisível porque a classe do fundo não existia no CSS.
 
 ---
 

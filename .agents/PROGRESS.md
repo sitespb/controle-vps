@@ -1066,3 +1066,45 @@ levar ~31 s, folgado nos 5 minutos entre coletas.
 2 novos (149 no total): cinco leituras boas e uma ruim não geram aviso, e três
 seguidas geram; e a contagem exige falhas **consecutivas** — duas falhas, uma
 recuperação e outra falha não somam três.
+
+---
+
+## 16. O CSS que não viajava no deploy (29/08/2026)
+
+O switcher "Ciente" **sumia** ao ser marcado. Não sumia: ficava invisível.
+
+O botão usa `bg-amber-500` quando ligado e `translate-x-6` para mover a
+bolinha. Nenhuma das duas existia no `app.css` compilado — que era de **20 de
+agosto**, anterior a tudo que foi construído depois. Sem cor de fundo, o botão
+virava um retângulo transparente com um ponto branco sobre um card branco.
+
+### A causa é de processo, não de código
+
+O Tailwind só inclui no CSS as classes que **encontra no código-fonte**. Escrevi
+classes novas em três funcionalidades seguidas — avisos, Turnstile e o switcher
+— e nunca rodei `npm run build:css`. Como o `app.css` estava no `.gitignore`,
+ele também nunca entrou em nenhum dos pacotes de deploy.
+
+Outras coisas estavam sutilmente sem estilo desde o dia anterior e ninguém
+notou: o selo "Ciente" na lista de sites, a caixa âmbar da aba Recaptcha e a
+caixa azul do limite de envio na tela de Avisos.
+
+### Por que essa falha é pior que um erro
+
+Nada quebra. Nenhum log, nenhuma exceção, **149 testes passando**. A interface
+só fica errada — e de um jeito que parece bug de lógica, não de build. Custou
+uma investigação inteira num botão cujo código estava correto desde o começo.
+
+### Correção
+
+O `public/assets/css/app.css` passou a ser **versionado**. O argumento usual
+contra — "é artefato de build, polui o diff" — vale para projetos que compilam
+no servidor. Aqui o deploy é `scp` manual, e um artefato não versionado é
+exatamente o que se esquece.
+
+Versionado, o estilo viaja junto com a view que depende dele. O custo é um diff
+feio de vez em quando; o benefício é uma classe inteira de bug que deixa de
+existir. O `docs/INSTALACAO-VPS.md` também deixou de pedir Node no servidor.
+
+**Regra que fica:** ao alterar qualquer view, rodar `npm run build:css` antes
+de commitar.

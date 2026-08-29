@@ -13,8 +13,20 @@
 /public/uploads/*
 !/public/uploads/.gitkeep
 
-# CSS compilado (gerado por `npm run build:css`)
-/public/assets/css/app.css
+# O CSS compilado E VERSIONADO de proposito.
+#
+# O Tailwind so inclui as classes que encontra no codigo-fonte, entao o
+# app.css precisa ser reconstruido sempre que uma view ganha classe nova.
+# Enquanto ele ficava de fora do repositorio, o deploy (scp manual, sem build
+# no servidor) simplesmente nao o levava - e a interface quebrava em silencio:
+# nenhum erro, nenhum log, testes passando, so um botao invisivel porque a
+# classe do fundo nao existia no CSS.
+#
+# Versionado, o estilo viaja junto com a view que depende dele. O custo e um
+# diff feio de vez em quando; o beneficio e uma classe inteira de bug que
+# deixa de existir.
+#
+# Ao alterar qualquer view: rode `npm run build:css` ANTES de commitar.
 
 # Configuracao real do agente
 /agent/config.php
