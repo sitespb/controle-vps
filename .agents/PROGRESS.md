@@ -1365,3 +1365,21 @@ mesma categoria do falso alarme de site offline (seção 15) e do alerta de CPU
 por amostra única: **o custo não é o erro, é a desconfiança que ele instala.**
 
 Publicado como `v1.2.1`.
+
+## 21. Versao do agente visivel no painel (v1.2.2)
+
+`AGENT_VERSION` estava em `'1.0.0'` desde a primeira versao. Nada quebrava por
+isso - o agente rodava normalmente -, mas o painel exibe esse numero em quatro
+telas, e durante o deploy da v1.2.1 nos quatro servidores de producao todos
+apareciam como "v1.0.0". Justamente quando saber quem ja tinha atualizado era
+o que importava, o painel nao respondia.
+
+Tres arquivos declaram a versao, em linguagens diferentes:
+
+  agent/agent.php        const AGENT_VERSION = '1.2.2';
+  agent/install.sh       AGENT_REF="v1.2.2"
+  config/monitoring.php  'agent_ref' => Env::get('AGENT_REF', 'v1.2.2')
+
+`AgentApiTest::testVersaoDoAgenteAcompanhaATagPublicada` le os tres por regex e
+exige que concordem. E o tipo de desalinhamento que nenhum teste de
+comportamento pega, porque o sistema continua funcionando errado em silencio.

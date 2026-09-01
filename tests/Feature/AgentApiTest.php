@@ -578,4 +578,50 @@ final class AgentApiTest extends TestCase
 
         $this->assertStatus(401, $response, 'Endpoint administrativo nao pode ficar aberto.');
     }
+
+    /**
+     * As tres pontas que declaram a versao do agente precisam concordar.
+     *
+     * Sao arquivos de naturezas diferentes - PHP, shell e config - e por isso
+     * o desalinhamento passa despercebido: nada quebra, o agente roda, e o
+     * painel apenas mostra um numero errado. Foi o que aconteceu ate a v1.2.1,
+     * com os quatro servidores reportando "v1.0.0" durante um deploy em que
+     * saber quem ja tinha atualizado era justamente o que importava.
+     */
+    public function testVersaoDoAgenteAcompanhaATagPublicada(): void
+    {
+        $agente = (string) file_get_contents(\BASE_PATH . '/agent/agent.php');
+        $script = (string) file_get_contents(\BASE_PATH . '/agent/install.sh');
+        $config = (string) file_get_contents(\BASE_PATH . '/config/monitoring.php');
+
+        $this->assertEquals(
+            1,
+            preg_match("/const AGENT_VERSION = '([^']+)';/", $agente, $a),
+            'AGENT_VERSION nao encontrado em agent/agent.php.'
+        );
+
+        $this->assertEquals(
+            1,
+            preg_match('/^AGENT_REF="([^"]+)"/m', $script, $b),
+            'AGENT_REF nao encontrado em agent/install.sh.'
+        );
+
+        $this->assertEquals(
+            1,
+            preg_match("/'agent_ref'\s*=>\s*Env::get\('AGENT_REF',\s*'([^']+)'\)/", $config, $c),
+            'Padrao de agent_ref nao encontrado em config/monitoring.php.'
+        );
+
+        $this->assertEquals(
+            'v' . $a[1],
+            $b[1],
+            'A tag baixada pelo instalador precisa ser a versao que o agente declara.'
+        );
+
+        $this->assertEquals(
+            $b[1],
+            $c[1],
+            'O painel monta o comando de instalacao com esta tag; ela nao pode divergir do instalador.'
+        );
+    }
 }

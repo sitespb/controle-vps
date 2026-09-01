@@ -37,7 +37,17 @@ if (\PHP_SAPI !== 'cli') {
     exit("Este agente roda apenas via linha de comando.\n");
 }
 
-const AGENT_VERSION = '1.0.0';
+/*
+ * Versao do agente, reportada ao painel a cada coleta.
+ *
+ * Precisa acompanhar a TAG publicada (AGENT_REF em install.sh e em
+ * config/monitoring.php). Ficou parada em 1.0.0 por tres versoes, e o efeito
+ * so apareceu num deploy: com quatro servidores em producao o painel mostrava
+ * "v1.0.0" em todos, e nao havia como saber quais ja tinham recebido a
+ * correcao. AgentApiTest::testVersaoDoAgenteAcompanhaATagPublicada guarda o
+ * alinhamento entre os tres arquivos.
+ */
+const AGENT_VERSION = '1.2.2';
 
 require __DIR__ . '/lib/Config.php';
 require __DIR__ . '/lib/Logger.php';

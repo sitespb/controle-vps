@@ -68,7 +68,7 @@ FORCE=0
 # comando de instalacao apontando para a versao que ele conhece. Assim um
 # painel antigo nunca instala um agente novo demais para ele.
 AGENT_REPO="sitespb/controle-vps"
-AGENT_REF="v1.2.1"
+AGENT_REF="v1.2.2"
 
 # Executado por `curl ... | bash`, BASH_SOURCE fica VAZIO - e com `set -u`
 # isso seria "unbound variable" na primeira linha util do script. O fallback
