@@ -99,7 +99,7 @@ final class Validator
                 || (\is_array($value) && $value === []);
 
             if ($required && $isEmpty) {
-                $this->addError($field, 'O campo %s e obrigatorio.');
+                $this->addError($field, 'O campo %s é obrigatório.');
                 continue;
             }
 
@@ -144,13 +144,13 @@ final class Validator
             case 'int':
             case 'integer':
                 if (filter_var($value, FILTER_VALIDATE_INT) === false) {
-                    return $this->addError($field, 'O campo %s deve ser um numero inteiro.');
+                    return $this->addError($field, 'O campo %s deve ser um número inteiro.');
                 }
                 break;
 
             case 'numeric':
                 if (!is_numeric($value)) {
-                    return $this->addError($field, 'O campo %s deve ser numerico.');
+                    return $this->addError($field, 'O campo %s deve ser numérico.');
                 }
                 break;
 
@@ -169,7 +169,7 @@ final class Validator
 
             case 'email':
                 if (filter_var((string) $value, FILTER_VALIDATE_EMAIL) === false) {
-                    return $this->addError($field, 'Informe um e-mail valido no campo %s.');
+                    return $this->addError($field, 'Informe um e-mail válido no campo %s.');
                 }
                 break;
 
@@ -199,27 +199,27 @@ final class Validator
 
             case 'date':
                 if (strtotime((string) $value) === false) {
-                    return $this->addError($field, 'Informe uma data valida no campo %s.');
+                    return $this->addError($field, 'Informe uma data válida no campo %s.');
                 }
                 break;
 
             case 'min':
                 $min = (float) $param;
                 if (\is_string($value) && mb_strlen($value) < $min) {
-                    return $this->addError($field, sprintf('O campo %%s deve ter no minimo %d caracteres.', (int) $min));
+                    return $this->addError($field, sprintf('O campo %%s deve ter no mínimo %d caracteres.', (int) $min));
                 }
                 if (is_numeric($value) && !\is_string($value) && (float) $value < $min) {
-                    return $this->addError($field, sprintf('O campo %%s deve ser no minimo %s.', $param));
+                    return $this->addError($field, sprintf('O campo %%s deve ser no mínimo %s.', $param));
                 }
                 break;
 
             case 'max':
                 $max = (float) $param;
                 if (\is_string($value) && mb_strlen($value) > $max) {
-                    return $this->addError($field, sprintf('O campo %%s deve ter no maximo %d caracteres.', (int) $max));
+                    return $this->addError($field, sprintf('O campo %%s deve ter no máximo %d caracteres.', (int) $max));
                 }
                 if (is_numeric($value) && !\is_string($value) && (float) $value > $max) {
-                    return $this->addError($field, sprintf('O campo %%s deve ser no maximo %s.', $param));
+                    return $this->addError($field, sprintf('O campo %%s deve ser no máximo %s.', $param));
                 }
                 break;
 
@@ -234,25 +234,25 @@ final class Validator
             case 'in':
                 $options = explode(',', (string) $param);
                 if (!\in_array((string) $value, $options, true)) {
-                    return $this->addError($field, 'O valor selecionado em %s e invalido.');
+                    return $this->addError($field, 'O valor selecionado em %s é inválido.');
                 }
                 break;
 
             case 'regex':
                 if (@preg_match((string) $param, (string) $value) !== 1) {
-                    return $this->addError($field, 'O campo %s tem formato invalido.');
+                    return $this->addError($field, 'O campo %s tem formato inválido.');
                 }
                 break;
 
             case 'confirmed':
                 if (($this->data[$field . '_confirmation'] ?? null) !== $value) {
-                    return $this->addError($field, 'A confirmacao do campo %s nao confere.');
+                    return $this->addError($field, 'A confirmacao do campo %s não confere.');
                 }
                 break;
 
             case 'same':
                 if (($this->data[(string) $param] ?? null) !== $value) {
-                    return $this->addError($field, 'O campo %s nao confere.');
+                    return $this->addError($field, 'O campo %s não confere.');
                 }
                 break;
         }

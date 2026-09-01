@@ -40,7 +40,7 @@ final class Alert extends Model
         return [
             self::TYPE_SERVER_OFFLINE     => 'Servidor offline',
             self::TYPE_SERVER_CPU_HIGH    => 'CPU alta',
-            self::TYPE_SERVER_MEMORY_HIGH => 'Memoria alta',
+            self::TYPE_SERVER_MEMORY_HIGH => 'Memória alta',
             self::TYPE_SERVER_DISK_HIGH   => 'Disco cheio',
             self::TYPE_SITE_OFFLINE       => 'Site offline',
             self::TYPE_SSL_EXPIRING       => 'SSL vencendo',

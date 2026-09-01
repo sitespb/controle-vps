@@ -12,7 +12,7 @@ $currentId = (int) ($currentUser['id'] ?? 0);
 
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div>
-        <h2 class="text-2xl font-bold text-gray-900">Usuarios</h2>
+        <h2 class="text-2xl font-bold text-gray-900">Usuários</h2>
         <p class="text-sm text-gray-600 mt-1">
             <strong>Administrador</strong> tem acesso completo.
             <strong>Operador</strong> visualiza servidores, sites e alertas, sem alterar cadastros.
@@ -24,7 +24,7 @@ $currentId = (int) ($currentUser['id'] ?? 0);
         <svg class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
         </svg>
-        Novo usuario
+        Novo usuário
     </a>
 </div>
 
@@ -36,9 +36,9 @@ $currentId = (int) ($currentUser['id'] ?? 0);
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-mail</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perfil</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Situacao</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ultimo acesso</th>
-                    <th class="px-4 py-3 whitespace-nowrap text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acoes</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Situação</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último acesso</th>
+                    <th class="px-4 py-3 whitespace-nowrap text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -53,7 +53,7 @@ $currentId = (int) ($currentUser['id'] ?? 0);
                                 <div class="min-w-0">
                                     <p class="text-sm font-medium text-gray-900 truncate"><?= e($user['name']) ?></p>
                                     <?php if ($isSelf) : ?>
-                                        <p class="text-xs text-gray-500">voce</p>
+                                        <p class="text-xs text-gray-500">você</p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -94,7 +94,7 @@ $currentId = (int) ($currentUser['id'] ?? 0);
                                 <?php if (!$isSelf) : ?>
                                     <form method="POST" action="<?= e(url('/usuarios/' . $user['id'] . '/excluir')) ?>"
                                           class="inline"
-                                          data-confirm="Excluir o usuario <?= e($user['name']) ?>?">
+                                          data-confirm="Excluir o usuário <?= e($user['name']) ?>?">
                                         <?= csrf_field() ?>
                                         <button type="submit"
                                                 class="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Excluir">
@@ -115,7 +115,7 @@ $currentId = (int) ($currentUser['id'] ?? 0);
 
 <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-md">
     <p class="text-sm text-blue-700 leading-relaxed">
-        As senhas sao gravadas apenas como hash (<code class="px-1 py-0.5 bg-blue-100 rounded text-xs">password_hash()</code>)
+        As senhas são gravadas apenas como hash (<code class="px-1 py-0.5 bg-blue-100 rounded text-xs">password_hash()</code>)
         e nunca podem ser lidas de volta. Para redefinir sem acesso ao painel, use
         <code class="px-1 py-0.5 bg-blue-100 rounded text-xs">php bin/console.php user:password</code>.
     </p>

@@ -182,7 +182,7 @@ final class DuplicateSiteTest extends TestCase
 
         $html = $this->request('GET', '/sites/' . $idA)->content();
 
-        $this->assertContainsString('Esta copia nao esta sendo usada', $html);
+        $this->assertContainsString('Esta cópia não está sendo usada', $html);
         $this->assertContainsString('Servidor B', $html, 'Precisa dizer qual servidor responde.');
         $this->assertContainsString('203.0.113.20', $html, 'E para onde o DNS aponta.');
     }
@@ -195,7 +195,7 @@ final class DuplicateSiteTest extends TestCase
 
         $html = $this->request('GET', '/sites/' . $id)->content();
 
-        $this->assertNotContainsString('Esta copia nao esta sendo usada', $html);
+        $this->assertNotContainsString('Esta cópia não está sendo usada', $html);
         $this->assertNotContainsString('existe em mais de um servidor', $html);
     }
 

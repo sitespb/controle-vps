@@ -65,7 +65,7 @@ $badgeClass = match ($tone) {
         </a>
         <button type="button" onclick="history.back()"
                 class="px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors">
-            Pagina anterior
+            Página anterior
         </button>
     </div>
 </div>

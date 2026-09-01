@@ -90,7 +90,7 @@ $appName = (string) Config::get('app.name', 'Controle VPS');
         <footer class="px-4 sm:px-6 lg:px-8 py-4 text-xs text-gray-400 border-t border-gray-200 bg-white">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
                 <span><?= e($appName) ?> v<?= e(App::VERSION) ?> &middot; Central de monitoramento CyberPanel</span>
-                <span>Somente monitoramento &mdash; esta versao nao executa acoes nos servidores.</span>
+                <span>Somente monitoramento &mdash; esta versão não executa ações nos servidores.</span>
             </div>
         </footer>
     </div>

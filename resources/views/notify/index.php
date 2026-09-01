@@ -32,7 +32,7 @@ $dica = 'text-xs text-gray-500 mt-1';
 <div class="mb-6">
     <h2 class="text-2xl font-bold text-gray-900">Avisos</h2>
     <p class="text-sm text-gray-600 mt-1">
-        Receba um aviso quando um site sair do ar. Um monitoramento que ninguem olha nao avisa nada.
+        Receba um aviso quando um site sair do ar. Um monitoramento que ninguém olha não avisa nada.
     </p>
 </div>
 
@@ -42,13 +42,13 @@ $dica = 'text-xs text-gray-500 mt-1';
 <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
     <p class="text-sm text-blue-900">
         <strong>Limite de envio.</strong>
-        Cada dominio gera no maximo <strong>1 aviso a cada
+        Cada domínio gera no máximo <strong>1 aviso a cada
         <?= (int) $windowHours ?> horas</strong>,
-        e cada canal envia no maximo <strong><?= (int) $hourlyCap ?> mensagens por hora</strong>.
+        e cada canal envia no máximo <strong><?= (int) $hourlyCap ?> mensagens por hora</strong>.
     </p>
     <p class="text-xs text-blue-800 mt-1">
-        A primeira regra evita que um site instavel avise a cada coleta. A segunda protege o provedor
-        quando um servidor inteiro cai e dezenas de dominios ficam offline ao mesmo tempo.
+        A primeira regra evita que um site instável avise a cada coleta. A segunda protege o provedor
+        quando um servidor inteiro cai e dezenas de domínios ficam offline ao mesmo tempo.
     </p>
 </div>
 
@@ -91,7 +91,7 @@ $dica = 'text-xs text-gray-500 mt-1';
             <label class="flex items-center justify-between gap-4 pb-4 border-b border-gray-100">
                 <span>
                     <span class="text-sm font-medium text-gray-900">Enviar avisos por e-mail</span>
-                    <span class="block <?= $dica ?>">Desligado, nenhum e-mail sai — nem os de teste automatico.</span>
+                    <span class="block <?= $dica ?>">Desligado, nenhum e-mail sai — nem os de teste automático.</span>
                 </span>
                 <input type="checkbox" name="enabled" value="1" <?= $emailAtivo ? 'checked' : '' ?>
                        class="h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-primary transition-colors cursor-pointer relative
@@ -125,9 +125,9 @@ $dica = 'text-xs text-gray-500 mt-1';
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="<?= $rotulo ?>">Usuario</label>
+                    <label class="<?= $rotulo ?>">Usuário</label>
                     <input type="text" name="smtp_user" value="<?= e($email['smtp_user'] ?? '') ?>"
-                           placeholder="voce@gmail.com" autocomplete="off" class="<?= $campo ?>">
+                           placeholder="você@gmail.com" autocomplete="off" class="<?= $campo ?>">
                 </div>
 
                 <!-- Campo sensivel: mascarado, com olho para revelar -->
@@ -151,9 +151,9 @@ $dica = 'text-xs text-gray-500 mt-1';
                     </div>
                     <p class="<?= $dica ?>">
                         <?php if ($emailHasSecret) : ?>
-                            Ja configurada. Deixe em branco para manter.
+                            Já configurada. Deixe em branco para manter.
                         <?php else : ?>
-                            No Gmail use uma <strong>Senha de app</strong>, nao a senha da conta.
+                            No Gmail use uma <strong>Senha de app</strong>, não a senha da conta.
                         <?php endif; ?>
                     </p>
                 </div>
@@ -163,8 +163,8 @@ $dica = 'text-xs text-gray-500 mt-1';
                 <div>
                     <label class="<?= $rotulo ?>">Remetente</label>
                     <input type="email" name="from_email" value="<?= e($email['from_email'] ?? '') ?>"
-                           placeholder="igual ao usuario" class="<?= $campo ?>">
-                    <p class="<?= $dica ?>">Em branco, usa o proprio usuario do SMTP.</p>
+                           placeholder="igual ao usuário" class="<?= $campo ?>">
+                    <p class="<?= $dica ?>">Em branco, usa o próprio usuário do SMTP.</p>
                 </div>
                 <div>
                     <label class="<?= $rotulo ?>">Nome do remetente</label>
@@ -173,15 +173,15 @@ $dica = 'text-xs text-gray-500 mt-1';
             </div>
 
             <div>
-                <label class="<?= $rotulo ?>">Destinatarios</label>
+                <label class="<?= $rotulo ?>">Destinatários</label>
                 <textarea name="recipients" rows="2" placeholder="voce@empresa.com.br, plantao@empresa.com.br"
                           class="<?= $campo ?> font-mono"><?= e($email['recipients'] ?? '') ?></textarea>
-                <p class="<?= $dica ?>">Separe por virgula, ponto-e-virgula ou quebra de linha. Enderecos invalidos sao ignorados.</p>
+                <p class="<?= $dica ?>">Separe por virgula, ponto-e-virgula ou quebra de linha. Endereços invalidos são ignorados.</p>
             </div>
 
             <div class="flex justify-end pt-2 border-t border-gray-100">
                 <button type="submit" class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                    Salvar configuracao
+                    Salvar configuração
                 </button>
             </div>
         </form>
@@ -191,7 +191,7 @@ $dica = 'text-xs text-gray-500 mt-1';
              x-data="testeCanal('<?= e(url('/avisos/email/testar')) ?>')">
             <h3 class="text-lg font-semibold text-gray-900">Testar envio</h3>
             <p class="<?= $dica ?> mb-4">
-                Usa a configuracao <strong>ja salva</strong>. Salve antes de testar uma alteracao.
+                Usa a configuração <strong>já salva</strong>. Salve antes de testar uma alteração.
             </p>
 
             <div class="flex flex-col sm:flex-row gap-3">
@@ -232,7 +232,7 @@ $dica = 'text-xs text-gray-500 mt-1';
             <label class="flex items-center justify-between gap-4 pb-4 border-b border-gray-100">
                 <span>
                     <span class="text-sm font-medium text-gray-900">Enviar avisos por WhatsApp</span>
-                    <span class="block <?= $dica ?>">Requer uma instancia conectada na RyzeAPI.</span>
+                    <span class="block <?= $dica ?>">Requer uma instância conectada na RyzeAPI.</span>
                 </span>
                 <input type="checkbox" name="enabled" value="1" <?= $whatsAtivo ? 'checked' : '' ?>
                        class="h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-primary transition-colors cursor-pointer relative
@@ -247,15 +247,15 @@ $dica = 'text-xs text-gray-500 mt-1';
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="<?= $rotulo ?>">Nome da instancia</label>
+                    <label class="<?= $rotulo ?>">Nome da instância</label>
                     <input type="text" name="instance" value="<?= e($whatsapp['instance'] ?? '') ?>"
-                           placeholder="minha-instancia" autocomplete="off" class="<?= $campo ?>">
-                    <p class="<?= $dica ?>">O mesmo nome usado ao criar a instancia na RyzeAPI.</p>
+                           placeholder="minha-instância" autocomplete="off" class="<?= $campo ?>">
+                    <p class="<?= $dica ?>">O mesmo nome usado ao criar a instância na RyzeAPI.</p>
                 </div>
 
                 <!-- Campo sensivel -->
                 <div x-data="{ ver: false }">
-                    <label class="<?= $rotulo ?>">Token da instancia</label>
+                    <label class="<?= $rotulo ?>">Token da instância</label>
                     <div class="relative">
                         <input :type="ver ? 'text' : 'password'" name="token" value=""
                                placeholder="<?= $whatsHasSecret ? "&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" : "nao configurado" ?>"
@@ -274,24 +274,24 @@ $dica = 'text-xs text-gray-500 mt-1';
                     </div>
                     <p class="<?= $dica ?>">
                         <?php if ($whatsHasSecret) : ?>
-                            Ja configurado. Deixe em branco para manter.
+                            Já configurado. Deixe em branco para manter.
                         <?php else : ?>
-                            Use o <strong>TokenInstance</strong>, nao o TokenAccount.
+                            Use o <strong>TokenInstance</strong>, não o TokenAccount.
                         <?php endif; ?>
                     </p>
                 </div>
             </div>
 
             <div>
-                <label class="<?= $rotulo ?>">Numeros de destino</label>
+                <label class="<?= $rotulo ?>">Números de destino</label>
                 <textarea name="recipients" rows="2" placeholder="5583999999999, 5511988888888"
                           class="<?= $campo ?> font-mono"><?= e($whatsapp['recipients'] ?? '') ?></textarea>
-                <p class="<?= $dica ?>">Com codigo do pais e DDD, so numeros. Separe por virgula ou quebra de linha.</p>
+                <p class="<?= $dica ?>">Com código do pais e DDD, so números. Separe por virgula ou quebra de linha.</p>
             </div>
 
             <div class="flex justify-end pt-2 border-t border-gray-100">
                 <button type="submit" class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                    Salvar configuracao
+                    Salvar configuração
                 </button>
             </div>
         </form>
@@ -299,9 +299,9 @@ $dica = 'text-xs text-gray-500 mt-1';
         <!-- Teste -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
              x-data="testeCanal('<?= e(url('/avisos/whatsapp/testar')) ?>')">
-            <h3 class="text-lg font-semibold text-gray-900">Testar configuracao</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Testar configuração</h3>
             <p class="<?= $dica ?> mb-4">
-                Sem numero, apenas confere se a instancia esta conectada — util para validar token sem gastar mensagem.
+                Sem número, apenas confere se a instância está conectada — útil para validar token sem gastar mensagem.
             </p>
 
             <div class="flex flex-col sm:flex-row gap-3">
@@ -339,7 +339,7 @@ $dica = 'text-xs text-gray-500 mt-1';
      ====================================================================== -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 mt-6">
     <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900">Ultimos envios</h3>
+        <h3 class="text-lg font-semibold text-gray-900">Últimos envios</h3>
     </div>
 
     <?php if ($log === []) : ?>
@@ -393,8 +393,8 @@ $dica = 'text-xs text-gray-500 mt-1';
 /**
  * Componente compartilhado pelos dois botoes de teste.
  *
- * O resultado aparece na propria tela porque o dialogo com o SMTP e a
- * informacao mais util quando algo da errado - e ela nao caberia num flash.
+ * O resultado aparece na própria tela porque o dialogo com o SMTP e a
+ * informação mais útil quando algo da errado - e ela não caberia num flash.
  */
 function testeCanal(endpoint) {
     return {
@@ -412,7 +412,7 @@ function testeCanal(endpoint) {
                     body: { to: this.destino },
                 });
             } catch (e) {
-                // O helper lanca em erro de HTTP; a mensagem ja vem tratada.
+                // O helper lanca em erro de HTTP; a mensagem já vem tratada.
                 this.resultado = { ok: false, error: e.message, detail: [] };
             } finally {
                 this.carregando = false;

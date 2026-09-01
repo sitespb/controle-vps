@@ -24,7 +24,7 @@ $status = $filters['status'] ?? 'active';
     <h2 class="text-2xl font-bold text-gray-900">Alertas</h2>
     <p class="text-sm text-gray-600 mt-1">
         Gerados automaticamente pelas regras de limite, disponibilidade e SSL &mdash;
-        e resolvidos sozinhos quando a condicao normaliza.
+        e resolvidos sozinhos quando a condição normaliza.
     </p>
 </div>
 
@@ -33,7 +33,7 @@ $status = $filters['status'] ?? 'active';
     <?php
     $severityCards = [
         ['label' => 'Criticos',    'value' => $counts['critical'], 'filter' => 'critical', 'class' => 'text-red-700',    'dot' => 'bg-red-500'],
-        ['label' => 'Atencao',     'value' => $counts['warning'],  'filter' => 'warning',  'class' => 'text-yellow-800', 'dot' => 'bg-yellow-400'],
+        ['label' => 'Atenção',     'value' => $counts['warning'],  'filter' => 'warning',  'class' => 'text-yellow-800', 'dot' => 'bg-yellow-400'],
         ['label' => 'Informativos', 'value' => $counts['info'],    'filter' => 'info',     'class' => 'text-blue-700',   'dot' => 'bg-blue-500'],
     ];
 
@@ -60,12 +60,12 @@ $status = $filters['status'] ?? 'active';
         <div class="xl:col-span-2">
             <label for="q" class="block text-sm font-medium text-gray-700 mb-1">Pesquisar</label>
             <input type="search" id="q" name="q" value="<?= e($filters['search'] ?? '') ?>"
-                   data-auto-submit-delay="600" placeholder="Titulo ou mensagem do alerta"
+                   data-auto-submit-delay="600" placeholder="Título ou mensagem do alerta"
                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-primary focus:border-primary">
         </div>
 
         <div>
-            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Situacao</label>
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Situação</label>
             <select id="status" name="status" data-auto-submit
                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary focus:border-primary">
                 <?php foreach ([
@@ -166,7 +166,7 @@ $status = $filters['status'] ?? 'active';
                                 <?php endif; ?>
                                 <span>&middot; desde <?= e(format_datetime($alert['first_seen_at'])) ?></span>
                                 <?php if ((int) $alert['occurrences'] > 1) : ?>
-                                    <span>&middot; <?= (int) $alert['occurrences'] ?> ocorrencia(s)</span>
+                                    <span>&middot; <?= (int) $alert['occurrences'] ?> ocorrência(s)</span>
                                 <?php endif; ?>
                                 <?php if ($isResolved && $alert['resolved_at'] !== null) : ?>
                                     <span class="text-green-700">&middot; resolvido em <?= e(format_datetime($alert['resolved_at'])) ?></span>

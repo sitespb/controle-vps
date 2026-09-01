@@ -88,7 +88,7 @@ $metricCell = static function (?float $value, string $metric): string {
             <select id="status" name="status" data-auto-submit
                     class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-primary focus:border-primary">
                 <option value="">Todos</option>
-                <?php foreach (['online' => 'Online', 'offline' => 'Offline', 'warning' => 'Atencao', 'unknown' => 'Desconhecido'] as $value => $label) : ?>
+                <?php foreach (['online' => 'Online', 'offline' => 'Offline', 'warning' => 'Atenção', 'unknown' => 'Desconhecido'] as $value => $label) : ?>
                     <option value="<?= e($value) ?>" <?= ($filters['status'] ?? '') === $value ? 'selected' : '' ?>><?= e($label) ?></option>
                 <?php endforeach; ?>
             </select>
@@ -141,8 +141,8 @@ $metricCell = static function (?float $value, string $metric): string {
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RAM</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Disco</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sites</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ultima comunicacao</th>
-                        <th class="px-4 py-3 whitespace-nowrap text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acoes</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última comunicação</th>
+                        <th class="px-4 py-3 whitespace-nowrap text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">

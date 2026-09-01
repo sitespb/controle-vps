@@ -1235,3 +1235,75 @@ puder ser satisfeita por acidente.
 4 novos (165 no total): o seletor aparece com todas as opções, a quantidade
 limita a listagem, valor fora da lista volta ao padrão em vez de aceitar
 qualquer número, e a escolha sobrevive a filtros e ordenação.
+
+---
+
+## 19. Acentuação do front-end (29/08/2026)
+
+O painel nasceu inteiro sem acento — `Atencao`, `Utilizacao`, `Metricas`,
+`Usuarios`. Correto em comentário de código; errado no que o operador lê.
+
+### O risco real não era o acento, era o identificador
+
+Várias palavras são **texto visível e nome de parâmetro ao mesmo tempo**:
+`acao`, `ate`, `nivel`, `pagina`, `servidor`, `severidade`, `tipo`. Acentuar
+`name="acao"` quebraria o filtro de logs **sem erro nenhum** — a página
+carregaria e o filtro simplesmente pararia de funcionar.
+
+A solução foi escolher o alvo certo em vez de confiar em lista de exceções:
+substituir apenas dentro de **nós de texto HTML** (o que fica entre `>` e `<`).
+Isso exclui, por construção, tudo que vive dentro de uma tag — `name=`, `id=`,
+`value=`, `href=`, `class=` — que é exatamente onde moram os identificadores.
+
+Para os literais em PHP (mensagens de flash, validação, rótulos), o critério
+foi outro e igualmente simples: **identificador não tem espaço**.
+`'site_offline'` e `'warning'` passam batido; `'Configuração salva.'` é
+tratado.
+
+### O mapa saiu do vocabulário real, não de suposição
+
+Depois da primeira passada, um detector listou o que ainda estava sem acento —
+e depois um extrator listou **todas as 708 palavras distintas** do texto
+visível. Sobraram 7 candidatas, das quais duas eram ambíguas:
+
+- **`esta`** — verbo ou demonstrativo. Resolvido por contexto: `esta sendo`,
+  `esta no`, `esta ativo` viram `está`; `esta cópia`, `esta tela` ficam sem
+  acento.
+- **`tem`** — sempre singular nas ocorrências ("tem acesso", "tem como"), então
+  fica sem acento.
+
+Resultado: 3 passadas, ~260 trechos, 29 arquivos.
+
+### ⚠️ O erro que apagou 65 arquivos
+
+Na passada dos literais PHP, o regex do script falhou na compilação.
+`preg_replace_callback` devolve **`null`** nesse caso — e minha condição era:
+
+```php
+if ($novo !== $original) {      // null !== conteúdo → verdadeiro
+    file_put_contents($arquivo, $novo);   // grava null = arquivo vazio
+}
+```
+
+**65 arquivos de `app/` foram esvaziados.** A verificação correta é testar
+`$novo === null` antes de escrever; comparar com o original não distingue
+"mudou" de "falhou".
+
+Recuperado com `git checkout -- app/` sem perda, porque o commit da paginação
+tinha sido feito **antes** da varredura — deliberadamente, para que o `git
+diff` mostrasse o efeito do script. O hábito de commitar antes de uma mudança
+mecânica em massa foi o que transformou um desastre em um contratempo de dois
+minutos.
+
+Efeito colateral: o `checkout` também desfez quatro edições manuais ainda não
+commitadas (`status_label`, `Alert::types`, `groupLabels`, `Validator`), que
+precisaram ser refeitas.
+
+### Verificação
+
+- rotas (`/configuracoes`, `/metricas`, `/usuarios`…) e os 42 `name=` dos
+  formulários conferidos um a um: nenhum ganhou acento;
+- `php -l` em todas as views alteradas;
+- arquivos agora em UTF-8, e o layout já declarava `charset=UTF-8`;
+- 168 testes passando — o único que quebrou foi uma asserção que procurava o
+  texto antigo, o que é o comportamento desejado de um teste de interface.

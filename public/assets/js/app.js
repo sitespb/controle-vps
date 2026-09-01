@@ -58,7 +58,7 @@
         try {
             payload = await response.json();
         } catch (e) {
-            throw new Error('Resposta invalida do servidor (HTTP ' + response.status + ').');
+            throw new Error('Resposta inválida do servidor (HTTP ' + response.status + ').');
         }
 
         if (!response.ok || payload.ok === false) {
@@ -222,7 +222,7 @@
             showCopyFeedback(feedbackEl, 'Copiado!', true);
             return true;
         } catch (e) {
-            showCopyFeedback(feedbackEl, 'Nao foi possivel copiar', false);
+            showCopyFeedback(feedbackEl, 'Não foi possível copiar', false);
             return false;
         }
     }

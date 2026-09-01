@@ -15,9 +15,9 @@
 ?>
 
 <div class="mb-6">
-    <h2 class="text-2xl font-bold text-gray-900">Configuracoes do sistema</h2>
+    <h2 class="text-2xl font-bold text-gray-900">Configurações do sistema</h2>
     <p class="text-sm text-gray-600 mt-1">
-        Limites de alerta, coleta e retencao. As alteracoes passam a valer na proxima avaliacao,
+        Limites de alerta, coleta e retenção. As alterações passam a valer na próxima avaliação,
         sem precisar reiniciar nada.
     </p>
 </div>
@@ -101,12 +101,12 @@
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p class="text-xs text-gray-500 leading-relaxed">
-                    O limite <strong>critico</strong> deve sempre ser mais severo que o de <strong>atencao</strong> &mdash;
+                    O limite <strong>crítico</strong> deve sempre ser mais severo que o de <strong>atenção</strong> &mdash;
                     maior nos percentuais, menor nos dias de SSL. O painel valida isso antes de salvar.
                 </p>
                 <button type="submit"
                         class="px-8 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-red-800 transition-colors shadow-sm whitespace-nowrap">
-                    Salvar configuracoes
+                    Salvar configurações
                 </button>
             </div>
         </form>
@@ -149,7 +149,7 @@
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-1">Manutencao automatica</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">Manutenção automática</h3>
             <p class="text-xs text-gray-500 mb-4 leading-relaxed">
                 Estes scripts rodam pelo cron do painel. Consulte
                 <code class="px-1 py-0.5 bg-gray-100 rounded">docs/INSTALACAO-LOCAL.md</code> para o agendamento.
@@ -162,7 +162,7 @@
                 </li>
                 <li class="flex gap-2">
                     <code class="px-1.5 py-0.5 bg-gray-100 rounded text-xs flex-shrink-0">cleanup.php</code>
-                    <span class="text-gray-600">aplica a retencao configurada acima</span>
+                    <span class="text-gray-600">aplica a retenção configurada acima</span>
                 </li>
             </ul>
         </div>
@@ -183,7 +183,7 @@
 
                 <label class="flex items-center justify-between gap-4 pb-4 border-b border-gray-100">
                     <span>
-                        <span class="text-sm font-medium text-gray-900">Exigir verificacao no login</span>
+                        <span class="text-sm font-medium text-gray-900">Exigir verificação no login</span>
                         <span class="block text-xs text-gray-500 mt-1">
                             O widget so aparece com as duas chaves preenchidas &mdash; um captcha que nunca
                             valida impediria o login sem proteger nada.
@@ -201,7 +201,7 @@
                            placeholder="0x4AAAAAAA..." autocomplete="off"
                            class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-primary focus:border-primary">
                     <p class="text-xs text-gray-500 mt-1">
-                        Publica: vai no HTML da tela de login. Pode ser vista por qualquer visitante.
+                        Pública: vai no HTML da tela de login. Pode ser vista por qualquer visitante.
                     </p>
                 </div>
 
@@ -226,7 +226,7 @@
                     </div>
                     <p class="text-xs text-gray-500 mt-1">
                         <?php if ($turnstileHasSecret) : ?>
-                            Ja configurada e cifrada no banco. Deixe em branco para manter.
+                            Já configurada e cifrada no banco. Deixe em branco para manter.
                         <?php else : ?>
                             Fica somente no servidor, cifrada. Nunca aparece no HTML.
                         <?php endif; ?>
@@ -245,13 +245,13 @@
                  x-data="testeTurnstile('<?= e(url('/configuracoes/turnstile/testar')) ?>')">
                 <h3 class="text-lg font-semibold text-gray-900">Testar as chaves</h3>
                 <p class="text-xs text-gray-500 mt-1 mb-4">
-                    Confere as chaves <strong>ja salvas</strong> junto a Cloudflare, sem precisar resolver
+                    Confere as chaves <strong>já salvas</strong> junto a Cloudflare, sem precisar resolver
                     um captcha nem sair desta tela.
                 </p>
 
                 <button type="button" @click="executar()" :disabled="carregando"
                         class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50">
-                    <span x-show="!carregando">Testar configuracao</span>
+                    <span x-show="!carregando">Testar configuração</span>
                     <span x-show="carregando" x-cloak>Testando...</span>
                 </button>
 
@@ -276,12 +276,12 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">Onde obter as chaves</h3>
                 <ol class="text-sm text-gray-600 space-y-2 list-decimal list-inside leading-relaxed">
                     <li>Acesse <span class="font-medium text-gray-900">dash.cloudflare.com</span> &rsaquo; Turnstile</li>
-                    <li>Crie um widget e informe o dominio <code class="px-1 py-0.5 bg-gray-100 rounded text-xs"><?= e($hostname) ?></code></li>
+                    <li>Crie um widget e informe o domínio <code class="px-1 py-0.5 bg-gray-100 rounded text-xs"><?= e($hostname) ?></code></li>
                     <li>Escolha o modo <span class="font-medium">Managed</span> (o recomendado)</li>
                     <li>Copie a <span class="font-medium">Site Key</span> e a <span class="font-medium">Secret Key</span></li>
                 </ol>
                 <p class="text-xs text-gray-500 mt-3">
-                    O Turnstile e gratuito e nao exige que o visitante clique em imagens.
+                    O Turnstile e gratuito e não exige que o visitante clique em imagens.
                 </p>
             </div>
 
@@ -289,8 +289,8 @@
                 <h3 class="text-sm font-semibold text-amber-900 mb-1">Se a Cloudflare sair do ar</h3>
                 <p class="text-xs text-amber-800 leading-relaxed">
                     O login <strong>continua funcionando</strong>. Uma falha de rede ao consultar a
-                    Cloudflare nao tranca o painel &mdash; a protecao contra forca bruta ja e feita pelo
-                    limite por IP e pela contagem de tentativas por usuario. Um token invalido continua
+                    Cloudflare não tranca o painel &mdash; a proteção contra forca bruta já e feita pelo
+                    limite por IP e pela contagem de tentativas por usuário. Um token invalido continua
                     sendo recusado normalmente.
                 </p>
             </div>

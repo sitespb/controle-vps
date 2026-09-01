@@ -53,7 +53,7 @@ $isResolved = $alert['status'] === 'resolved';
                     <dd class="text-sm font-medium text-gray-900 mt-1"><?= e(Alert::typeLabel((string) $alert['type'])) ?></dd>
                 </div>
                 <div>
-                    <dt class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Ocorrencias</dt>
+                    <dt class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Ocorrências</dt>
                     <dd class="text-sm font-medium text-gray-900 mt-1"><?= (int) $alert['occurrences'] ?></dd>
                 </div>
                 <div>
@@ -61,7 +61,7 @@ $isResolved = $alert['status'] === 'resolved';
                     <dd class="text-sm font-medium text-gray-900 mt-1"><?= e(format_datetime($alert['first_seen_at'])) ?></dd>
                 </div>
                 <div>
-                    <dt class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Ultima vez</dt>
+                    <dt class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Última vez</dt>
                     <dd class="text-sm font-medium text-gray-900 mt-1"><?= e(format_datetime($alert['last_seen_at'])) ?></dd>
                 </div>
             </dl>
@@ -175,10 +175,10 @@ $isResolved = $alert['status'] === 'resolved';
 
         <?php if (!$isResolved) : ?>
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Acoes</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Ações</h3>
                 <p class="text-xs text-gray-500 mb-4 leading-relaxed">
-                    Resolver manualmente apenas fecha o registro atual. Se a condicao continuar,
-                    a proxima coleta abre o alerta de novo &mdash; o motor nao depende desta acao.
+                    Resolver manualmente apenas fecha o registro atual. Se a condição continuar,
+                    a próxima coleta abre o alerta de novo &mdash; o motor não depende desta ação.
                 </p>
 
                 <div class="space-y-2">

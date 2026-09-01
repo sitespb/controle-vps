@@ -24,7 +24,7 @@ $hasToken = $token !== null && $token !== '';
     </a>
     <h2 class="text-2xl font-bold text-gray-900">Agente de monitoramento</h2>
     <p class="text-sm text-gray-600 mt-1">
-        Instale o agente no VPS para que ele passe a enviar metricas, servicos e a lista de dominios.
+        Instale o agente no VPS para que ele passe a enviar métricas, serviços e a lista de domínios.
     </p>
 </div>
 
@@ -55,8 +55,8 @@ $hasToken = $token !== null && $token !== '';
 
                 <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md mb-4">
                     <p class="text-sm text-yellow-800 leading-relaxed">
-                        <strong>Copie o token agora.</strong> Ele e exibido uma unica vez.
-                        O painel guarda apenas o hash &mdash; nao ha como recupera-lo depois.
+                        <strong>Copie o token agora.</strong> Ele e exibido uma única vez.
+                        O painel guarda apenas o hash &mdash; não ha como recupera-lo depois.
                         Se perder, gere um novo (o anterior deixa de funcionar).
                     </p>
                 </div>
@@ -80,13 +80,13 @@ $hasToken = $token !== null && $token !== '';
                 <?php if ($tokenInfo !== null) : ?>
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                         <p class="text-sm text-gray-600 leading-relaxed">
-                            O token deste servidor ja foi exibido e nao pode ser recuperado &mdash; o painel armazena
+                            O token deste servidor já foi exibido e não pode ser recuperado &mdash; o painel armazena
                             apenas o hash dele.
                             <br>
                             <span class="text-xs text-gray-500">
                                 Token ativo: <code class="font-mono"><?= e($tokenInfo['token_prefix']) ?>&hellip;</code>
                                 &middot; criado em <?= e(format_datetime($tokenInfo['created_at'])) ?>
-                                &middot; ultimo uso <?= e($tokenInfo['last_used_at'] === null ? 'nunca' : time_ago($tokenInfo['last_used_at'])) ?>
+                                &middot; último uso <?= e($tokenInfo['last_used_at'] === null ? 'nunca' : time_ago($tokenInfo['last_used_at'])) ?>
                             </span>
                         </p>
                     </div>
@@ -94,11 +94,11 @@ $hasToken = $token !== null && $token !== '';
                     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
                         <p class="text-sm text-yellow-800 leading-relaxed">
                             <?php if ((int) $server['is_demo'] === 1) : ?>
-                                Este e um servidor de <strong>demonstracao</strong> e nao possui agente instalado &mdash;
+                                Este e um servidor de <strong>demonstração</strong> e não possui agente instalado &mdash;
                                 os dados dele foram gerados pelo seeder. Gere um token apenas se for reaproveitar este
                                 registro para um VPS real.
                             <?php else : ?>
-                                Este servidor ainda <strong>nao possui um token ativo</strong>. Gere um novo token para
+                                Este servidor ainda <strong>não possui um token ativo</strong>. Gere um novo token para
                                 que o agente consiga se comunicar com o painel.
                             <?php endif; ?>
                         </p>
@@ -118,10 +118,10 @@ $hasToken = $token !== null && $token !== '';
              disponivel para quem precisa, sem competir com o caminho normal.
              ============================================================== -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900">Instalacao no VPS</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Instalação no VPS</h3>
             <p class="text-sm text-gray-600 mt-1 mb-4">
                 Conecte no servidor por SSH como <code class="px-1 py-0.5 bg-gray-100 rounded font-mono">root</code>
-                e rode o comando abaixo. E o unico passo.
+                e rode o comando abaixo. E o único passo.
             </p>
 
             <div class="relative">
@@ -134,7 +134,7 @@ $hasToken = $token !== null && $token !== '';
 
             <?php if (!$hasToken) : ?>
                 <p class="text-xs text-yellow-800 mt-2">
-                    O token real nao aparece mais nesta tela. Gere um novo token para obter o comando pronto.
+                    O token real não aparece mais nesta tela. Gere um novo token para obter o comando pronto.
                 </p>
             <?php endif; ?>
 
@@ -142,9 +142,9 @@ $hasToken = $token !== null && $token !== '';
                 O instalador escolhe o PHP 8.1+ do servidor &mdash; em CyberPanel e aaPanel o
                 <code class="font-mono">php</code> do sistema costuma ser antigo demais &mdash;, baixa o agente
                 <code class="font-mono"><?= e($instructions['agent_ref']) ?></code>, cria o
-                <code class="font-mono">config.php</code> com permissao 600, registra o cron a cada
-                <?= (int) round($instructions['interval'] / 60) ?> minuto(s) e testa a conexao.
-                Se ja houver um agente de <em>outro</em> servidor no destino, ele para e avisa em vez de
+                <code class="font-mono">config.php</code> com permissão 600, registra o cron a cada
+                <?= (int) round($instructions['interval'] / 60) ?> minuto(s) e testa a conexão.
+                Se já houver um agente de <em>outro</em> servidor no destino, ele para e avisa em vez de
                 assumir a identidade.
             </p>
 
@@ -169,7 +169,7 @@ $hasToken = $token !== null && $token !== '';
              data-server="<?= e((string) $server['id']) ?>"
              data-last-seen="<?= e((string) ($server['last_seen_at'] ?? '')) ?>">
 
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Estado da instalacao</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Estado da instalação</h3>
 
             <div class="flex items-start gap-3">
                 <span id="agent-watch-dot"
@@ -179,7 +179,7 @@ $hasToken = $token !== null && $token !== '';
                         <?php if ($server['last_seen_at'] === null) : ?>
                             Aguardando o primeiro contato do agente&hellip;
                         <?php else : ?>
-                            Ultimo contato <?= e(time_ago($server['last_seen_at'])) ?>
+                            Último contato <?= e(time_ago($server['last_seen_at'])) ?>
                         <?php endif; ?>
                     </p>
                     <p id="agent-watch-detail" class="text-xs text-gray-500 mt-1">
@@ -198,9 +198,9 @@ $hasToken = $token !== null && $token !== '';
         <details class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 group">
             <summary class="cursor-pointer list-none flex items-center justify-between gap-4">
                 <span>
-                    <span class="text-sm font-semibold text-gray-900">Instalacao manual ou sem internet no servidor</span>
+                    <span class="text-sm font-semibold text-gray-900">Instalação manual ou sem internet no servidor</span>
                     <span class="block text-xs text-gray-500 mt-0.5">
-                        Envio por scp, conteudo do config.php, linha de cron e execucao manual.
+                        Envio por scp, conteudo do config.php, linha de cron e execução manual.
                     </span>
                 </span>
                 <svg class="h-4 w-4 flex-shrink-0 text-gray-400 transition-transform group-open:rotate-180"
@@ -215,7 +215,7 @@ $hasToken = $token !== null && $token !== '';
                 <div>
                     <p class="text-sm font-medium text-gray-900">1. Envie a pasta do agente</p>
                     <p class="text-xs text-gray-500 mt-1 mb-2">
-                        Necessario apenas quando o VPS nao alcanca o github.com.
+                        Necessário apenas quando o VPS não alcanca o github.com.
                     </p>
                     <div class="relative">
                         <pre id="cmd-upload" class="bg-gray-900 text-gray-100 text-xs rounded-lg p-4 pr-20 overflow-x-auto scrollbar-thin font-mono">scp -r agent/ root@<?= e($server['ip'] ?? 'IP_DO_SERVIDOR') ?>:<?= e($instructions['path']) ?></pre>
@@ -241,7 +241,7 @@ $hasToken = $token !== null && $token !== '';
                     <p class="text-sm font-medium text-gray-900">Conteudo do config.php</p>
                     <p class="text-xs text-gray-500 mt-1 mb-2">
                         O instalador gera este arquivo em
-                        <code class="font-mono"><?= e($instructions['path']) ?>/config.php</code>, com permissao 600.
+                        <code class="font-mono"><?= e($instructions['path']) ?>/config.php</code>, com permissão 600.
                     </p>
                     <div class="relative">
                         <pre id="cfg-block" class="bg-gray-900 text-gray-100 text-xs rounded-lg p-4 pr-20 overflow-x-auto scrollbar-thin font-mono"><?= e($instructions['config_block']) ?></pre>
@@ -255,9 +255,9 @@ $hasToken = $token !== null && $token !== '';
                 <div>
                     <p class="text-sm font-medium text-gray-900">Linha de cron</p>
                     <p class="text-xs text-gray-500 mt-1 mb-2">
-                        O instalador ja registra esta linha, substituindo
-                        <code class="font-mono">CAMINHO_DO_PHP</code> pelo binario que encontrou &mdash; o painel
-                        nao tem como saber esse caminho. Para conferir depois:
+                        O instalador já registra esta linha, substituindo
+                        <code class="font-mono">CAMINHO_DO_PHP</code> pelo binário que encontrou &mdash; o painel
+                        não tem como saber esse caminho. Para conferir depois:
                         <code class="font-mono">crontab -l | grep agent.php</code>.
                     </p>
                     <div class="relative">
@@ -273,7 +273,7 @@ $hasToken = $token !== null && $token !== '';
                     <p class="text-sm font-medium text-gray-900">Executar uma coleta na mao</p>
                     <p class="text-xs text-gray-500 mt-1 mb-2">
                         Use o caminho completo do PHP que o instalador mostrou no fim &mdash;
-                        <code class="font-mono">php</code> puro pode ser a versao antiga do sistema.
+                        <code class="font-mono">php</code> puro pode ser a versão antiga do sistema.
                     </p>
                     <div class="relative">
                         <pre id="cmd-run" class="bg-gray-900 text-gray-100 text-xs rounded-lg p-4 pr-20 overflow-x-auto scrollbar-thin font-mono">CAMINHO_DO_PHP <?= e($instructions['path']) ?>/agent.php --verbose</pre>
@@ -285,8 +285,8 @@ $hasToken = $token !== null && $token !== '';
                 </div>
 
                 <p class="text-xs text-gray-500">
-                    Deu problema? O guia de diagnostico esta em
-                    <code class="font-mono">docs/TROUBLESHOOTING.md</code>, na secao <em>Agente</em>.
+                    Deu problema? O guia de diagnóstico está em
+                    <code class="font-mono">docs/TROUBLESHOOTING.md</code>, na seção <em>Agente</em>.
                 </p>
             </div>
         </details>
@@ -299,7 +299,7 @@ $hasToken = $token !== null && $token !== '';
 
         <!-- Estado da comunicacao -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Comunicacao</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Comunicação</h3>
 
             <dl class="space-y-3 text-sm">
                 <div class="flex justify-between gap-4">
@@ -311,15 +311,15 @@ $hasToken = $token !== null && $token !== '';
                     </dd>
                 </div>
                 <div class="flex justify-between gap-4">
-                    <dt class="text-gray-500">Ultimo heartbeat</dt>
+                    <dt class="text-gray-500">Último heartbeat</dt>
                     <dd class="text-gray-900"><?= e(time_ago($server['last_seen_at'])) ?></dd>
                 </div>
                 <div class="flex justify-between gap-4">
-                    <dt class="text-gray-500">Ultima metrica</dt>
+                    <dt class="text-gray-500">Última métrica</dt>
                     <dd class="text-gray-900"><?= e(time_ago($server['last_metric_at'])) ?></dd>
                 </div>
                 <div class="flex justify-between gap-4">
-                    <dt class="text-gray-500">Versao do agente</dt>
+                    <dt class="text-gray-500">Versão do agente</dt>
                     <dd class="text-gray-900"><?= $server['agent_version'] === null ? '<span class="text-gray-400">--</span>' : 'v' . e($server['agent_version']) ?></dd>
                 </div>
                 <?php if ($tokenInfo !== null) : ?>
@@ -328,7 +328,7 @@ $hasToken = $token !== null && $token !== '';
                         <dd class="text-gray-900 font-mono text-xs"><?= e($tokenInfo['token_prefix']) ?>&hellip;</dd>
                     </div>
                     <div class="flex justify-between gap-4">
-                        <dt class="text-gray-500">Ultimo uso do token</dt>
+                        <dt class="text-gray-500">Último uso do token</dt>
                         <dd class="text-gray-900"><?= e($tokenInfo['last_used_at'] === null ? 'nunca' : time_ago($tokenInfo['last_used_at'])) ?></dd>
                     </div>
                 <?php endif; ?>
@@ -337,16 +337,16 @@ $hasToken = $token !== null && $token !== '';
 
         <!-- Como a autenticacao funciona -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Como a conexao e protegida</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Como a conexão e protegida</h3>
 
             <ul class="space-y-3 text-sm text-gray-600 leading-relaxed">
                 <li class="flex gap-2">
                     <span class="text-green-600 flex-shrink-0">&check;</span>
-                    <span>O token <strong>nunca trafega</strong> na rede. O agente assina cada requisicao com HMAC-SHA256.</span>
+                    <span>O token <strong>nunca trafega</strong> na rede. O agente assina cada requisição com HMAC-SHA256.</span>
                 </li>
                 <li class="flex gap-2">
                     <span class="text-green-600 flex-shrink-0">&check;</span>
-                    <span>Cada envio carrega timestamp e nonce &mdash; uma requisicao capturada nao pode ser reenviada.</span>
+                    <span>Cada envio carrega timestamp e nonce &mdash; uma requisição capturada não pode ser reenviada.</span>
                 </li>
                 <li class="flex gap-2">
                     <span class="text-green-600 flex-shrink-0">&check;</span>
@@ -354,7 +354,7 @@ $hasToken = $token !== null && $token !== '';
                 </li>
                 <li class="flex gap-2">
                     <span class="text-green-600 flex-shrink-0">&check;</span>
-                    <span>O fluxo e so de entrada. O painel <strong>nao envia comandos</strong>, e o agente nao executa nada vindo da API.</span>
+                    <span>O fluxo e so de entrada. O painel <strong>não envia comandos</strong>, e o agente não executa nada vindo da API.</span>
                 </li>
             </ul>
         </div>
@@ -364,11 +364,11 @@ $hasToken = $token !== null && $token !== '';
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Gerar novo token</h3>
             <p class="text-sm text-gray-600 mb-4 leading-relaxed">
                 Use quando o token atual for perdido ou comprometido. O anterior e
-                <strong>invalidado na hora</strong> e o agente para de reportar ate ser reconfigurado.
+                <strong>invalidado na hora</strong> e o agente para de reportar até ser reconfigurado.
             </p>
 
             <form method="POST" action="<?= e(url('/servidores/' . $server['id'] . '/token')) ?>"
-                  data-confirm="Gerar um novo token? O token atual sera invalidado imediatamente e o agente parara de reportar ate ser reconfigurado.">
+                  data-confirm="Gerar um novo token? O token atual será invalidado imediatamente e o agente parara de reportar até ser reconfigurado.">
                 <?= csrf_field() ?>
                 <button type="submit"
                         class="w-full px-4 py-2 border-2 border-primary text-primary text-sm font-medium rounded-lg hover:bg-red-50 transition-colors">

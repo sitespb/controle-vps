@@ -22,7 +22,7 @@ use App\Core\View;
     </a>
     <h2 class="text-2xl font-bold text-gray-900">Editar <?= e($server['name']) ?></h2>
     <p class="text-sm text-gray-600 mt-1">
-        Alterar estes dados nao afeta o agente instalado nem invalida o token atual.
+        Alterar estes dados não afeta o agente instalado nem invalida o token atual.
     </p>
 </div>
 
@@ -44,7 +44,7 @@ use App\Core\View;
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Coletado pelo agente</h3>
             <p class="text-xs text-gray-500 mb-4">
-                Estes campos sao preenchidos automaticamente e nao podem ser editados aqui.
+                Estes campos são preenchidos automaticamente e não podem ser editados aqui.
             </p>
 
             <dl class="space-y-3">
@@ -76,12 +76,12 @@ use App\Core\View;
         <div class="bg-white rounded-xl shadow-sm border border-red-200 p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Excluir servidor</h3>
             <p class="text-sm text-gray-600 mb-4 leading-relaxed">
-                A exclusao remove tambem <strong>todas as metricas, sites, checagens, certificados e alertas</strong>
-                deste servidor. Esta acao nao pode ser desfeita.
+                A exclusão remove também <strong>todas as métricas, sites, checagens, certificados e alertas</strong>
+                deste servidor. Esta ação não pode ser desfeita.
             </p>
 
             <form method="POST" action="<?= e(url('/servidores/' . $server['id'] . '/excluir')) ?>"
-                  data-confirm="Excluir permanentemente o servidor e todo o seu historico?">
+                  data-confirm="Excluir permanentemente o servidor e todo o seu histórico?">
                 <?= csrf_field() ?>
 
                 <label for="confirm_name" class="block text-sm font-medium text-gray-700 mb-1">

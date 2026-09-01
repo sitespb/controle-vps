@@ -27,7 +27,7 @@ $errorClass = static fn (string $field, array $errors): string =>
     <?= csrf_field() ?>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Dados do usuario</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Dados do usuário</h3>
 
         <div class="space-y-4">
             <div>
@@ -76,7 +76,7 @@ $errorClass = static fn (string $field, array $errors): string =>
 
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700 mb-1">
-                        Situacao <span class="text-red-600">*</span>
+                        Situação <span class="text-red-600">*</span>
                     </label>
                     <select id="status" name="status" required
                             class="w-full rounded-lg border <?= $errorClass('status', $errors) ?> px-4 py-2 text-sm focus:ring-primary focus:border-primary">
@@ -113,7 +113,7 @@ $errorClass = static fn (string $field, array $errors): string =>
                 <?php if (isset($errors['password'])) : ?>
                     <p class="text-xs text-red-600 mt-1"><?= e($errors['password']) ?></p>
                 <?php else : ?>
-                    <p class="text-xs text-gray-500 mt-1">Minimo de 8 caracteres.</p>
+                    <p class="text-xs text-gray-500 mt-1">Mínimo de 8 caracteres.</p>
                 <?php endif; ?>
             </div>
 

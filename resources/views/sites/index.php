@@ -71,10 +71,10 @@ $ehDuplicado  = static fn (string $dominio): bool => \in_array($dominio, $duplic
 <div class="mb-6">
     <h2 class="text-2xl font-bold text-gray-900">Sites</h2>
     <p class="text-sm text-gray-600 mt-1">
-        <?= number_format($summary['total'], 0, ',', '.') ?> dominio(s) descoberto(s) automaticamente &middot;
+        <?= number_format($summary['total'], 0, ',', '.') ?> domínio(s) descoberto(s) automaticamente &middot;
         <span class="text-green-700 font-medium"><?= number_format($summary['online'], 0, ',', '.') ?> online</span> &middot;
         <span class="<?= $summary['offline'] > 0 ? 'text-red-700 font-medium' : '' ?>"><?= number_format($summary['offline'], 0, ',', '.') ?> offline</span> &middot;
-        <span class="<?= $summary['warning'] > 0 ? 'text-yellow-800 font-medium' : '' ?>"><?= number_format($summary['warning'], 0, ',', '.') ?> em atencao</span>
+        <span class="<?= $summary['warning'] > 0 ? 'text-yellow-800 font-medium' : '' ?>"><?= number_format($summary['warning'], 0, ',', '.') ?> em atenção</span>
     </p>
 </div>
 
@@ -105,7 +105,7 @@ $ehDuplicado  = static fn (string $dominio): bool => \in_array($dominio, $duplic
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
 
         <div class="xl:col-span-2">
-            <label for="q" class="block text-sm font-medium text-gray-700 mb-1">Pesquisar dominio</label>
+            <label for="q" class="block text-sm font-medium text-gray-700 mb-1">Pesquisar domínio</label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -136,7 +136,7 @@ $ehDuplicado  = static fn (string $dominio): bool => \in_array($dominio, $duplic
             <select id="status" name="status" data-auto-submit
                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary focus:border-primary">
                 <option value="">Todos</option>
-                <?php foreach (['online' => 'Online', 'warning' => 'Atencao', 'offline' => 'Offline', 'unknown' => 'Desconhecido'] as $value => $label) : ?>
+                <?php foreach (['online' => 'Online', 'warning' => 'Atenção', 'offline' => 'Offline', 'unknown' => 'Desconhecido'] as $value => $label) : ?>
                     <option value="<?= e($value) ?>" <?= ($filters['status'] ?? '') === $value ? 'selected' : '' ?>><?= e($label) ?></option>
                 <?php endforeach; ?>
             </select>
@@ -237,7 +237,7 @@ $ehDuplicado  = static fn (string $dominio): bool => \in_array($dominio, $duplic
                             <a href="<?= e($sortLink('response_time')) ?>" class="block">Resposta<?= $sortArrow('response_time') ?></a>
                         </th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700">
-                            <a href="<?= e($sortLink('last_check')) ?>" class="block">Verificacao<?= $sortArrow('last_check') ?></a>
+                            <a href="<?= e($sortLink('last_check')) ?>" class="block">Verificação<?= $sortArrow('last_check') ?></a>
                         </th>
                     </tr>
                 </thead>

@@ -232,7 +232,7 @@ final class SettingsService
             'limites'  => 'Limites de recursos',
             'ssl'      => 'Certificados SSL',
             'coleta'   => 'Coleta e heartbeat',
-            'retencao' => 'Retencao de dados',
+            'retencao' => 'Retenção de dados',
             'geral'    => 'Geral',
         ];
     }

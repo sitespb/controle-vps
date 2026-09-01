@@ -29,9 +29,9 @@ foreach ($servers as $server) {
 ?>
 
 <div class="mb-6">
-    <h2 class="text-2xl font-bold text-gray-900">Metricas</h2>
+    <h2 class="text-2xl font-bold text-gray-900">Métricas</h2>
     <p class="text-sm text-gray-600 mt-1">
-        Historico coletado a cada <?= (int) round((int) Config::get('monitoring.agent_interval', 300) / 60) ?> minuto(s),
+        Histórico coletado a cada <?= (int) round((int) Config::get('monitoring.agent_interval', 300) / 60) ?> minuto(s),
         mantido por <?= (int) Config::get('monitoring.retention.metrics', 30) ?> dias.
     </p>
 </div>
@@ -66,7 +66,7 @@ foreach ($servers as $server) {
      ====================================================================== -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5">
-        <h3 class="text-lg font-semibold text-gray-900">Historico por servidor</h3>
+        <h3 class="text-lg font-semibold text-gray-900">Histórico por servidor</h3>
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <form method="GET" action="<?= e(url('/metricas')) ?>" class="flex items-center gap-2">
@@ -97,14 +97,14 @@ foreach ($servers as $server) {
     <?php if ($servers === []) : ?>
         <p class="py-16 text-center text-gray-500 text-sm">Nenhum servidor cadastrado.</p>
     <?php elseif ($series === []) : ?>
-        <p class="py-16 text-center text-gray-500 text-sm">Nenhuma metrica coletada neste periodo.</p>
+        <p class="py-16 text-center text-gray-500 text-sm">Nenhuma métrica coletada neste período.</p>
     <?php else : ?>
         <?php if ($selected !== null) : ?>
             <div class="flex items-center gap-2 mb-4">
                 <span class="h-2 w-2 rounded-full <?= status_dot_class((string) $selected['status']) ?>"></span>
                 <span class="text-sm text-gray-600">
                     <?= e($selected['name']) ?> &middot; <?= e($selected['provider'] ?? 'sem provedor') ?>
-                    &middot; ultima comunicacao <?= e(time_ago($selected['last_seen_at'])) ?>
+                    &middot; última comunicação <?= e(time_ago($selected['last_seen_at'])) ?>
                 </span>
             </div>
         <?php endif; ?>
@@ -139,7 +139,7 @@ foreach ($servers as $server) {
 
     <!-- Distribuicao de PHP -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Versoes de PHP nos sites</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Versões de PHP nos sites</h3>
 
         <?php if ($phpDistribution === []) : ?>
             <p class="py-12 text-center text-gray-500 text-sm">Nenhum site descoberto ainda.</p>
@@ -169,7 +169,7 @@ foreach ($servers as $server) {
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-1">Volume armazenado</h3>
         <p class="text-xs text-gray-500 mb-4">
-            A limpeza automatica (cron/cleanup.php) mantem estes numeros sob controle.
+            A limpeza automática (cron/cleanup.php) mantem estes números sob controle.
         </p>
 
         <dl class="space-y-3">
@@ -192,9 +192,9 @@ foreach ($servers as $server) {
 
         <div class="mt-5 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-md">
             <p class="text-sm text-blue-700 leading-relaxed">
-                Retencao atual: metricas <?= (int) Config::get('monitoring.retention.metrics', 30) ?> dias,
-                verificacoes <?= (int) Config::get('monitoring.retention.site_checks', 30) ?> dias.
-                Ajuste em <a href="<?= e(url('/configuracoes')) ?>" class="underline font-medium">Configuracoes</a>.
+                Retenção atual: métricas <?= (int) Config::get('monitoring.retention.metrics', 30) ?> dias,
+                verificações <?= (int) Config::get('monitoring.retention.site_checks', 30) ?> dias.
+                Ajuste em <a href="<?= e(url('/configuracoes')) ?>" class="underline font-medium">Configurações</a>.
             </p>
         </div>
     </div>

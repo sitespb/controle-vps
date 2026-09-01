@@ -112,11 +112,11 @@ $ssl   = $summary['ssl'];
          ================================================================== -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div class="flex items-start justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Utilizacao da infraestrutura</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Utilização da infraestrutura</h3>
         </div>
 
         <p class="text-xs text-gray-500 mb-5">
-            Media da ultima coleta de
+            Média da última coleta de
             <span class="font-medium text-gray-700"><?= (int) $usage['samples'] ?></span>
             servidor(es) ativo(s).
         </p>
@@ -312,7 +312,7 @@ $ssl   = $summary['ssl'];
         </div>
 
         <?php if ($sslExpiring === []) : ?>
-            <p class="px-6 py-12 text-center text-gray-500 text-sm">Nenhum certificado proximo do vencimento.</p>
+            <p class="px-6 py-12 text-center text-gray-500 text-sm">Nenhum certificado próximo do vencimento.</p>
         <?php else : ?>
             <ul class="divide-y divide-gray-200">
                 <?php foreach ($sslExpiring as $cert) : ?>

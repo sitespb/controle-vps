@@ -93,13 +93,13 @@ $navClass = static function (bool $active): string {
         </p>
         <div x-show="sidebarCollapsed" x-cloak class="pt-4 pb-1"><hr class="border-gray-800"></div>
 
-        <a href="<?= e(url('/metricas')) ?>" data-tooltip="Metricas"
+        <a href="<?= e(url('/metricas')) ?>" data-tooltip="Métricas"
            class="group relative flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 <?= $navClass($activeNav === 'metrics') ?>">
             <svg class="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 17l6-6 4 4 8-8" />
                 <path d="M21 7v5h-5" />
             </svg>
-            <span x-show="!sidebarCollapsed" x-cloak class="nav-label ml-3 truncate">Metricas</span>
+            <span x-show="!sidebarCollapsed" x-cloak class="nav-label ml-3 truncate">Métricas</span>
         </a>
 
         <a href="<?= e(url('/alertas')) ?>" data-tooltip="Alertas"
@@ -117,18 +117,18 @@ $navClass = static function (bool $active): string {
         <?php if ($isAdmin) : ?>
             <!-- Configuracoes -->
             <p x-show="!sidebarCollapsed" x-cloak class="px-3 pt-5 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                Configuracoes
+                Configurações
             </p>
             <div x-show="sidebarCollapsed" x-cloak class="pt-4 pb-1"><hr class="border-gray-800"></div>
 
-            <a href="<?= e(url('/usuarios')) ?>" data-tooltip="Usuarios"
+            <a href="<?= e(url('/usuarios')) ?>" data-tooltip="Usuários"
                class="group relative flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 <?= $navClass($activeNav === 'users') ?>">
                 <svg class="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                     <circle cx="9" cy="7" r="4" />
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
-                <span x-show="!sidebarCollapsed" x-cloak class="nav-label ml-3 truncate">Usuarios</span>
+                <span x-show="!sidebarCollapsed" x-cloak class="nav-label ml-3 truncate">Usuários</span>
             </a>
 
             <a href="<?= e(url('/configuracoes')) ?>" data-tooltip="Geral"

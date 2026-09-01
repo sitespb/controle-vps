@@ -18,7 +18,7 @@ use App\Core\View;
     </a>
     <h2 class="text-2xl font-bold text-gray-900">Novo servidor</h2>
     <p class="text-sm text-gray-600 mt-1">
-        Ao salvar, o painel gera uma identificacao unica e um token seguro, e mostra as instrucoes de instalacao do agente.
+        Ao salvar, o painel gera uma identificação única e um token seguro, e mostra as instruções de instalação do agente.
     </p>
 </div>
 
@@ -63,7 +63,7 @@ use App\Core\View;
 
         <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-md">
             <p class="text-sm text-blue-700 leading-relaxed">
-                Os sites hospedados <strong>nao</strong> precisam ser cadastrados: o agente descobre os dominios do
+                Os sites hospedados <strong>não</strong> precisam ser cadastrados: o agente descobre os domínios do
                 CyberPanel automaticamente.
             </p>
         </div>

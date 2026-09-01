@@ -26,7 +26,7 @@ $hasFilters = array_filter($filters, static fn ($v): bool => $v !== '' && $v !==
 <div class="mb-6">
     <h2 class="text-2xl font-bold text-gray-900">Logs do sistema</h2>
     <p class="text-sm text-gray-600 mt-1">
-        Login, alteracoes de cadastro, regeneracao de token, comunicacao dos agentes e erros de API.
+        Login, alterações de cadastro, regeneração de token, comunicação dos agentes e erros de API.
     </p>
 </div>
 
@@ -37,12 +37,12 @@ $hasFilters = array_filter($filters, static fn ($v): bool => $v !== '' && $v !==
         <div class="xl:col-span-2">
             <label for="q" class="block text-sm font-medium text-gray-700 mb-1">Pesquisar</label>
             <input type="search" id="q" name="q" value="<?= e($filters['search'] ?? '') ?>"
-                   data-auto-submit-delay="600" placeholder="Descricao ou responsavel"
+                   data-auto-submit-delay="600" placeholder="Descrição ou responsável"
                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-primary focus:border-primary">
         </div>
 
         <div>
-            <label for="acao" class="block text-sm font-medium text-gray-700 mb-1">Acao</label>
+            <label for="acao" class="block text-sm font-medium text-gray-700 mb-1">Ação</label>
             <select id="acao" name="acao" data-auto-submit
                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary focus:border-primary">
                 <option value="">Todas</option>
@@ -53,11 +53,11 @@ $hasFilters = array_filter($filters, static fn ($v): bool => $v !== '' && $v !==
         </div>
 
         <div>
-            <label for="nivel" class="block text-sm font-medium text-gray-700 mb-1">Nivel</label>
+            <label for="nivel" class="block text-sm font-medium text-gray-700 mb-1">Nível</label>
             <select id="nivel" name="nivel" data-auto-submit
                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary focus:border-primary">
                 <option value="">Todos</option>
-                <?php foreach (['info' => 'Informativo', 'warning' => 'Atencao', 'error' => 'Erro'] as $value => $label) : ?>
+                <?php foreach (['info' => 'Informativo', 'warning' => 'Atenção', 'error' => 'Erro'] as $value => $label) : ?>
                     <option value="<?= e($value) ?>" <?= ($filters['level'] ?? '') === $value ? 'selected' : '' ?>><?= e($label) ?></option>
                 <?php endforeach; ?>
             </select>
@@ -70,7 +70,7 @@ $hasFilters = array_filter($filters, static fn ($v): bool => $v !== '' && $v !==
         </div>
 
         <div>
-            <label for="ate" class="block text-sm font-medium text-gray-700 mb-1">Ate</label>
+            <label for="ate" class="block text-sm font-medium text-gray-700 mb-1">Até</label>
             <input type="date" id="ate" name="ate" value="<?= e($filters['to'] ?? '') ?>" data-auto-submit
                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary focus:border-primary">
         </div>
@@ -100,10 +100,10 @@ $hasFilters = array_filter($filters, static fn ($v): bool => $v !== '' && $v !==
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nivel</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acao</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descricao</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsavel</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nível</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ação</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsável</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP</th>
                     </tr>
                 </thead>

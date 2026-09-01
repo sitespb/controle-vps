@@ -91,27 +91,27 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
             <div class="min-w-0 flex-1">
                 <p class="text-sm font-semibold <?= $servindo === 'other' ? 'text-orange-900' : 'text-blue-900' ?>">
                     <?php if ($servindo === 'this') : ?>
-                        Este dominio existe em outro servidor &mdash; mas quem responde e este aqui.
+                        Este domínio existe em outro servidor &mdash; mas quem responde e este aqui.
                     <?php elseif ($servindo === 'other') : ?>
-                        Esta copia nao esta sendo usada.
+                        Esta cópia não está sendo usada.
                     <?php else : ?>
-                        Este dominio existe em mais de um servidor.
+                        Este domínio existe em mais de um servidor.
                     <?php endif; ?>
                 </p>
 
                 <p class="text-xs <?= $servindo === 'other' ? 'text-orange-800' : 'text-blue-800' ?> mt-1 leading-relaxed">
                     <?php if ($servindo === 'this') : ?>
                         O DNS aponta para <code class="font-mono"><?= e((string) $duplicado['resolved_ip']) ?></code>,
-                        que e o IP deste servidor. A copia abaixo ocupa espaco sem receber acesso.
+                        que e o IP deste servidor. A cópia abaixo ocupa espaço sem receber acesso.
                     <?php elseif ($servindo === 'other') : ?>
                         O DNS aponta para <code class="font-mono"><?= e((string) $duplicado['resolved_ip']) ?></code>,
                         que e o servidor <strong><?= e((string) $duplicado['serving_server']) ?></strong>.
-                        Os arquivos <em>deste</em> servidor nao recebem acesso nenhum &mdash; o status e o SSL
-                        desta pagina descrevem o site do outro servidor.
+                        Os arquivos <em>deste</em> servidor não recebem acesso nenhum &mdash; o status e o SSL
+                        desta página descrevem o site do outro servidor.
                     <?php else : ?>
-                        Nao foi possivel determinar qual copia responde: o DNS aponta para
+                        Não foi possível determinar qual cópia responde: o DNS aponta para
                         <code class="font-mono"><?= e((string) ($duplicado['resolved_ip'] ?? 'endereco desconhecido')) ?></code>,
-                        que nao e o IP de nenhum servidor cadastrado. E o esperado quando ha Cloudflare
+                        que não e o IP de nenhum servidor cadastrado. E o esperado quando ha Cloudflare
                         ou outro proxy na frente. <strong>Confira manualmente antes de apagar qualquer coisa.</strong>
                     <?php endif; ?>
                 </p>
@@ -139,7 +139,7 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
                 </div>
 
                 <p class="text-xs <?= $servindo === 'other' ? 'text-orange-700' : 'text-blue-700' ?> mt-3">
-                    O painel nao apaga nada &mdash; a remocao e feita no painel de hospedagem do servidor que sobrar.
+                    O painel não apaga nada &mdash; a remoção e feita no painel de hospedagem do servidor que sobrar.
                 </p>
             </div>
         </div>
@@ -173,13 +173,13 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
                 </p>
                 <p class="text-xs text-gray-500 mt-0.5">
                     <?php if ($muted) : ?>
-                        Nenhum aviso de indisponibilidade sera enviado
+                        Nenhum aviso de indisponibilidade será enviado
                         <?php if ($site['notify_muted_at'] !== null) : ?>
                             &middot; marcado <?= e(time_ago($site['notify_muted_at'])) ?>
                         <?php endif; ?>
                         &middot; volta sozinho quando o site responder de novo.
                     <?php else : ?>
-                        Marque como ciente para parar de receber e-mail e WhatsApp deste dominio.
+                        Marque como ciente para parar de receber e-mail e WhatsApp deste domínio.
                     <?php endif; ?>
                 </p>
             </div>
@@ -229,7 +229,7 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
 
     <?php if ($site['last_error'] !== null && $site['last_error'] !== '') : ?>
         <div class="mt-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-red-700 mb-1">Ultima resposta</p>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-red-700 mb-1">Última resposta</p>
             <p class="text-sm text-red-700 font-mono break-all"><?= e($site['last_error']) ?></p>
         </div>
     <?php endif; ?>
@@ -257,7 +257,7 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
         </div>
 
         <?php if ($series === []) : ?>
-            <p class="py-16 text-center text-gray-500 text-sm">Nenhuma verificacao registrada neste periodo.</p>
+            <p class="py-16 text-center text-gray-500 text-sm">Nenhuma verificação registrada neste período.</p>
         <?php else : ?>
             <div class="h-56"><canvas id="chart-response"></canvas></div>
         <?php endif; ?>
@@ -291,7 +291,7 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
 
         <?php if ($site['ssl_status'] === null) : ?>
             <p class="text-sm text-gray-500 py-6 text-center">
-                Nenhum certificado registrado para este dominio.
+                Nenhum certificado registrado para este domínio.
             </p>
         <?php else : ?>
             <?php if ($sslDays !== null) : ?>
@@ -357,7 +357,7 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-semibold text-gray-900">Mudancas de estado</h3>
-            <p class="text-xs text-gray-500 mt-0.5">Somente as transicoes registradas, nao cada verificacao.</p>
+            <p class="text-xs text-gray-500 mt-0.5">Somente as transições registradas, não cada verificação.</p>
         </div>
 
         <?php if ($changes === []) : ?>
@@ -389,11 +389,11 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
          ================================================================== -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Ultimas verificacoes</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Últimas verificações</h3>
         </div>
 
         <?php if ($checks === []) : ?>
-            <p class="px-6 py-12 text-center text-gray-500 text-sm">Nenhuma verificacao registrada.</p>
+            <p class="px-6 py-12 text-center text-gray-500 text-sm">Nenhuma verificação registrada.</p>
         <?php else : ?>
             <div class="max-h-80 overflow-y-auto scrollbar-thin">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -448,7 +448,7 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
                                 <?= e(Alert::typeLabel((string) $alert['type'])) ?>
                                 &middot; <?= e(time_ago($alert['last_seen_at'])) ?>
                                 <?php if ((int) $alert['occurrences'] > 1) : ?>
-                                    &middot; <?= (int) $alert['occurrences'] ?> ocorrencia(s)
+                                    &middot; <?= (int) $alert['occurrences'] ?> ocorrência(s)
                                 <?php endif; ?>
                             </p>
                         </div>

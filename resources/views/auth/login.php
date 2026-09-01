@@ -37,7 +37,7 @@ $turnstileKey = $turnstileKey ?? '';
                    autofocus
                    autocomplete="username"
                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-primary focus:border-primary"
-                   placeholder="voce@empresa.com.br">
+                   placeholder="você@empresa.com.br">
             <?php if (isset($errors['email'])) : ?>
                 <p class="text-xs text-red-600 mt-1"><?= e($errors['email']) ?></p>
             <?php endif; ?>
@@ -96,7 +96,7 @@ $turnstileKey = $turnstileKey ?? '';
     <div class="mt-6 pt-5 border-t border-gray-200">
         <p class="text-xs text-gray-500 leading-relaxed">
             Esqueceu a senha? Um administrador pode redefini-la em
-            <span class="font-medium text-gray-700">Configuracoes &rsaquo; Usuarios</span>,
+            <span class="font-medium text-gray-700">Configurações &rsaquo; Usuários</span>,
             ou pelo console:
             <code class="px-1 py-0.5 bg-gray-100 rounded text-[11px]">php bin/console.php user:password</code>
         </p>

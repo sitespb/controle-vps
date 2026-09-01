@@ -80,7 +80,7 @@ $perPageOptions = $perPageOptions ?? [];
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <span class="text-sm text-gray-600 whitespace-nowrap">por pagina</span>
+                <span class="text-sm text-gray-600 whitespace-nowrap">por página</span>
 
                 <!-- Sem JavaScript o select nao se envia sozinho; o botao
                      garante que a opcao continue utilizavel. -->

@@ -15,9 +15,9 @@ use App\Core\View;
         <svg class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
-        Voltar para usuarios
+        Voltar para usuários
     </a>
-    <h2 class="text-2xl font-bold text-gray-900">Novo usuario</h2>
+    <h2 class="text-2xl font-bold text-gray-900">Novo usuário</h2>
 </div>
 
 <div class="max-w-3xl">

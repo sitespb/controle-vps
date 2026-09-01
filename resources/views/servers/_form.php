@@ -26,7 +26,7 @@ $errorClass = static fn (string $field, array $errors): string =>
     <?= csrf_field() ?>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Identificacao</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Identificação</h3>
 
         <div class="space-y-4">
             <div>
@@ -57,7 +57,7 @@ $errorClass = static fn (string $field, array $errors): string =>
                 </div>
 
                 <div>
-                    <label for="ip" class="block text-sm font-medium text-gray-700 mb-1">Endereco IP</label>
+                    <label for="ip" class="block text-sm font-medium text-gray-700 mb-1">Endereço IP</label>
                     <input type="text" id="ip" name="ip" maxlength="45"
                            value="<?= e($value('ip', $server, $old)) ?>"
                            placeholder="Ex.: 45.132.74.18"
@@ -82,7 +82,7 @@ $errorClass = static fn (string $field, array $errors): string =>
             </div>
 
             <div>
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descricao</label>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
                 <textarea id="description" name="description" rows="3" maxlength="2000"
                           placeholder="Anotacoes internas: finalidade do servidor, contrato, contato do suporte..."
                           class="w-full rounded-lg border <?= $errorClass('description', $errors) ?> px-4 py-2 text-sm focus:ring-primary focus:border-primary"><?= e($value('description', $server, $old)) ?></textarea>

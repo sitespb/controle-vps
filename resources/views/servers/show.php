@@ -56,14 +56,14 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
                     <?= e(status_label((string) $server['status'])) ?>
                 </span>
                 <?php if ((int) $server['is_demo'] === 1) : ?>
-                    <span class="px-2 py-0.5 bg-purple-100 text-purple-800 text-[10px] font-bold uppercase tracking-wider rounded">Dados de demonstracao</span>
+                    <span class="px-2 py-0.5 bg-purple-100 text-purple-800 text-[10px] font-bold uppercase tracking-wider rounded">Dados de demonstração</span>
                 <?php endif; ?>
             </div>
             <p class="text-sm text-gray-600 mt-1">
                 <?= e($server['provider'] ?? 'Sem provedor') ?>
                 &middot; <?= e($server['hostname'] ?? 'sem hostname') ?>
                 &middot; <span class="font-mono"><?= e($server['ip'] ?? '--') ?></span>
-                &middot; ultima comunicacao <?= e(time_ago($server['last_seen_at'])) ?>
+                &middot; última comunicação <?= e(time_ago($server['last_seen_at'])) ?>
             </p>
         </div>
 
@@ -93,8 +93,8 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
 <?php if ($server['status'] === 'offline') : ?>
     <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-md mb-6">
         <p class="text-sm text-red-700">
-            Este servidor nao envia dados desde <?= e(format_datetime($server['last_seen_at'])) ?>.
-            Os valores abaixo sao os da ultima coleta bem sucedida.
+            Este servidor não envia dados desde <?= e(format_datetime($server['last_seen_at'])) ?>.
+            Os valores abaixo são os da última coleta bem sucedida.
         </p>
     </div>
 <?php endif; ?>
@@ -161,7 +161,7 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
          ================================================================== -->
     <div class="xl:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Historico de recursos</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Histórico de recursos</h3>
 
             <div class="flex items-center gap-1 flex-wrap" id="range-buttons">
                 <?php foreach ($ranges as $value => $label) : ?>
@@ -178,8 +178,8 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
 
         <?php if ($series === []) : ?>
             <div class="py-16 text-center">
-                <p class="text-gray-500 text-sm">Nenhuma metrica coletada neste periodo.</p>
-                <p class="text-gray-400 text-xs mt-1">Os graficos aparecem apos a primeira execucao do agente.</p>
+                <p class="text-gray-500 text-sm">Nenhuma métrica coletada neste período.</p>
+                <p class="text-gray-400 text-xs mt-1">Os gráficos aparecem após a primeira execução do agente.</p>
             </div>
         <?php else : ?>
             <div class="h-64"><canvas id="chart-resources"></canvas></div>
@@ -208,7 +208,7 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
     <div class="space-y-6">
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Informacoes</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Informações</h3>
 
             <dl class="space-y-3">
                 <?php
@@ -242,7 +242,7 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
 
             <?php if ($server['description'] !== null && $server['description'] !== '') : ?>
                 <div class="mt-5 pt-4 border-t border-gray-200">
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Descricao</p>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Descrição</p>
                     <p class="text-sm text-gray-700 leading-relaxed"><?= nl2br(e($server['description'])) ?></p>
                 </div>
             <?php endif; ?>
@@ -250,11 +250,11 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
 
         <!-- Servicos -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Servicos</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Serviços</h3>
 
             <?php if ($services === []) : ?>
                 <p class="text-sm text-gray-500 py-4 text-center">
-                    O agente ainda nao reportou os servicos deste servidor.
+                    O agente ainda não reportou os serviços deste servidor.
                 </p>
             <?php else : ?>
                 <ul class="space-y-3">
@@ -286,7 +286,7 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
                 </ul>
 
                 <p class="text-xs text-gray-400 mt-4 pt-3 border-t border-gray-200 leading-relaxed">
-                    Um servico ausente nao e erro: cada VPS pode ter uma configuracao diferente.
+                    Um serviço ausente não e erro: cada VPS pode ter uma configuração diferente.
                 </p>
             <?php endif; ?>
         </div>
@@ -335,19 +335,19 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
                 <?= (int) $server['sites_count'] ?> descoberto(s) &middot; <?= (int) $server['sites_online'] ?> online
             </p>
         </div>
-        <a href="<?= e(url('/sites?servidor=' . $server['id'])) ?>" class="text-sm text-gray-500 hover:text-gray-700">Ver na pagina de sites</a>
+        <a href="<?= e(url('/sites?servidor=' . $server['id'])) ?>" class="text-sm text-gray-500 hover:text-gray-700">Ver na página de sites</a>
     </div>
 
     <?php if ($sites === []) : ?>
         <p class="px-6 py-12 text-center text-gray-500 text-sm">
-            Nenhum site descoberto ainda. O agente envia a lista de dominios a cada coleta.
+            Nenhum site descoberto ainda. O agente envia a lista de domínios a cada coleta.
         </p>
     <?php else : ?>
         <div class="overflow-x-auto scrollbar-thin">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dominio</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Domínio</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HTTP</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SSL</th>

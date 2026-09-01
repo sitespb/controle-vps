@@ -370,9 +370,9 @@ if (!function_exists('status_label')) {
         return match ($status) {
             'online'       => 'Online',
             'offline'      => 'Offline',
-            'warning'      => 'Atencao',
+            'warning'      => 'Atenção',
             'unknown'      => 'Desconhecido',
-            'valid'        => 'Valido',
+            'valid'        => 'Válido',
             'expiring'     => 'Vencendo',
             'expired'      => 'Expirado',
             'running'      => 'Ativo',
@@ -382,7 +382,7 @@ if (!function_exists('status_label')) {
             'open'         => 'Aberto',
             'acknowledged' => 'Reconhecido',
             'resolved'     => 'Resolvido',
-            'critical'     => 'Critico',
+            'critical'     => 'Crítico',
             'info'         => 'Informativo',
             default        => ucfirst($status),
         };

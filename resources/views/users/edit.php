@@ -16,12 +16,12 @@ use App\Core\View;
         <svg class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
-        Voltar para usuarios
+        Voltar para usuários
     </a>
     <h2 class="text-2xl font-bold text-gray-900">Editar <?= e($user['name']) ?></h2>
     <p class="text-sm text-gray-600 mt-1">
         Cadastrado em <?= e(format_datetime($user['created_at'])) ?>
-        &middot; ultimo acesso <?= $user['last_login_at'] === null ? 'nunca' : e(time_ago($user['last_login_at'])) ?>
+        &middot; último acesso <?= $user['last_login_at'] === null ? 'nunca' : e(time_ago($user['last_login_at'])) ?>
         <?php if ($user['last_login_ip'] !== null) : ?>
             &middot; de <span class="font-mono"><?= e($user['last_login_ip']) ?></span>
         <?php endif; ?>
