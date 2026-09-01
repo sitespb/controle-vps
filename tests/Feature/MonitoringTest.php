@@ -183,6 +183,10 @@ final class MonitoringTest extends TestCase
 
     public function testAcimaDe90PorCentoOAlertaEhCritico(): void
     {
+        // A CPU exige historico consecutivo antes de alertar; sem as amostras
+        // gravadas o portao segura o aviso, e nao e isso que este teste mede.
+        $this->gravarAmostrasDeCpu(95.0, 3);
+
         AlertService::evaluateServerMetrics($this->serverId, 'VPS Monitorado', ['cpu_usage' => 95.0]);
 
         $alert = Alert::findOpenByFingerprint(
@@ -190,6 +194,79 @@ final class MonitoringTest extends TestCase
         );
 
         $this->assertEquals('critical', $alert['severity']);
+    }
+
+    public function testPicoIsoladoDeCpuNaoGeraAlerta(): void
+    {
+        // O agente mede /proc/stat por 500 ms a cada 5 minutos. Um processo
+        // compilando naquele meio segundo marca 96% e some na amostra
+        // seguinte. Cinco alertas assim, abertos e resolvidos sozinhos numa
+        // mesma noite, foi o que motivou este portao.
+        $this->gravarAmostrasDeCpu(4.0, 2);
+        $this->gravarAmostrasDeCpu(96.4, 1);
+
+        AlertService::evaluateServerMetrics($this->serverId, 'VPS Monitorado', ['cpu_usage' => 96.4]);
+
+        $this->assertNull(
+            Alert::findOpenByFingerprint(
+                Alert::fingerprint(Alert::TYPE_SERVER_CPU_HIGH, $this->serverId, null)
+            ),
+            'Um unico pico nao pode virar alerta.'
+        );
+    }
+
+    public function testCpuSustentadaGeraAlerta(): void
+    {
+        $this->gravarAmostrasDeCpu(93.0, 3);
+
+        AlertService::evaluateServerMetrics($this->serverId, 'VPS Monitorado', ['cpu_usage' => 93.0]);
+
+        $this->assertNotNull(
+            Alert::findOpenByFingerprint(
+                Alert::fingerprint(Alert::TYPE_SERVER_CPU_HIGH, $this->serverId, null)
+            ),
+            'Pressao sustentada precisa alertar - o portao atrasa, nao silencia.'
+        );
+    }
+
+    public function testMemoriaNaoEsperaConfirmacao(): void
+    {
+        // RAM e disco sao ESTADOS, nao taxas: o que a amostra le continua
+        // valendo no minuto seguinte. Submete-los ao portao da CPU so atrasaria
+        // um aviso correto.
+        AlertService::evaluateServerMetrics($this->serverId, 'VPS Monitorado', ['ram_percent' => 96.0]);
+
+        $this->assertNotNull(
+            Alert::findOpenByFingerprint(
+                Alert::fingerprint(Alert::TYPE_SERVER_MEMORY_HIGH, $this->serverId, null)
+            ),
+            'RAM alta e um fato imediato, nao precisa de confirmacao.'
+        );
+    }
+
+    public function testCargaSoSignificaAlgoDivididaPelosNucleos(): void
+    {
+        // 3,0 e tranquilo em 8 nucleos e critico em 1. Sem essa normalizacao o
+        // numero engana quem le - foi o que aconteceu quando o painel mostrou
+        // "1% de CPU" num servidor com carga 3,0.
+        $this->assertEquals('normal',   load_level(3.0, 8));
+        $this->assertEquals('warning',  load_level(3.0, 2));
+        $this->assertEquals('critical', load_level(3.0, 1));
+
+        $this->assertEquals('unknown', load_level(3.0, null), 'Sem nucleos, nao arbitrar.');
+        $this->assertEquals('unknown', load_level(null, 4), 'Sem carga, nao arbitrar.');
+        $this->assertEquals('unknown', load_level(3.0, 0), 'Zero nucleo e dado invalido.');
+    }
+
+    /** Grava N amostras de CPU para alimentar o portao de confirmacao. */
+    private function gravarAmostrasDeCpu(float $valor, int $quantidade): void
+    {
+        for ($i = 0; $i < $quantidade; $i++) {
+            Database::statement(
+                'INSERT INTO server_metrics (server_id, cpu_usage, created_at) VALUES (?, ?, NOW())',
+                [$this->serverId, $valor]
+            );
+        }
     }
 
     public function testAlertaRepetidoNaoDuplica(): void

@@ -60,6 +60,43 @@ final class ServerMetric extends Model
     }
 
     /**
+     * O uso de CPU se manteve alto nas ultimas $confirmations amostras?
+     *
+     * O agente amostra /proc/stat por 500 ms uma vez a cada 5 minutos. Essa
+     * fotografia e otima para o grafico e pessima para decidir alerta: um
+     * unico `lsphp` compilando naquele meio segundo marca 96%, e a amostra
+     * seguinte ja esta em 2%. Foi o que produziu cinco alertas "CPU alta -
+     * resolvido" em sequencia num servidor cuja carga real nunca passou de
+     * 50% dos nucleos.
+     *
+     * Exigir amostras CONSECUTIVAS acima do limite troca um alerta imediato e
+     * ruidoso por um alerta tardio e verdadeiro. E o mesmo desenho de
+     * SiteCheck::offlineConfirmed, pelo mesmo motivo: alarme falso custa mais
+     * que atraso.
+     */
+    public static function cpuHighConfirmed(int $serverId, int $confirmations, float $threshold): bool
+    {
+        $confirmations = max(1, $confirmations);
+
+        $rows = Database::select(
+            'SELECT cpu_usage FROM server_metrics
+             WHERE server_id = ? ORDER BY id DESC LIMIT ' . $confirmations,
+            [$serverId]
+        );
+
+        if (\count($rows) < $confirmations) {
+            return false;
+        }
+
+        foreach ($rows as $row) {
+            if ($row['cpu_usage'] === null || (float) $row['cpu_usage'] < $threshold) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    /**
      * Serie temporal para os graficos.
      *
      * @param  int $hours Janela em horas (24 = ultimas 24h)

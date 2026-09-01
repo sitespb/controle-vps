@@ -17,6 +17,31 @@
 $isAdmin = ($currentUser['role'] ?? '') === 'admin';
 
 /** Celula de metrica com barra proporcional. */
+/*
+ * Carga real, ao lado do percentual de CPU.
+ *
+ * O percentual vem de uma amostra de 500 ms tirada a cada 5 minutos: ele
+ * oscila muito e ja fez o painel mostrar 1% num servidor com fila de
+ * processos, e 70% num servidor ocioso. A carga por nucleo e estavel e diz o
+ * que o percentual nao diz - se ha processos esperando CPU.
+ */
+$loadCell = static function (?float $load, ?int $cores): string {
+    if ($load === null) {
+        return '';
+    }
+
+    $level = load_level($load, $cores);
+    $texto = $cores === null || $cores < 1
+        ? number_format($load, 2, ',', '.')
+        : sprintf('%s / %d', number_format($load, 2, ',', '.'), $cores);
+
+    return sprintf(
+        '<p class="text-[10px] font-mono mt-1 %s" title="Carga media de 1 minuto%s">%s</p>',
+        level_text_class($level),
+        $cores === null || $cores < 1 ? '' : sprintf(' em %d núcleos', $cores),
+        e($texto)
+    );
+};
 $metricCell = static function (?float $value, string $metric): string {
     if ($value === null) {
         return '<span class="text-sm text-gray-400">--</span>';
@@ -175,7 +200,10 @@ $metricCell = static function (?float $value, string $metric): string {
                                 </span>
                             </td>
 
-                            <td class="px-4 py-4"><?= $metricCell($server['cpu_usage'], 'cpu') ?></td>
+                            <td class="px-4 py-4">
+                                <?= $metricCell($server['cpu_usage'], 'cpu') ?>
+                                <?= $loadCell($server['load_1'] ?? null, isset($server['cpu_cores']) ? (int) $server['cpu_cores'] : null) ?>
+                            </td>
                             <td class="px-4 py-4"><?= $metricCell($server['ram_percent'], 'ram') ?></td>
                             <td class="px-4 py-4"><?= $metricCell($server['disk_percent'], 'disk') ?></td>
 
@@ -289,6 +317,12 @@ $metricCell = static function (?float $value, string $metric): string {
                         </div>
                     <?php endforeach; ?>
                 </div>
+
+                <?php if (($server['load_1'] ?? null) !== null) : ?>
+                    <p class="text-xs text-gray-500 mt-3">
+                        Carga: <?= $loadCell($server['load_1'], isset($server['cpu_cores']) ? (int) $server['cpu_cores'] : null) ?>
+                    </p>
+                <?php endif; ?>
 
                 <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
                     <span class="text-xs text-gray-500">

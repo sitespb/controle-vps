@@ -334,6 +334,34 @@ if (!function_exists('level_text_class')) {
     }
 }
 
+if (!function_exists('load_level')) {
+    /**
+     * Classifica a carga do servidor, normalizada por nucleo.
+     *
+     * Load average so significa alguma coisa dividido pelo numero de nucleos:
+     * 3,0 e tranquilo num servidor de 8 nucleos e critico num de 1. Abaixo de
+     * 1 por nucleo nao ha fila; entre 1 e 2 processos comecam a esperar; acima
+     * de 2 a espera e o estado normal, e e quando sites lentos viram sites
+     * fora do ar.
+     *
+     * Sem o numero de nucleos devolve 'unknown' em vez de arbitrar - a mesma
+     * regra do resto do painel: nao sei e uma resposta legitima.
+     */
+    function load_level(?float $load, ?int $cores): string
+    {
+        if ($load === null || $cores === null || $cores < 1) {
+            return 'unknown';
+        }
+
+        $porNucleo = $load / $cores;
+
+        return match (true) {
+            $porNucleo > 2.0 => 'critical',
+            $porNucleo > 1.0 => 'warning',
+            default          => 'normal',
+        };
+    }
+}
 if (!function_exists('status_badge_class')) {
     /**
      * Mapa oficial de cores de status - DESIGN.md secao 8.

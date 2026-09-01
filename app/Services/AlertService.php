@@ -9,6 +9,8 @@ use App\Core\Database;
 use App\Core\Logger;
 use App\Models\Alert;
 use App\Models\AlertEvent;
+use App\Models\Server;
+use App\Models\ServerMetric;
 use App\Models\Site;
 use App\Models\SiteCheck;
 
@@ -240,16 +242,34 @@ final class AlertService
                 continue;
             }
 
+            // A CPU exige amostras consecutivas; RAM e disco nao.
+            //
+            // RAM e disco sao estados: o que a amostra le e o que esta valendo
+            // agora e daqui a um minuto. CPU e uma taxa medida em 500 ms a
+            // cada 5 minutos, e um pico nesse meio segundo nao diz nada sobre
+            // o servidor. Sem este portao o painel abriu e fechou cinco
+            // alertas de CPU numa noite em que a carga real nunca passou de
+            // metade dos nucleos.
+            if ($check['metric'] === 'cpu') {
+                $confirmacoes = max(1, (int) Config::get('monitoring.cpu.confirmations', 3));
+                $limite       = (float) Config::get('monitoring.thresholds.cpu.warning', 80.0);
+
+                if (!ServerMetric::cpuHighConfirmed($serverId, $confirmacoes, $limite)) {
+                    continue;
+                }
+            }
+
             $severity = $level === 'critical' ? Alert::SEVERITY_CRITICAL : Alert::SEVERITY_WARNING;
 
             self::raise(
                 $type,
                 sprintf('%s: %s em %s', $serverName, ucfirst($check['label']), format_percent($value, 1)),
                 sprintf(
-                    'O servidor %s está utilizando %s de %s.',
+                    'O servidor %s está utilizando %s de %s%s.',
                     $serverName,
                     format_percent($value, 1),
-                    $check['label']
+                    $check['label'],
+                    $check['metric'] === 'cpu' ? self::loadSuffix($serverId, $metric) : ''
                 ),
                 ['server_id' => $serverId, 'severity' => $severity, 'value' => $value]
             );
@@ -258,6 +278,39 @@ final class AlertService
         }
 
         return $raised;
+    }
+
+    /**
+     * Complemento da mensagem de CPU com a carga real do servidor.
+     *
+     * O percentual sozinho engana quem le: "96%" de meio segundo assusta e nao
+     * informa. A carga por nucleo diz se o servidor esta apenas ocupado ou se
+     * ha fila de processos esperando CPU - que e o que derruba sites. Sem os
+     * nucleos nao ha como normalizar, entao o texto omite em vez de sugerir
+     * uma leitura errada.
+     */
+    private static function loadSuffix(int $serverId, array $metric): string
+    {
+        $load = $metric['load_1'] ?? null;
+
+        if ($load === null) {
+            return '';
+        }
+
+        $load   = (float) $load;
+        $server = Server::find($serverId);
+        $cores  = (int) ($server['cpu_cores'] ?? 0);
+
+        if ($cores < 1) {
+            return sprintf(' (carga de 1 min: %s)', number_format($load, 2, ',', '.'));
+        }
+
+        return sprintf(
+            ' (carga de 1 min: %s em %d núcleos, %s por núcleo)',
+            number_format($load, 2, ',', '.'),
+            $cores,
+            number_format($load / $cores, 2, ',', '.')
+        );
     }
 
     /** Servidor deixou de responder (secao 28). */

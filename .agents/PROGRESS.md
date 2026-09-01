@@ -1383,3 +1383,33 @@ Tres arquivos declaram a versao, em linguagens diferentes:
 `AgentApiTest::testVersaoDoAgenteAcompanhaATagPublicada` le os tres por regex e
 exige que concordem. E o tipo de desalinhamento que nenhum teste de
 comportamento pega, porque o sistema continua funcionando errado em silencio.
+
+## 22. Alerta de CPU exige confirmacao; carga visivel na listagem
+
+Numa investigacao de pico de CPU o painel abriu e fechou cinco alertas
+"CPU em 96,4% ... Resolvido" numa mesma noite, num servidor cuja carga real
+nunca passou de 50% dos nucleos. A causa nao era o limite: era a natureza da
+medida.
+
+O agente amostra `/proc/stat` por 500 ms UMA vez a cada 5 minutos. Essa
+fotografia serve para o grafico e nao serve para decidir alerta - um `lsphp`
+compilando naquele meio segundo marca 96%, e a amostra seguinte marca 2%. O
+mesmo defeito na direcao oposta: o painel mostrou "1% de CPU" num servidor com
+carga 3,0 e fila de processos.
+
+Duas mudancas:
+
+1. `ServerMetric::cpuHighConfirmed()` exige N amostras CONSECUTIVAS acima do
+   limite (`monitoring.cpu.confirmations`, padrao 3 = ~15 min). E o mesmo
+   desenho de `SiteCheck::offlineConfirmed`, pelo mesmo motivo. RAM e disco NAO
+   passam pelo portao: sao estados, nao taxas - o que a amostra le continua
+   valendo no minuto seguinte, e atrasar seria so perda.
+
+2. `load_1` passou a aparecer na listagem de servidores, abaixo do percentual
+   de CPU, normalizado por nucleo (`load_level()`). O dado ja era coletado e
+   gravado desde o inicio - so nunca tinha sido levado para a tela onde a
+   decisao e tomada. A mensagem do alerta de CPU tambem passou a carregar a
+   carga por nucleo.
+
+Sem nucleos conhecidos, `load_level()` devolve `unknown` em vez de arbitrar -
+mesma regra do resto do painel.

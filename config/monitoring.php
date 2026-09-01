@@ -25,6 +25,18 @@ return [
     ],
 
     /*
+     * Amostras CONSECUTIVAS de CPU acima do limite antes de abrir alerta.
+     *
+     * O agente mede /proc/stat por 500 ms uma vez a cada 5 minutos. Com 3
+     * confirmacoes o aviso sai ~15 minutos depois do inicio, o que descarta
+     * picos instantaneos - um processo compilando naquele meio segundo marca
+     * 96% e some na amostra seguinte. RAM e disco nao passam por este portao
+     * porque sao estados, nao taxas: o que a amostra le continua valendo.
+     */
+    'cpu' => [
+        'confirmations' => Env::int('CPU_CONFIRMATIONS', 3),
+    ],
+    /*
      * SSL, em dias restantes.
      *   > warning        => valido  (verde)
      *   critical..warning => vencendo (amarelo)
