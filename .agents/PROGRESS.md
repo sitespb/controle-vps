@@ -1187,8 +1187,9 @@ O backend já aceitava `por_pagina` desde a V1 — só não havia controle na te
 Faltava expor.
 
 Opções: **10, 20, 50, 100** (antes eram 25/50/100, sem seletor). O padrão
-passou de 25 para **20**, porque o valor padrão precisa estar entre as opções,
-senão o seletor abriria sem seleção.
+passou de 25 para **10** - o menor da lista, seguindo a convenção de que a
+primeira carga é a mais leve. Ele também precisa estar entre as opções, senão
+o seletor abriria sem seleção.
 
 ### Onde ficou
 

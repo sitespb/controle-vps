@@ -172,8 +172,12 @@ final class SiteController extends Controller
      */
     public const PER_PAGE_OPTIONS = [10, 20, 50, 100];
 
-    /** Precisa ser um dos valores acima, senao o seletor abriria sem selecao. */
-    public const PER_PAGE_DEFAULT = 20;
+    /**
+     * O MENOR valor da lista, seguindo a convencao: a primeira carga e a mais
+     * leve, e quem precisa de mais aumenta. Precisa ser um dos valores acima,
+     * senao o seletor abriria sem selecao.
+     */
+    public const PER_PAGE_DEFAULT = 10;
 
     private function validPerPage(int $perPage): int
     {
