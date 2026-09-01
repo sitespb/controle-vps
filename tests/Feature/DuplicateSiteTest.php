@@ -235,6 +235,80 @@ final class DuplicateSiteTest extends TestCase
     }
 
     // =================================================================
+    // Itens por pagina
+    // =================================================================
+
+    public function testSeletorDeItensPorPaginaAparece(): void
+    {
+        $this->logarComoAdmin();
+        $this->criarSite($this->servidorA, 'um.com.br', '203.0.113.10');
+
+        $html = $this->request('GET', '/sites')->content();
+
+        // Asserir em `<option value="X"` e nao em `value="X"` solto: a tela
+        // tem outros campos com os mesmos numeros, e a versao frouxa deste
+        // teste passava sem o seletor existir.
+        foreach (\App\Controllers\SiteController::PER_PAGE_OPTIONS as $opcao) {
+            $this->assertContainsString(
+                '<option value="' . $opcao . '"',
+                $html,
+                "Falta a opcao de {$opcao} itens por pagina."
+            );
+        }
+
+        $this->assertContainsString('id="por_pagina"', $html, 'Falta o seletor em si.');
+    }
+
+    public function testQuantidadeEscolhidaLimitaAListagem(): void
+    {
+        $this->logarComoAdmin();
+
+        for ($i = 1; $i <= 12; $i++) {
+            $this->criarSite($this->servidorA, "site{$i}.com.br", '203.0.113.10');
+        }
+
+        $pagina = $this->repository->paginate([], 1, 10);
+
+        $this->assertCount(10, $pagina['items']);
+        $this->assertEquals(12, $pagina['total']);
+        $this->assertEquals(2, $pagina['pages']);
+    }
+
+    public function testValorInvalidoCaiNoPadraoEmVezDeAceitarQualquerNumero(): void
+    {
+        $this->logarComoAdmin();
+        $this->criarSite($this->servidorA, 'um.com.br', '203.0.113.10');
+
+        // Pedir 100000 registros de uma vez derrubaria a pagina; a lista
+        // fechada de opcoes existe para isso.
+        $html = $this->request('GET', '/sites', [], [], ['por_pagina' => '100000'])->content();
+
+        $this->assertContainsString(
+            '<option value="' . \App\Controllers\SiteController::PER_PAGE_DEFAULT . '" selected',
+            $html,
+            'Valor fora da lista tem que voltar ao padrao.'
+        );
+    }
+
+    public function testEscolhaSobreviveAosFiltrosEAOrdenacao(): void
+    {
+        $this->logarComoAdmin();
+        $this->criarSite($this->servidorA, 'um.com.br', '203.0.113.10');
+
+        $html = $this->request('GET', '/sites', [], [], [
+            'por_pagina' => '50',
+            'status'     => 'online',
+        ])->content();
+
+        // O seletor mostra 50 selecionado...
+        $this->assertContainsString('<option value="50" selected', $html);
+
+        // ...e os links de ordenacao carregam por_pagina, senao a escolha se
+        // perderia no primeiro clique em um cabecalho de coluna.
+        $this->assertContainsString('por_pagina=50', $html, 'Os links da tela precisam preservar a escolha.');
+    }
+
+    // =================================================================
     // Auxiliares
     // =================================================================
 

@@ -1178,3 +1178,59 @@ por extenso em cada ramo do ternário, com comentário explicando o porquê.
 12 novos (161 no total). Cobrem detecção, o caso `discovered = 0` que não conta
 como duplicidade, os três veredictos de quem serve — incluindo o proxy —, o
 filtro, e a renderização real das duas telas.
+
+---
+
+## 18. Itens por página na listagem de sites (29/08/2026)
+
+O backend já aceitava `por_pagina` desde a V1 — só não havia controle na tela.
+Faltava expor.
+
+Opções: **10, 20, 50, 100** (antes eram 25/50/100, sem seletor). O padrão
+passou de 25 para **20**, porque o valor padrão precisa estar entre as opções,
+senão o seletor abriria sem seleção.
+
+### Onde ficou
+
+Na barra de paginação, à esquerda, ao lado de "Exibindo X a Y de Z" — a
+posição prevista no `DESIGN.md` seção 9, que já define o contêiner como
+`flex ... justify-between` com dois lados.
+
+O seletor é **opcional no partial**: só aparece quando quem chama passa
+`perPageOptions`. O mesmo partial serve alertas e logs, cujos controllers não
+aceitam `por_pagina` — um seletor que não muda nada seria pior que nenhum.
+
+### O detalhe que separa "funciona" de "funciona no segundo clique"
+
+A escolha precisa sobreviver a **todo** caminho da tela. Bastava esquecer um
+para ela se perder:
+
+| Caminho | Como preserva |
+|---|---|
+| Links de página | `por_pagina` nos `queryParams` do partial |
+| Links de ordenação | `por_pagina` no closure `$sortLink` |
+| Formulário de filtros | `<input type="hidden" name="por_pagina">` |
+| O próprio seletor | formulário próprio com os filtros em campos ocultos |
+
+O formulário do seletor **omite** `pagina` de propósito: trocar 10 por 100
+estando na página 7 deve levar ao início da lista.
+
+### Dois erros meus, pegos pelos testes
+
+**Teste falso-positivo.** A primeira versão afirmava `value="10"` no HTML — que
+casava com o `input hidden` e com outros campos da tela, passando sem o seletor
+existir. Corrigido para `<option value="10"`.
+
+**Uso errado do harness.** Requisitei `/sites?por_pagina=50`, mas
+`TestCase::request()` recebe a query string num **5º parâmetro** — o `?` virava
+parte do caminho e a resposta era 404. Dois testes estavam medindo uma página
+de erro e "passando".
+
+Ambos reforçam a mesma coisa: um teste que passa não prova nada se a asserção
+puder ser satisfeita por acidente.
+
+### Testes
+
+4 novos (165 no total): o seletor aparece com todas as opções, a quantidade
+limita a listagem, valor fora da lista volta ao padrão em vez de aceitar
+qualquer número, e a escolha sobrevive a filtros e ordenação.

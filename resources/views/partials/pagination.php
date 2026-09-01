@@ -6,6 +6,11 @@
  * @var string                                           $basePath   Caminho da pagina (ex.: /sites)
  * @var array<string,mixed>                              $queryParams Filtros ativos, sem a pagina
  * @var string                                           $label      Nome do que esta sendo listado
+ * @var array<int,int>|null                              $perPageOptions
+ *
+ * O seletor de "itens por pagina" e OPCIONAL: so aparece quando quem chama
+ * passa `perPageOptions`. Nem toda listagem aceita `por_pagina` na
+ * querystring, e um seletor que nao muda nada seria pior do que nenhum.
  */
 
 $pages   = max(1, (int) $pagination['pages']);
@@ -31,22 +36,60 @@ $from = max(1, $to - 6);
 
 $firstRow = $total === 0 ? 0 : (($current - 1) * $perPage) + 1;
 $lastRow  = min($total, $current * $perPage);
+
+$perPageOptions = $perPageOptions ?? [];
 ?>
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
 
-    <p class="text-sm text-gray-600">
-        <?php if ($total === 0) : ?>
-            Nenhum registro encontrado.
-        <?php else : ?>
-            Exibindo
-            <span class="font-medium text-gray-900"><?= number_format($firstRow, 0, ',', '.') ?></span>
-            a
-            <span class="font-medium text-gray-900"><?= number_format($lastRow, 0, ',', '.') ?></span>
-            de
-            <span class="font-medium text-gray-900"><?= number_format($total, 0, ',', '.') ?></span>
-            <?= e($label) ?>
+    <div class="flex items-center gap-4 flex-wrap justify-center sm:justify-start">
+        <p class="text-sm text-gray-600">
+            <?php if ($total === 0) : ?>
+                Nenhum registro encontrado.
+            <?php else : ?>
+                Exibindo
+                <span class="font-medium text-gray-900"><?= number_format($firstRow, 0, ',', '.') ?></span>
+                a
+                <span class="font-medium text-gray-900"><?= number_format($lastRow, 0, ',', '.') ?></span>
+                de
+                <span class="font-medium text-gray-900"><?= number_format($total, 0, ',', '.') ?></span>
+                <?= e($label) ?>
+            <?php endif; ?>
+        </p>
+
+        <?php if ($perPageOptions !== []) : ?>
+            <!-- Formulario proprio: a barra de paginacao fica FORA do
+                 formulario de filtros, entao o seletor carrega os filtros
+                 ativos em campos ocultos para nao perde-los ao mudar.
+
+                 `pagina` fica de fora de proposito: trocar 10 por 100 na
+                 pagina 7 deve levar ao inicio da lista, nao a uma pagina que
+                 talvez nem exista mais. -->
+            <form method="GET" action="<?= e(url($basePath)) ?>" class="flex items-center gap-2">
+                <?php foreach ($queryParams as $chave => $valor) : ?>
+                    <?php if ($valor !== '' && $valor !== null && $valor !== 0 && $chave !== 'por_pagina') : ?>
+                        <input type="hidden" name="<?= e((string) $chave) ?>" value="<?= e((string) $valor) ?>">
+                    <?php endif; ?>
+                <?php endforeach; ?>
+
+                <label for="por_pagina" class="text-sm text-gray-600 whitespace-nowrap">Exibir</label>
+                <select id="por_pagina" name="por_pagina" data-auto-submit
+                        class="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:ring-primary focus:border-primary">
+                    <?php foreach ($perPageOptions as $opcao) : ?>
+                        <option value="<?= (int) $opcao ?>" <?= $perPage === (int) $opcao ? 'selected' : '' ?>>
+                            <?= (int) $opcao ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <span class="text-sm text-gray-600 whitespace-nowrap">por pagina</span>
+
+                <!-- Sem JavaScript o select nao se envia sozinho; o botao
+                     garante que a opcao continue utilizavel. -->
+                <noscript>
+                    <button type="submit" class="px-2 py-1 rounded-lg border border-gray-300 text-sm text-gray-700 hover:bg-gray-50">Aplicar</button>
+                </noscript>
+            </form>
         <?php endif; ?>
-    </p>
+    </div>
 
     <?php if ($pages > 1) : ?>
         <nav class="flex items-center gap-1" aria-label="Paginacao">

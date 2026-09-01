@@ -20,8 +20,13 @@ use App\Services\SslService;
 $currentSort = $filters['sort'] ?? 'domain';
 $currentDir  = strtolower($filters['direction'] ?? 'asc');
 
+// Quantos itens por pagina estao valendo. Precisa acompanhar TODO link e
+// TODO formulario da tela - basta um caminho esquecer para a escolha do
+// operador se perder no clique seguinte.
+$porPagina = (int) ($pagination['per_page'] ?? 0);
+
 /** Monta o link de ordenacao preservando os filtros ativos. */
-$sortLink = static function (string $column) use ($filters, $currentSort, $currentDir): string {
+$sortLink = static function (string $column) use ($filters, $currentSort, $currentDir, $porPagina): string {
     $params = array_filter([
         'q'         => $filters['search'] ?? '',
         'servidor'  => $filters['server_id'] ?? 0,
@@ -29,6 +34,7 @@ $sortLink = static function (string $column) use ($filters, $currentSort, $curre
         'ssl'        => $filters['ssl'] ?? '',
         'wordpress'  => $filters['wordpress'] ?? '',
         'duplicados' => $filters['duplicados'] ?? '',
+        'por_pagina' => $porPagina,
     ], static fn ($v): bool => $v !== '' && $v !== 0);
 
     $params['sort'] = $column;
@@ -177,6 +183,9 @@ $ehDuplicado  = static fn (string $dominio): bool => \in_array($dominio, $duplic
 
     <input type="hidden" name="sort" value="<?= e($currentSort) ?>">
     <input type="hidden" name="dir" value="<?= e($currentDir) ?>">
+
+    <!-- Preserva a escolha de itens por pagina ao aplicar um filtro. -->
+    <input type="hidden" name="por_pagina" value="<?= (int) $porPagina ?>">
 </form>
 
 <?php if ($sites === []) : ?>
@@ -358,15 +367,21 @@ $ehDuplicado  = static fn (string $dominio): bool => \in_array($dominio, $duplic
         'pagination'  => $pagination,
         'basePath'    => '/sites',
         'queryParams' => [
-            'q'         => $filters['search'] ?? '',
-            'servidor'  => $filters['server_id'] ?? 0,
-            'status'    => $filters['status'] ?? '',
-            'ssl'       => $filters['ssl'] ?? '',
-            'wordpress' => $filters['wordpress'] ?? '',
-            'sort'      => $currentSort,
-            'dir'       => $currentDir,
+            'q'          => $filters['search'] ?? '',
+            'servidor'   => $filters['server_id'] ?? 0,
+            'status'     => $filters['status'] ?? '',
+            'ssl'        => $filters['ssl'] ?? '',
+            'wordpress'  => $filters['wordpress'] ?? '',
+            'duplicados' => $filters['duplicados'] ?? '',
+            'sort'       => $currentSort,
+            'dir'        => $currentDir,
+
+            // Sem isto, clicar em "proxima pagina" voltaria ao padrao: os
+            // links de pagina sao montados a partir daqui.
+            'por_pagina' => $porPagina,
         ],
-        'label'       => 'site(s)',
+        'label'          => 'site(s)',
+        'perPageOptions' => \App\Controllers\SiteController::PER_PAGE_OPTIONS,
     ]) ?>
 
 <?php endif; ?>
