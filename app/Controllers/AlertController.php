@@ -47,7 +47,7 @@ final class AlertController extends Controller
         $result = $this->repository->paginate(
             array_filter($filters, static fn ($v): bool => $v !== '' && $v !== 0),
             max(1, $request->int('pagina', 1)),
-            25
+            $this->perPage($request)
         );
 
         return $this->view('alerts/index', [

@@ -49,7 +49,7 @@ final class SiteController extends Controller
         $result = $this->repository->paginate(
             array_filter($filters, static fn ($v): bool => $v !== '' && $v !== 0),
             max(1, $request->int('pagina', 1)),
-            $this->validPerPage($request->int('por_pagina', self::PER_PAGE_DEFAULT))
+            $this->perPage($request)
         );
 
         return $this->view('sites/index', [
@@ -164,25 +164,6 @@ final class SiteController extends Controller
         return \in_array($value, ['yes', 'no'], true) ? $value : '';
     }
 
-    /**
-     * Opcoes de itens por pagina oferecidas na listagem.
-     *
-     * Lista fechada de proposito: o valor vem da querystring, e aceitar
-     * qualquer numero deixaria alguem pedir 100000 registros de uma vez.
-     */
-    public const PER_PAGE_OPTIONS = [10, 20, 50, 100];
-
-    /**
-     * O MENOR valor da lista, seguindo a convencao: a primeira carga e a mais
-     * leve, e quem precisa de mais aumenta. Precisa ser um dos valores acima,
-     * senao o seletor abriria sem selecao.
-     */
-    public const PER_PAGE_DEFAULT = 10;
-
-    private function validPerPage(int $perPage): int
-    {
-        return \in_array($perPage, self::PER_PAGE_OPTIONS, true)
-            ? $perPage
-            : self::PER_PAGE_DEFAULT;
-    }
+    // PER_PAGE_OPTIONS, PER_PAGE_DEFAULT e perPage() vem do Controller base:
+    // as tres listagens paginadas usam as mesmas opcoes de proposito.
 }

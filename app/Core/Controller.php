@@ -12,6 +12,36 @@ use App\Services\AuthService;
 abstract class Controller
 {
     /**
+     * Itens por pagina oferecidos nas listagens.
+     *
+     * Fica aqui, e nao em cada controller, porque as tres listagens paginadas
+     * (sites, alertas e logs) precisam das MESMAS opcoes: um seletor que
+     * oferece 10/20/50/100 numa tela e 25/50/100 na outra e a diferenca que o
+     * operador nota e nao entende.
+     *
+     * Lista fechada de proposito: o valor vem da querystring, e aceitar
+     * qualquer numero deixaria alguem pedir 100000 registros de uma vez.
+     */
+    public const PER_PAGE_OPTIONS = [10, 20, 50, 100];
+
+    /**
+     * O MENOR valor da lista, seguindo a convencao: a primeira carga e a mais
+     * leve, e quem precisa de mais aumenta. Precisa ser um dos valores acima,
+     * senao o seletor abriria sem selecao.
+     */
+    public const PER_PAGE_DEFAULT = 10;
+
+    /** Le `por_pagina` da requisicao, aceitando apenas as opcoes previstas. */
+    protected function perPage(Request $request): int
+    {
+        $valor = $request->int('por_pagina', self::PER_PAGE_DEFAULT);
+
+        return \in_array($valor, self::PER_PAGE_OPTIONS, true)
+            ? $valor
+            : self::PER_PAGE_DEFAULT;
+    }
+
+    /**
      * Renderiza uma view dentro do layout do painel.
      *
      * @param array<string,mixed> $data

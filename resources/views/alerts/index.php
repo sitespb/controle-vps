@@ -112,6 +112,9 @@ $status = $filters['status'] ?? 'active';
     <?php endif; ?>
 
     <input type="hidden" name="severidade" value="<?= e($filters['severity'] ?? '') ?>">
+
+    <!-- Preserva a escolha de itens por pagina ao aplicar um filtro. -->
+    <input type="hidden" name="por_pagina" value="<?= (int) ($pagination['per_page'] ?? 0) ?>">
 </form>
 
 <?php if ($alerts === []) : ?>
@@ -207,8 +210,12 @@ $status = $filters['status'] ?? 'active';
             'severidade' => $filters['severity'] ?? '',
             'tipo'       => $filters['type'] ?? '',
             'servidor'   => $filters['server_id'] ?? 0,
+
+            // Sem isto, mudar de pagina descartaria a escolha do seletor.
+            'por_pagina' => (int) ($pagination['per_page'] ?? 0),
         ],
-        'label'       => 'alerta(s)',
+        'label'          => 'alerta(s)',
+        'perPageOptions' => \App\Core\Controller::PER_PAGE_OPTIONS,
     ]) ?>
 
 <?php endif; ?>

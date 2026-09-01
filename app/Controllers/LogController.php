@@ -31,14 +31,19 @@ final class LogController extends Controller
             'to'      => $this->validDate($request->string('ate')),
         ];
 
-        $page   = max(1, $request->int('pagina', 1));
+        $page    = max(1, $request->int('pagina', 1));
+        $perPage = $this->perPage($request);
+
         $result = AuditLog::paginate(
             array_filter($filters, static fn ($v): bool => $v !== '' && $v !== 0),
             $page,
-            50
+            $perPage
         );
 
-        $pages = max(1, (int) ceil($result['total'] / 50));
+        // AuditLog::paginate devolve apenas items e total; o total de paginas
+        // e calculado aqui - e precisa usar o MESMO $perPage do SELECT, senao
+        // a barra de paginacao mostraria um numero de paginas que nao existe.
+        $pages = max(1, (int) ceil($result['total'] / $perPage));
 
         return $this->view('logs/index', [
             'title'      => 'Logs do sistema',
@@ -48,7 +53,7 @@ final class LogController extends Controller
                 'total'    => $result['total'],
                 'page'     => min($page, $pages),
                 'pages'    => $pages,
-                'per_page' => 50,
+                'per_page' => $perPage,
             ],
             'filters' => $filters,
             'actions' => AuditLog::distinctActions(),

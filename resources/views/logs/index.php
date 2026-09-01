@@ -81,6 +81,9 @@ $hasFilters = array_filter($filters, static fn ($v): bool => $v !== '' && $v !==
             <a href="<?= e(url('/logs')) ?>" class="text-sm text-gray-500 hover:text-gray-700">Limpar filtros</a>
         </div>
     <?php endif; ?>
+
+    <!-- Preserva a escolha de itens por pagina ao aplicar um filtro. -->
+    <input type="hidden" name="por_pagina" value="<?= (int) ($pagination['per_page'] ?? 0) ?>">
 </form>
 
 <?php if ($logs === []) : ?>
@@ -155,8 +158,12 @@ $hasFilters = array_filter($filters, static fn ($v): bool => $v !== '' && $v !==
             'nivel' => $filters['level'] ?? '',
             'de'    => $filters['from'] ?? '',
             'ate'   => $filters['to'] ?? '',
+
+            // Sem isto, mudar de pagina descartaria a escolha do seletor.
+            'por_pagina' => (int) ($pagination['per_page'] ?? 0),
         ],
-        'label'       => 'registro(s)',
+        'label'          => 'registro(s)',
+        'perPageOptions' => \App\Core\Controller::PER_PAGE_OPTIONS,
     ]) ?>
 
 <?php endif; ?>
