@@ -200,7 +200,7 @@ final class NotificationTest extends TestCase
 
         $ultimo = NotificationLog::recent(1)[0];
         $this->assertEquals('skipped', $ultimo['status']);
-        $this->assertContainsString('Ja avisado', (string) $ultimo['error']);
+        $this->assertContainsString('Já avisado', (string) $ultimo['error']);
     }
 
     public function testTentativaQueFalhouNaoBloqueiaAProxima(): void

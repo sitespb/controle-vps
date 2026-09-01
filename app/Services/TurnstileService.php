@@ -77,7 +77,7 @@ final class TurnstileService
         if ($token === '') {
             return [
                 'ok'    => false,
-                'error' => 'Confirme que voce nao e um robo antes de entrar.',
+                'error' => 'Confirme que você não é um robô antes de entrar.',
             ];
         }
 
@@ -136,7 +136,7 @@ final class TurnstileService
         if ($resposta['network_error'] !== null) {
             return [
                 'ok'     => false,
-                'error'  => 'Nao foi possivel falar com a Cloudflare: ' . $resposta['network_error'],
+                'error'  => 'Não foi possível falar com a Cloudflare: ' . $resposta['network_error'],
                 'detail' => [],
             ];
         }
@@ -147,7 +147,7 @@ final class TurnstileService
             return [
                 'ok'     => false,
                 'error'  => 'A chave secreta foi recusada pela Cloudflare. Confira se copiou a Secret Key '
-                    . '(e nao a Site Key) do widget correto.',
+                    . '(e não a Site Key) do widget correto.',
                 'detail' => ['Resposta da Cloudflare: ' . implode(', ', $codes)],
             ];
         }
@@ -182,7 +182,7 @@ final class TurnstileService
         $ch = curl_init(self::VERIFY_URL);
 
         if ($ch === false) {
-            return ['success' => false, 'codes' => [], 'network_error' => 'curl indisponivel'];
+            return ['success' => false, 'codes' => [], 'network_error' => 'curl indisponível'];
         }
 
         curl_setopt_array($ch, [
@@ -205,7 +205,7 @@ final class TurnstileService
         $decoded = json_decode((string) $raw, true);
 
         if (!\is_array($decoded)) {
-            return ['success' => false, 'codes' => [], 'network_error' => 'resposta invalida da Cloudflare'];
+            return ['success' => false, 'codes' => [], 'network_error' => 'resposta inválida da Cloudflare'];
         }
 
         $codes = $decoded['error-codes'] ?? [];
@@ -229,7 +229,7 @@ final class TurnstileService
     private static function describe(array $codes): string
     {
         if (\in_array('timeout-or-duplicate', $codes, true)) {
-            return 'A verificacao expirou. Recarregue a pagina e tente de novo.';
+            return 'A verificação expirou. Recarregue a página e tente de novo.';
         }
 
         if (\in_array('invalid-input-secret', $codes, true) || \in_array('missing-input-secret', $codes, true)) {
@@ -237,9 +237,9 @@ final class TurnstileService
             // sem isso, ninguem consegue entrar e a tela nao diz o porque.
             Logger::error('Turnstile mal configurado: a chave secreta foi recusada pela Cloudflare.');
 
-            return 'A verificacao de seguranca esta mal configurada. Avise o administrador.';
+            return 'A verificação de segurança está mal configurada. Avise o administrador.';
         }
 
-        return 'A verificacao de seguranca falhou. Tente de novo.';
+        return 'A verificação de segurança falhou. Tente de novo.';
     }
 }

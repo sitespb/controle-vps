@@ -112,7 +112,7 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
             'detail' => $server['cpu_cores'] === null ? null : $server['cpu_cores'] . ' vCPU',
         ],
         [
-            'label'  => 'Memoria RAM',
+            'label'  => 'Memória RAM',
             'value'  => $metric['ram_percent'] ?? null,
             'metric' => 'ram',
             'detail' => ($metric['ram_used'] ?? null) === null
@@ -216,7 +216,7 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
                     'Provedor'    => $server['provider'] ?? null,
                     'Hostname'    => $server['hostname'] ?? null,
                     'IP'          => $server['ip'] ?? null,
-                    'IP publico'  => $server['public_ip'] ?? null,
+                    'IP público'  => $server['public_ip'] ?? null,
                     'Sistema'     => trim((string) ($server['os_name'] ?? '') . ' ' . (string) ($server['os_version'] ?? '')),
                     'Kernel'      => $server['kernel'] ?? null,
                     'Arquitetura' => $server['arch'] ?? null,
@@ -226,7 +226,7 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
                     'CyberPanel'  => $server['cyberpanel_version'] ?? null,
                     'Uptime'      => $server['uptime'] === null ? null : format_uptime((int) $server['uptime']),
                     'Agente'      => $server['agent_version'] === null ? null : 'v' . $server['agent_version'],
-                    'Ultima coleta' => $server['last_metric_at'] === null ? null : format_datetime($server['last_metric_at']),
+                    'Última coleta' => $server['last_metric_at'] === null ? null : format_datetime($server['last_metric_at']),
                 ];
 
                 foreach ($info as $label => $value) :
@@ -273,7 +273,7 @@ $ranges = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias', 720 => '30
                             [$dot, $text] = match ((string) $service['status']) {
                                 'running'       => ['bg-green-500', 'Ativo'],
                                 'stopped'       => ['bg-red-500', 'Parado'],
-                                'not_installed' => ['bg-gray-300', 'Nao instalado'],
+                                'not_installed' => ['bg-gray-300', 'Não instalado'],
                                 default         => ['bg-gray-300', 'Desconhecido'],
                             };
                             ?>

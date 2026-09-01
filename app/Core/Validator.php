@@ -181,13 +181,13 @@ final class Validator
 
             case 'ip':
                 if (filter_var((string) $value, FILTER_VALIDATE_IP) === false) {
-                    return $this->addError($field, 'Informe um endereco IP valido no campo %s.');
+                    return $this->addError($field, 'Informe um endereço IP valido no campo %s.');
                 }
                 break;
 
             case 'domain':
                 if (preg_match('/^(?=.{1,253}$)(?!-)[a-z0-9-]{1,63}(?<!-)(\.(?!-)[a-z0-9-]{1,63}(?<!-))+$/i', (string) $value) !== 1) {
-                    return $this->addError($field, 'Informe um dominio valido no campo %s.');
+                    return $this->addError($field, 'Informe um domínio valido no campo %s.');
                 }
                 break;
 

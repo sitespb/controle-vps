@@ -51,7 +51,7 @@ class HttpException extends RuntimeException
     /** @param array<string,mixed> $errors */
     public static function validation(array $errors, string $message = ''): self
     {
-        return new self(422, $message !== '' ? $message : 'Os dados enviados sao invalidos.', $errors);
+        return new self(422, $message !== '' ? $message : 'Os dados enviados são inválidos.', $errors);
     }
 
     public static function tooManyRequests(string $message = ''): self
@@ -62,15 +62,15 @@ class HttpException extends RuntimeException
     private static function defaultMessage(int $status): string
     {
         return match ($status) {
-            400     => 'Requisicao invalida.',
-            401     => 'Autenticacao necessaria.',
-            403     => 'Voce nao tem permissao para acessar este recurso.',
-            404     => 'Pagina nao encontrada.',
-            405     => 'Metodo nao permitido.',
-            419     => 'Sessao expirada. Recarregue a pagina e tente novamente.',
-            422     => 'Os dados enviados sao invalidos.',
-            429     => 'Muitas requisicoes. Aguarde alguns instantes.',
-            503     => 'Servico temporariamente indisponivel.',
+            400     => 'Requisição inválida.',
+            401     => 'Autenticação necessária.',
+            403     => 'Você não tem permissão para acessar este recurso.',
+            404     => 'Página não encontrada.',
+            405     => 'Metodo não permitido.',
+            419     => 'Sessão expirada. Recarregue a página e tente novamente.',
+            422     => 'Os dados enviados são inválidos.',
+            429     => 'Muitas requisições. Aguarde alguns instantes.',
+            503     => 'Serviço temporariamente indisponível.',
             default => 'Ocorreu um erro inesperado.',
         };
     }

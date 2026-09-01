@@ -45,7 +45,7 @@ final class AgentAuthMiddleware implements MiddlewareInterface
         $maxBody = (int) Config::get('monitoring.agent_api.max_body', 524288);
 
         if (\strlen($body) > $maxBody) {
-            return $this->deny($request, 'Corpo da requisicao excede o limite permitido.', 'payload_too_large', 413);
+            return $this->deny($request, 'Corpo da requisição excede o limite permitido.', 'payload_too_large', 413);
         }
 
         $serverId  = (int) ($request->header('x-server-id') ?? 0);
@@ -62,7 +62,7 @@ final class AgentAuthMiddleware implements MiddlewareInterface
         $server = Server::find($serverId);
 
         if ($server === null) {
-            return $this->deny($request, 'Servidor nao encontrado.', 'server_not_found', 404, $serverId);
+            return $this->deny($request, 'Servidor não encontrado.', 'server_not_found', 404, $serverId);
         }
 
         // Marca o uso do token (rastreabilidade sem expor o segredo).
@@ -90,7 +90,7 @@ final class AgentAuthMiddleware implements MiddlewareInterface
             'path'      => $request->path(),
         ]);
 
-        AuditService::log('agent.denied', sprintf('Requisicao de agente recusada: %s', $message), [
+        AuditService::log('agent.denied', sprintf('Requisição de agente recusada: %s', $message), [
             'level'       => 'warning',
             'user_id'     => null,
             'actor'       => 'agente',

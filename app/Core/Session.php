@@ -50,7 +50,7 @@ final class Session
         if (isset($_SESSION['user_id']) && ($now - $last) > $lifetime) {
             self::destroy();
             session_start();
-            self::flash('warning', 'Sua sessao expirou por inatividade. Entre novamente.');
+            self::flash('warning', 'Sua sessão expirou por inatividade. Entre novamente.');
         }
 
         $_SESSION['_last_activity'] = $now;

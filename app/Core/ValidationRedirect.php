@@ -14,7 +14,7 @@ final class ValidationRedirect extends RuntimeException
 {
     public function __construct(private string $target)
     {
-        parent::__construct('Validacao falhou.');
+        parent::__construct('Validação falhou.');
     }
 
     public function target(): string

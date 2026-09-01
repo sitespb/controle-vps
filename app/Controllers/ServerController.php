@@ -107,7 +107,7 @@ final class ServerController extends Controller
         $server = $this->repository->findDetailed($id);
 
         if ($server === null) {
-            throw HttpException::notFound('Servidor nao encontrado.');
+            throw HttpException::notFound('Servidor não encontrado.');
         }
 
         $hours = $this->validHours($request->int('horas', 24));
@@ -136,7 +136,7 @@ final class ServerController extends Controller
         $server = Server::find($id);
 
         if ($server === null) {
-            throw HttpException::notFound('Servidor nao encontrado.');
+            throw HttpException::notFound('Servidor não encontrado.');
         }
 
         // Consome o token de uso unico guardado na sessao.
@@ -154,7 +154,7 @@ final class ServerController extends Controller
         Session::forget('_new_token');
 
         return $this->view('servers/agent', [
-            'title'        => 'Instalacao do agente',
+            'title'        => 'Instalação do agente',
             'activeNav'    => 'servers',
             'server'       => $server,
             'token'        => $token,
@@ -173,7 +173,7 @@ final class ServerController extends Controller
         $server = Server::find($request->routeInt('id'));
 
         if ($server === null) {
-            throw HttpException::notFound('Servidor nao encontrado.');
+            throw HttpException::notFound('Servidor não encontrado.');
         }
 
         return $this->view('servers/edit', [
@@ -191,7 +191,7 @@ final class ServerController extends Controller
         $server = Server::find($id);
 
         if ($server === null) {
-            throw HttpException::notFound('Servidor nao encontrado.');
+            throw HttpException::notFound('Servidor não encontrado.');
         }
 
         $data = $this->validate($request, [
@@ -225,7 +225,7 @@ final class ServerController extends Controller
         $server = Server::find($id);
 
         if ($server === null) {
-            throw HttpException::notFound('Servidor nao encontrado.');
+            throw HttpException::notFound('Servidor não encontrado.');
         }
 
         // Confirmacao pelo nome: evita exclusao acidental de um servidor com
@@ -233,7 +233,7 @@ final class ServerController extends Controller
         $confirmation = $request->string('confirm_name');
 
         if ($confirmation !== (string) $server['name']) {
-            $this->flashError('Digite o nome exato do servidor para confirmar a exclusao.');
+            $this->flashError('Digite o nome exato do servidor para confirmar a exclusão.');
 
             return $this->redirect('/servidores/' . $id);
         }
@@ -254,7 +254,7 @@ final class ServerController extends Controller
         $server = Server::find($id);
 
         if ($server === null) {
-            throw HttpException::notFound('Servidor nao encontrado.');
+            throw HttpException::notFound('Servidor não encontrado.');
         }
 
         $token = ServerProvisionService::regenerateToken($id, AuthService::id());
@@ -269,7 +269,7 @@ final class ServerController extends Controller
 
         $this->flashWarning(
             'Novo token gerado. O token anterior foi invalidado imediatamente - '
-            . 'atualize o arquivo config.php do agente para restabelecer a comunicacao.'
+            . 'atualize o arquivo config.php do agente para restabelecer a comunicação.'
         );
 
         return $this->redirect('/servidores/' . $id . '/agente');
@@ -282,7 +282,7 @@ final class ServerController extends Controller
         $server = Server::find($id);
 
         if ($server === null) {
-            throw HttpException::notFound('Servidor nao encontrado.');
+            throw HttpException::notFound('Servidor não encontrado.');
         }
 
         return $this->redirect('/sites?servidor=' . $id);

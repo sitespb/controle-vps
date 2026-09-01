@@ -47,7 +47,7 @@ final class MetricsIngestService
             $alerts = AlertService::evaluateServerMetrics($serverId, $serverName, $metric);
         } catch (\Throwable $e) {
             // Falha na avaliacao de alerta nao invalida a metrica ja gravada.
-            Logger::error('Falha ao avaliar alertas de metrica: ' . $e->getMessage(), [
+            Logger::error('Falha ao avaliar alertas de métrica: ' . $e->getMessage(), [
                 'server_id' => $serverId,
             ]);
         }

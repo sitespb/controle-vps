@@ -32,7 +32,7 @@ use App\Core\View;
         <?= View::partial('servers/_form', [
             'server'      => $server,
             'action'      => url('/servidores/' . $server['id']),
-            'submitLabel' => 'Salvar alteracoes',
+            'submitLabel' => 'Salvar alterações',
             'errors'      => $errors,
             'old'         => $old,
         ]) ?>
@@ -54,9 +54,9 @@ use App\Core\View;
                     'Kernel'              => $server['kernel'] ?? null,
                     'Arquitetura'         => $server['arch'] ?? null,
                     'vCPUs'               => $server['cpu_cores'] ?? null,
-                    'IP publico'          => $server['public_ip'] ?? null,
+                    'IP público'          => $server['public_ip'] ?? null,
                     'CyberPanel'          => $server['cyberpanel_version'] ?? null,
-                    'Versao do agente'    => $server['agent_version'] ?? null,
+                    'Versão do agente'    => $server['agent_version'] ?? null,
                     'Uptime'              => $server['uptime'] === null ? null : format_uptime((int) $server['uptime']),
                 ];
 

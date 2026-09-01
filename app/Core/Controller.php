@@ -141,7 +141,7 @@ abstract class Controller
     protected function authorizeRole(string ...$roles): void
     {
         if (!AuthService::hasRole(...$roles)) {
-            throw HttpException::forbidden('Seu perfil nao permite executar esta acao.');
+            throw HttpException::forbidden('Seu perfil não permite executar esta ação.');
         }
     }
 

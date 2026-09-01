@@ -34,7 +34,7 @@ final class RateLimitMiddleware implements MiddlewareInterface
 
         if (!$result['allowed']) {
             throw HttpException::tooManyRequests(sprintf(
-                'Limite de %d requisicoes por %d segundos atingido. Tente novamente em %d s.',
+                'Limite de %d requisições por %d segundos atingido. Tente novamente em %d s.',
                 $limit,
                 $window,
                 $result['retry_after']

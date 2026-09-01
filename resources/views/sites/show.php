@@ -110,7 +110,7 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
                         desta página descrevem o site do outro servidor.
                     <?php else : ?>
                         Não foi possível determinar qual cópia responde: o DNS aponta para
-                        <code class="font-mono"><?= e((string) ($duplicado['resolved_ip'] ?? 'endereco desconhecido')) ?></code>,
+                        <code class="font-mono"><?= e((string) ($duplicado['resolved_ip'] ?? 'endereço desconhecido')) ?></code>,
                         que não e o IP de nenhum servidor cadastrado. E o esperado quando ha Cloudflare
                         ou outro proxy na frente. <strong>Confira manualmente antes de apagar qualquer coisa.</strong>
                     <?php endif; ?>
@@ -169,7 +169,7 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
 
             <div class="min-w-0">
                 <p class="text-sm font-medium text-gray-900">
-                    <?= $muted ? 'Voce esta ciente deste dominio' : 'Avisos ativos para este dominio' ?>
+                    <?= $muted ? 'Você está ciente deste domínio' : 'Avisos ativos para este domínio' ?>
                 </p>
                 <p class="text-xs text-gray-500 mt-0.5">
                     <?php if ($muted) : ?>
@@ -185,7 +185,7 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
             </div>
 
             <button type="submit" role="switch" aria-checked="<?= $muted ? 'true' : 'false' ?>"
-                    aria-label="<?= $muted ? 'Reativar avisos deste dominio' : 'Marcar como ciente e silenciar avisos' ?>"
+                    aria-label="<?= $muted ? 'Reativar avisos deste domínio' : 'Marcar como ciente e silenciar avisos' ?>"
                     class="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary <?= $muted ? 'bg-amber-500' : 'bg-gray-300' ?>">
                 <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform <?= $muted ? 'translate-x-6' : 'translate-x-1' ?>"></span>
             </button>
@@ -212,9 +212,9 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
         $facts = [
             ['label' => 'HTTP',              'value' => $httpLabel],
             ['label' => 'Tempo de resposta', 'value' => $site['response_time'] === null ? '--' : number_format((int) $site['response_time'], 0, ',', '.') . ' ms'],
-            ['label' => 'HTTPS',             'value' => (int) $site['https_available'] === 1 ? 'Disponivel' : 'Nao disponivel'],
+            ['label' => 'HTTPS',             'value' => (int) $site['https_available'] === 1 ? 'Disponivel' : 'Não disponível'],
             ['label' => 'PHP',               'value' => $site['php_version'] ?? '--'],
-            ['label' => 'WordPress',         'value' => (int) $site['wordpress_detected'] === 1 ? ($site['wordpress_version'] ?? 'Detectado') : 'Nao detectado'],
+            ['label' => 'WordPress',         'value' => (int) $site['wordpress_detected'] === 1 ? ($site['wordpress_version'] ?? 'Detectado') : 'Não detectado'],
             ['label' => 'IP',                'value' => $site['ip'] ?? '--'],
         ];
 
@@ -310,7 +310,7 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
                             <?= $sslDays < 0 ? abs($sslDays) : $sslDays ?>
                         </span>
                         <span class="text-sm text-gray-500">
-                            <?= $sslDays < 0 ? 'dia(s) desde a expiracao' : 'dia(s) restante(s)' ?>
+                            <?= $sslDays < 0 ? 'dia(s) desde a expiração' : 'dia(s) restante(s)' ?>
                         </span>
                     </div>
                     <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -325,7 +325,7 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
                     'Emissor'         => $site['ssl_issuer'] ?? null,
                     'Emitido para'    => $site['ssl_subject'] ?? null,
                     'Data de emissao' => $site['ssl_valid_from'] === null ? null : format_date($site['ssl_valid_from']),
-                    'Data de expiracao' => $site['ssl_valid_until'] === null ? null : format_date($site['ssl_valid_until']),
+                    'Data de expiração' => $site['ssl_valid_until'] === null ? null : format_date($site['ssl_valid_until']),
                     'Verificado em'   => $site['ssl_checked_at'] === null ? null : format_datetime($site['ssl_checked_at']),
                 ];
 

@@ -120,15 +120,15 @@ final class TokenService
         ];
 
         if ($serverId <= 0) {
-            return $fail('Identificacao de servidor invalida.', 'invalid_server', 400);
+            return $fail('Identificação de servidor inválida.', 'invalid_server', 400);
         }
 
         if ($nonce === '' || \strlen($nonce) > 64 || preg_match('/^[A-Za-z0-9_\-]+$/', $nonce) !== 1) {
-            return $fail('Nonce ausente ou em formato invalido.', 'invalid_nonce', 400);
+            return $fail('Nonce ausente ou em formato inválido.', 'invalid_nonce', 400);
         }
 
         if ($signature === '' || preg_match('/^[a-f0-9]{64}$/i', $signature) !== 1) {
-            return $fail('Assinatura ausente ou em formato invalido.', 'invalid_signature', 400);
+            return $fail('Assinatura ausente ou em formato inválido.', 'invalid_signature', 400);
         }
 
         // 1) Janela temporal
@@ -156,13 +156,13 @@ final class TokenService
         );
 
         if (!hash_equals($expected, strtolower($signature))) {
-            return $fail('Assinatura invalida.', 'signature_mismatch');
+            return $fail('Assinatura inválida.', 'signature_mismatch');
         }
 
         // 4) Replay: a chave unica (server_id, nonce) rejeita a repeticao no
         //    proprio banco, sem janela de corrida no PHP.
         if (!self::consumeNonce($serverId, $nonce)) {
-            return $fail('Requisicao repetida (nonce ja utilizado).', 'replay_detected', 409);
+            return $fail('Requisição repetida (nonce já utilizado).', 'replay_detected', 409);
         }
 
         return ['ok' => true, 'error' => '', 'code' => '', 'status' => 200, 'token' => $token];

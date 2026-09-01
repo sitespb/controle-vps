@@ -47,7 +47,7 @@ final class MonitoringService
 
                 AuditService::log(
                     'server.offline',
-                    sprintf('Servidor "%s" marcado como offline por falta de comunicacao.', $name),
+                    sprintf('Servidor "%s" marcado como offline por falta de comunicação.', $name),
                     ['entity_type' => 'server', 'entity_id' => $id, 'level' => 'warning', 'user_id' => null, 'actor' => 'sistema']
                 );
 
@@ -199,7 +199,7 @@ final class MonitoringService
 
         if ($serversOffline > 0 || $criticalAlerts > 0) {
             $level = 'critical';
-            $label = 'Atencao necessaria';
+            $label = 'Atenção necessária';
         } elseif ($sitesOffline > 0 || $warningAlerts > 0) {
             $level = 'warning';
             $label = 'Alertas em aberto';

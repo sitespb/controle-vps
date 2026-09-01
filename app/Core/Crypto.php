@@ -91,7 +91,7 @@ final class Crypto
             // Acontece quando a APP_KEY mudou. Dizer isso e mais util do que
             // "erro ao decifrar": o operador precisa regravar os segredos.
             throw new \RuntimeException(
-                'Nao foi possivel decifrar o valor. A APP_KEY mudou? Regrave a senha/token na tela de Avisos.'
+                'Não foi possível decifrar o valor. A APP_KEY mudou? Regrave a senha/token na tela de Avisos.'
             );
         }
 
@@ -110,7 +110,7 @@ final class Crypto
 
         if ($appKey === '') {
             throw new \RuntimeException(
-                'APP_KEY nao configurada. Rode: php bin/console.php key:generate'
+                'APP_KEY não configurada. Rode: php bin/console.php key:generate'
             );
         }
 

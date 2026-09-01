@@ -56,7 +56,7 @@ $hasToken = $token !== null && $token !== '';
                 <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md mb-4">
                     <p class="text-sm text-yellow-800 leading-relaxed">
                         <strong>Copie o token agora.</strong> Ele e exibido uma única vez.
-                        O painel guarda apenas o hash &mdash; não ha como recupera-lo depois.
+                        O painel guarda apenas o hash &mdash; não ha como recuperá-lo depois.
                         Se perder, gere um novo (o anterior deixa de funcionar).
                     </p>
                 </div>
@@ -94,7 +94,7 @@ $hasToken = $token !== null && $token !== '';
                     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
                         <p class="text-sm text-yellow-800 leading-relaxed">
                             <?php if ((int) $server['is_demo'] === 1) : ?>
-                                Este e um servidor de <strong>demonstração</strong> e não possui agente instalado &mdash;
+                                Este é um servidor de <strong>demonstração</strong> e não possui agente instalado &mdash;
                                 os dados dele foram gerados pelo seeder. Gere um token apenas se for reaproveitar este
                                 registro para um VPS real.
                             <?php else : ?>
@@ -200,7 +200,7 @@ $hasToken = $token !== null && $token !== '';
                 <span>
                     <span class="text-sm font-semibold text-gray-900">Instalação manual ou sem internet no servidor</span>
                     <span class="block text-xs text-gray-500 mt-0.5">
-                        Envio por scp, conteudo do config.php, linha de cron e execução manual.
+                        Envio por scp, conteúdo do config.php, linha de cron e execução manual.
                     </span>
                 </span>
                 <svg class="h-4 w-4 flex-shrink-0 text-gray-400 transition-transform group-open:rotate-180"
@@ -238,7 +238,7 @@ $hasToken = $token !== null && $token !== '';
                 </div>
 
                 <div>
-                    <p class="text-sm font-medium text-gray-900">Conteudo do config.php</p>
+                    <p class="text-sm font-medium text-gray-900">Conteúdo do config.php</p>
                     <p class="text-xs text-gray-500 mt-1 mb-2">
                         O instalador gera este arquivo em
                         <code class="font-mono"><?= e($instructions['path']) ?>/config.php</code>, com permissão 600.

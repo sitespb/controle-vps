@@ -32,7 +32,7 @@ use App\Core\View;
     <?= View::partial('users/_form', [
         'user'        => $user,
         'action'      => url('/usuarios/' . $user['id']),
-        'submitLabel' => 'Salvar alteracoes',
+        'submitLabel' => 'Salvar alterações',
         'roles'       => $roles,
         'errors'      => $errors,
         'old'         => $old,

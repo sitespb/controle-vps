@@ -141,7 +141,7 @@ final class SiteIngestService
 
         if ($closed > 0) {
             Logger::info(sprintf(
-                '%d alerta(s) encerrado(s): %d dominio(s) nao estao mais no servidor.',
+                '%d alerta(s) encerrado(s): %d domínio(s) não estao mais no servidor.',
                 $closed,
                 \count($missing)
             ), ['server_id' => $serverId]);

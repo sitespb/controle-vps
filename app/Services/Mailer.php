@@ -108,7 +108,7 @@ final class Mailer
     private function connect(): void
     {
         if ($this->host === '') {
-            throw new \RuntimeException('Servidor SMTP nao configurado.');
+            throw new \RuntimeException('Servidor SMTP não configurado.');
         }
 
         // Porta 465 fala TLS desde o primeiro byte; 587 comeca em texto claro
@@ -128,7 +128,7 @@ final class Mailer
 
         if ($socket === false) {
             throw new \RuntimeException(sprintf(
-                'Nao foi possivel conectar em %s:%d - %s',
+                'Não foi possível conectar em %s:%d - %s',
                 $this->host,
                 $this->port,
                 $errstr !== '' ? $errstr : "erro {$errno}"
@@ -151,7 +151,7 @@ final class Mailer
 
         if (stripos($ehlo, 'STARTTLS') === false) {
             throw new \RuntimeException(
-                'O servidor nao anunciou STARTTLS. Se ele usa TLS direto, mude a seguranca para SSL (porta 465).'
+                'O servidor não anunciou STARTTLS. Se ele usa TLS direto, mude a segurança para SSL (porta 465).'
             );
         }
 
@@ -188,8 +188,8 @@ final class Mailer
             // O erro cru do Gmail aponta para uma pagina generica. Dizer o que
             // realmente resolve poupa uma hora de tentativa e erro.
             throw new \RuntimeException(
-                'Autenticacao recusada. No Gmail e obrigatorio usar uma "Senha de app" '
-                . '(myaccount.google.com > Seguranca > Senhas de app), nao a senha normal da conta. '
+                'Autenticação recusada. No Gmail é obrigatório usar uma "Senha de app" '
+                . '(myaccount.google.com > Segurança > Senhas de app), não a senha normal da conta. '
                 . 'Resposta do servidor: ' . $e->getMessage()
             );
         }
@@ -309,8 +309,8 @@ final class Mailer
 
             throw new \RuntimeException(
                 ($meta['timed_out'] ?? false)
-                    ? 'O servidor SMTP nao respondeu no tempo limite.'
-                    : 'Conexao encerrada pelo servidor SMTP.'
+                    ? 'O servidor SMTP não respondeu no tempo limite.'
+                    : 'Conexão encerrada pelo servidor SMTP.'
             );
         }
 

@@ -68,7 +68,7 @@ final class AuthService
 
         if (($user['status'] ?? '') !== 'active') {
             self::recordAttempt($email, $ip, false, $userAgent);
-            AuditService::log('login.blocked', 'Login recusado: usuario inativo (' . $email . ')', [
+            AuditService::log('login.blocked', 'Login recusado: usuário inativo (' . $email . ')', [
                 'level'   => 'warning',
                 'ip'      => $ip,
                 'user_id' => (int) $user['id'],
@@ -76,7 +76,7 @@ final class AuthService
 
             return [
                 'ok'      => false,
-                'message' => 'Este usuario esta inativo. Fale com um administrador.',
+                'message' => 'Este usuário está inativo. Fale com um administrador.',
                 'user'    => null,
             ];
         }

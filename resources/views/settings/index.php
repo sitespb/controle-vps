@@ -209,7 +209,7 @@
                     <label class="block text-sm font-medium text-gray-700">Chave secreta (secret key)</label>
                     <div class="relative">
                         <input :type="ver ? 'text' : 'password'" name="secret_key" value=""
-                               placeholder="<?= $turnstileHasSecret ? '&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;' : 'nao configurada' ?>"
+                               placeholder="<?= $turnstileHasSecret ? '&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;' : 'não configurada' ?>"
                                autocomplete="new-password"
                                class="mt-1 w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm font-mono focus:ring-primary focus:border-primary">
                         <button type="button" @click="ver = !ver" tabindex="-1"

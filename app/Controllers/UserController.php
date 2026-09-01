@@ -38,7 +38,7 @@ final class UserController extends Controller
         $this->authorizeRole('admin');
 
         return $this->view('users/create', [
-            'title'     => 'Novo usuario',
+            'title'     => 'Novo usuário',
             'activeNav' => 'users',
             'roles'     => User::roles(),
         ]);
@@ -63,9 +63,9 @@ final class UserController extends Controller
         ]);
 
         if (User::emailExists($data['email'])) {
-            Session::flashErrors(['email' => 'Ja existe um usuario com este e-mail.']);
+            Session::flashErrors(['email' => 'Já existe um usuário com este e-mail.']);
             Session::flashInput($request->all());
-            $this->flashError('Nao foi possivel cadastrar o usuario.');
+            $this->flashError('Não foi possível cadastrar o usuário.');
 
             return $this->redirect('/usuarios/novo');
         }
@@ -78,12 +78,12 @@ final class UserController extends Controller
             'status'        => $data['status'],
         ]);
 
-        AuditService::log('user.created', sprintf('Usuario "%s" criado com perfil %s.', $data['name'], $data['role']), [
+        AuditService::log('user.created', sprintf('Usuário "%s" criado com perfil %s.', $data['name'], $data['role']), [
             'entity_type' => 'user',
             'entity_id'   => $id,
         ]);
 
-        $this->flashSuccess('Usuario cadastrado.');
+        $this->flashSuccess('Usuário cadastrado.');
 
         return $this->redirect('/usuarios');
     }
@@ -95,7 +95,7 @@ final class UserController extends Controller
         $user = User::find($request->routeInt('id'));
 
         if ($user === null) {
-            throw HttpException::notFound('Usuario nao encontrado.');
+            throw HttpException::notFound('Usuário não encontrado.');
         }
 
         return $this->view('users/edit', [
@@ -114,7 +114,7 @@ final class UserController extends Controller
         $user = User::find($id);
 
         if ($user === null) {
-            throw HttpException::notFound('Usuario nao encontrado.');
+            throw HttpException::notFound('Usuário não encontrado.');
         }
 
         $rules = [
@@ -138,7 +138,7 @@ final class UserController extends Controller
         ]);
 
         if (User::emailExists($data['email'], $id)) {
-            Session::flashErrors(['email' => 'Ja existe outro usuario com este e-mail.']);
+            Session::flashErrors(['email' => 'Já existe outro usuário com este e-mail.']);
             Session::flashInput($request->all());
 
             return $this->redirect('/usuarios/' . $id . '/editar');
@@ -151,7 +151,7 @@ final class UserController extends Controller
 
         if ($isLastAdmin && ($data['role'] !== User::ROLE_ADMIN || $data['status'] !== 'active')) {
             $this->flashError(
-                'Este e o unico administrador ativo. Promova outro usuario antes de alterar o perfil ou desativa-lo.'
+                'Este é o único administrador ativo. Promova outro usuário antes de alterar o perfil ou desativá-lo.'
             );
 
             return $this->redirect('/usuarios/' . $id . '/editar');
@@ -170,7 +170,7 @@ final class UserController extends Controller
 
         User::updateById($id, $changes);
 
-        AuditService::log('user.updated', sprintf('Usuario "%s" atualizado.', $data['name']), [
+        AuditService::log('user.updated', sprintf('Usuário "%s" atualizado.', $data['name']), [
             'entity_type' => 'user',
             'entity_id'   => $id,
             'context'     => ['senha_alterada' => isset($data['password'])],
@@ -181,7 +181,7 @@ final class UserController extends Controller
             Session::regenerate();
         }
 
-        $this->flashSuccess('Usuario atualizado.');
+        $this->flashSuccess('Usuário atualizado.');
 
         return $this->redirect('/usuarios');
     }
@@ -194,30 +194,30 @@ final class UserController extends Controller
         $user = User::find($id);
 
         if ($user === null) {
-            throw HttpException::notFound('Usuario nao encontrado.');
+            throw HttpException::notFound('Usuário não encontrado.');
         }
 
         if ($id === AuthService::id()) {
-            $this->flashError('Voce nao pode excluir o proprio usuario.');
+            $this->flashError('Você não pode excluir o próprio usuário.');
 
             return $this->redirect('/usuarios');
         }
 
         if ($user['role'] === User::ROLE_ADMIN && User::countAdmins() <= 1) {
-            $this->flashError('Este e o unico administrador ativo. Promova outro usuario antes de excluir.');
+            $this->flashError('Este é o único administrador ativo. Promova outro usuário antes de excluir.');
 
             return $this->redirect('/usuarios');
         }
 
         User::deleteById($id);
 
-        AuditService::log('user.deleted', sprintf('Usuario "%s" excluido.', $user['name']), [
+        AuditService::log('user.deleted', sprintf('Usuário "%s" excluido.', $user['name']), [
             'entity_type' => 'user',
             'entity_id'   => $id,
             'level'       => 'warning',
         ]);
 
-        $this->flashSuccess('Usuario excluido.');
+        $this->flashSuccess('Usuário excluido.');
 
         return $this->redirect('/usuarios');
     }

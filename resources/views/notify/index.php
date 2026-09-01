@@ -113,9 +113,9 @@ $dica = 'text-xs text-gray-500 mt-1';
             </div>
 
             <div>
-                <label class="<?= $rotulo ?>">Seguranca</label>
+                <label class="<?= $rotulo ?>">Segurança</label>
                 <select name="smtp_security" class="<?= $campo ?>">
-                    <?php foreach (['tls' => 'STARTTLS (porta 587) — padrao do Gmail', 'ssl' => 'SSL/TLS direto (porta 465)', 'none' => 'Sem criptografia (nao recomendado)'] as $valor => $texto) : ?>
+                    <?php foreach (['tls' => 'STARTTLS (porta 587) — padrão do Gmail', 'ssl' => 'SSL/TLS direto (porta 465)', 'none' => 'Sem criptografia (não recomendado)'] as $valor => $texto) : ?>
                         <option value="<?= e($valor) ?>" <?= ($email['smtp_security'] ?? 'tls') === $valor ? 'selected' : '' ?>>
                             <?= e($texto) ?>
                         </option>
@@ -135,7 +135,7 @@ $dica = 'text-xs text-gray-500 mt-1';
                     <label class="<?= $rotulo ?>">Senha</label>
                     <div class="relative">
                         <input :type="ver ? 'text' : 'password'" name="smtp_password" value=""
-                               placeholder="<?= $emailHasSecret ? "&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" : "nao configurada" ?>"
+                               placeholder="<?= $emailHasSecret ? "&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" : "não configurada" ?>"
                                autocomplete="new-password" class="<?= $campo ?> pr-10">
                         <button type="button" @click="ver = !ver" tabindex="-1"
                                 :aria-label="ver ? 'Ocultar senha' : 'Mostrar senha'"
@@ -258,7 +258,7 @@ $dica = 'text-xs text-gray-500 mt-1';
                     <label class="<?= $rotulo ?>">Token da instância</label>
                     <div class="relative">
                         <input :type="ver ? 'text' : 'password'" name="token" value=""
-                               placeholder="<?= $whatsHasSecret ? "&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" : "nao configurado" ?>"
+                               placeholder="<?= $whatsHasSecret ? "&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" : "não configurado" ?>"
                                autocomplete="new-password" class="<?= $campo ?> pr-10">
                         <button type="button" @click="ver = !ver" tabindex="-1"
                                 :aria-label="ver ? 'Ocultar token' : 'Mostrar token'"

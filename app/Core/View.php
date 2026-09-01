@@ -111,14 +111,14 @@ final class View
     {
         // Impede path traversal vindo de um nome de view dinamico.
         if (str_contains($view, '..') || str_contains($view, "\0")) {
-            throw new RuntimeException('Nome de view invalido: ' . $view);
+            throw new RuntimeException('Nome de view inválido: ' . $view);
         }
 
         $file = self::$viewPath . DIRECTORY_SEPARATOR
             . str_replace(['/', '.php'], [DIRECTORY_SEPARATOR, ''], $view) . '.php';
 
         if (!is_file($file)) {
-            throw new RuntimeException('View nao encontrada: ' . $view . ' (' . $file . ')');
+            throw new RuntimeException('View não encontrada: ' . $view . ' (' . $file . ')');
         }
 
         return $file;

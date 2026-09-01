@@ -56,7 +56,7 @@ final class Database
         } catch (PDOException $e) {
             self::$lastError = $e->getMessage();
             throw new RuntimeException(
-                'Nao foi possivel conectar ao banco de dados: ' . $e->getMessage(),
+                'Não foi possível conectar ao banco de dados: ' . $e->getMessage(),
                 (int) $e->getCode(),
                 $e
             );

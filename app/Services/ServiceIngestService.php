@@ -68,7 +68,7 @@ final class ServiceIngestService
                 $result['stored']++;
             } catch (\Throwable $e) {
                 $result['skipped']++;
-                Logger::error('Falha ao gravar servico: ' . $e->getMessage(), [
+                Logger::error('Falha ao gravar serviço: ' . $e->getMessage(), [
                     'server_id' => $serverId,
                     'service'   => $name,
                 ]);

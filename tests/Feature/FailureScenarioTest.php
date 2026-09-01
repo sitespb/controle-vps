@@ -248,7 +248,7 @@ final class FailureScenarioTest extends TestCase
         $response = $this->request('GET', '/rota-que-nao-existe');
 
         $this->assertStatus(404, $response);
-        $this->assertContainsString('nao encontrada', mb_strtolower(strip_tags($response->content())));
+        $this->assertContainsString('não encontrada', mb_strtolower(strip_tags($response->content())));
     }
 
     public function testApiRespondeJsonEmVezDeHtmlNoErro(): void

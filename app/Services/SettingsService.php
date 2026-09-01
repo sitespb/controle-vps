@@ -36,7 +36,7 @@ final class SettingsService
             $values = $force ? self::readFromDatabase() : self::readCached();
         } catch (\Throwable $e) {
             // Sem banco, os padroes do arquivo continuam valendo.
-            Logger::warning('Nao foi possivel carregar settings: ' . $e->getMessage());
+            Logger::warning('Não foi possível carregar settings: ' . $e->getMessage());
 
             return;
         }
@@ -143,7 +143,7 @@ final class SettingsService
 
             AuditService::log(
                 'settings.updated',
-                sprintf('Configuracao "%s" alterada de %s para %s.', $setting['label'], $setting['value'], $value),
+                sprintf('Configuração "%s" alterada de %s para %s.', $setting['label'], $setting['value'], $value),
                 ['entity_type' => 'setting', 'entity_id' => (int) $setting['id']]
             );
         }
@@ -163,26 +163,26 @@ final class SettingsService
 
         if (\in_array($type, ['int', 'float'], true)) {
             if (!is_numeric($value)) {
-                return 'Informe um numero.';
+                return 'Informe um número.';
             }
 
             $numeric = (float) $value;
 
             if ($setting['min_value'] !== null && $numeric < (float) $setting['min_value']) {
-                return sprintf('Valor minimo: %s.', rtrim(rtrim((string) $setting['min_value'], '0'), '.'));
+                return sprintf('Valor mínimo: %s.', rtrim(rtrim((string) $setting['min_value'], '0'), '.'));
             }
 
             if ($setting['max_value'] !== null && $numeric > (float) $setting['max_value']) {
-                return sprintf('Valor maximo: %s.', rtrim(rtrim((string) $setting['max_value'], '0'), '.'));
+                return sprintf('Valor máximo: %s.', rtrim(rtrim((string) $setting['max_value'], '0'), '.'));
             }
         }
 
         if ($type === 'bool' && !\in_array(strtolower($value), ['0', '1', 'true', 'false'], true)) {
-            return 'Valor invalido.';
+            return 'Valor inválido.';
         }
 
         if ($type === 'json' && json_decode($value) === null && strtolower($value) !== 'null') {
-            return 'JSON invalido.';
+            return 'JSON inválido.';
         }
 
         return null;
@@ -207,7 +207,7 @@ final class SettingsService
             $critical = isset($input[$criticalKey]) ? (float) $input[$criticalKey] : (float) Config::get($criticalKey, 90);
 
             if ($critical <= $warning) {
-                $errors[$criticalKey] = 'O limite critico deve ser maior que o de atencao.';
+                $errors[$criticalKey] = 'O limite crítico deve ser maior que o de atenção.';
             }
         }
 
@@ -219,7 +219,7 @@ final class SettingsService
             : (int) Config::get('monitoring.ssl.critical', 7);
 
         if ($sslCritical >= $sslWarning) {
-            $errors['monitoring.ssl.critical'] = 'O limite critico deve ser menor que o de aviso.';
+            $errors['monitoring.ssl.critical'] = 'O limite crítico deve ser menor que o de aviso.';
         }
 
         return $errors;

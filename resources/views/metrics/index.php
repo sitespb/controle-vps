@@ -40,8 +40,8 @@ foreach ($servers as $server) {
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
     <?php
     $meters = [
-        ['label' => 'CPU media',   'data' => $usage['cpu']],
-        ['label' => 'RAM media',   'data' => $usage['ram']],
+        ['label' => 'CPU média',   'data' => $usage['cpu']],
+        ['label' => 'RAM média',   'data' => $usage['ram']],
         ['label' => 'Disco medio', 'data' => $usage['disk']],
     ];
 
@@ -175,8 +175,8 @@ foreach ($servers as $server) {
         <dl class="space-y-3">
             <?php
             $volumeLabels = [
-                'server_metrics' => 'Amostras de metricas',
-                'site_checks'    => 'Verificacoes de site',
+                'server_metrics' => 'Amostras de métricas',
+                'site_checks'    => 'Verificações de site',
                 'alerts'         => 'Alertas',
                 'audit_logs'     => 'Registros de auditoria',
             ];
@@ -246,7 +246,7 @@ $trendJson = json_encode($alertTrend, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 $scripts[] = "window.ControleVPSCharts.alertTrend('chart-alerts', {$trendJson});";
 
 if (array_sum($sslSummary) > 0) {
-    $sslLabels = json_encode(['Valido', 'A vencer', 'Expirado', 'Nao verificado', 'Sem SSL'], JSON_UNESCAPED_UNICODE);
+    $sslLabels = json_encode(['Valido', 'A vencer', 'Expirado', 'Não verificado', 'Sem SSL'], JSON_UNESCAPED_UNICODE);
     $sslValues = json_encode(array_values([
         $sslSummary['valid'],
         $sslSummary['expiring'],

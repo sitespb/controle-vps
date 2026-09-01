@@ -41,10 +41,10 @@ use App\Core\View;
         <ol class="space-y-4">
             <?php
             $steps = [
-                ['Identificacao unica', 'O servidor recebe um ID numerico e um UID interno.'],
+                ['Identificação única', 'O servidor recebe um ID numérico e um UID interno.'],
                 ['Token seguro', 'Um token aleatorio criptografico e gerado. Ele aparece UMA UNICA VEZ na tela seguinte.'],
-                ['Instalacao do agente', 'O painel monta o comando e o arquivo de configuracao prontos para colar no VPS.'],
-                ['Primeira coleta', 'Assim que o agente rodar, o servidor sai de "Desconhecido" e passa a reportar metricas e sites.'],
+                ['Instalação do agente', 'O painel monta o comando e o arquivo de configuração prontos para colar no VPS.'],
+                ['Primeira coleta', 'Assim que o agente rodar, o servidor sai de "Desconhecido" e passa a reportar métricas e sites.'],
             ];
 
             foreach ($steps as $index => [$stepTitle, $stepText]) :

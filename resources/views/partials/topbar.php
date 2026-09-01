@@ -39,7 +39,7 @@ $statusTextClass = match ($status['level'] ?? 'unknown') {
             <a href="<?= e(url('/alertas')) ?>"
                class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
                title="<?= e(sprintf(
-                   '%d servidor(es) offline, %d site(s) offline, %d alerta(s) critico(s)',
+                   '%d servidor(es) offline, %d site(s) offline, %d alerta(s) crítico(s)',
                    $status['servers_offline'],
                    $status['sites_offline'],
                    $status['critical_alerts']

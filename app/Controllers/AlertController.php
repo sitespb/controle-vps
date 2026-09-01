@@ -73,7 +73,7 @@ final class AlertController extends Controller
         $alert = $this->repository->findDetailed($id);
 
         if ($alert === null) {
-            throw HttpException::notFound('Alerta nao encontrado.');
+            throw HttpException::notFound('Alerta não encontrado.');
         }
 
         return $this->view('alerts/show', [
@@ -94,7 +94,7 @@ final class AlertController extends Controller
         }
 
         if (!AlertService::acknowledge($id, $userId)) {
-            $this->flashWarning('Este alerta nao esta aberto.');
+            $this->flashWarning('Este alerta não está aberto.');
 
             return $this->back($request, '/alertas');
         }
@@ -119,7 +119,7 @@ final class AlertController extends Controller
         }
 
         if (!AlertService::resolveManually($id, $userId)) {
-            $this->flashWarning('Este alerta ja estava resolvido.');
+            $this->flashWarning('Este alerta já estava resolvido.');
 
             return $this->back($request, '/alertas');
         }
@@ -130,7 +130,7 @@ final class AlertController extends Controller
         ]);
 
         $this->flashSuccess(
-            'Alerta resolvido. Se a condicao persistir, ele sera reaberto automaticamente na proxima coleta.'
+            'Alerta resolvido. Se a condição persistir, ele será reaberto automaticamente na próxima coleta.'
         );
 
         return $this->back($request, '/alertas');

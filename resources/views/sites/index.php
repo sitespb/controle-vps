@@ -85,7 +85,7 @@ $ehDuplicado  = static fn (string $dominio): bool => \in_array($dominio, $duplic
         ['label' => 'SSL valido',   'value' => $sslSummary['valid'],    'filter' => 'valid',    'class' => 'text-green-700'],
         ['label' => 'A vencer',     'value' => $sslSummary['expiring'], 'filter' => 'expiring', 'class' => 'text-yellow-800'],
         ['label' => 'Expirado',     'value' => $sslSummary['expired'],  'filter' => 'expired',  'class' => 'text-red-700'],
-        ['label' => 'Nao verificado', 'value' => $sslSummary['unknown'], 'filter' => 'unknown', 'class' => 'text-gray-500'],
+        ['label' => 'Não verificado', 'value' => $sslSummary['unknown'], 'filter' => 'unknown', 'class' => 'text-gray-500'],
         ['label' => 'Sem SSL',      'value' => $sslSummary['none'],     'filter' => 'none',     'class' => 'text-gray-500'],
     ];
 
@@ -147,7 +147,7 @@ $ehDuplicado  = static fn (string $dominio): bool => \in_array($dominio, $duplic
             <select id="ssl" name="ssl" data-auto-submit
                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary focus:border-primary">
                 <option value="">Todos</option>
-                <?php foreach (['valid' => 'Valido', 'expiring' => 'A vencer', 'expired' => 'Expirado', 'unknown' => 'Nao verificado', 'none' => 'Sem certificado'] as $value => $label) : ?>
+                <?php foreach (['valid' => 'Valido', 'expiring' => 'A vencer', 'expired' => 'Expirado', 'unknown' => 'Não verificado', 'none' => 'Sem certificado'] as $value => $label) : ?>
                     <option value="<?= e($value) ?>" <?= ($filters['ssl'] ?? '') === $value ? 'selected' : '' ?>><?= e($label) ?></option>
                 <?php endforeach; ?>
             </select>
@@ -197,7 +197,7 @@ $ehDuplicado  = static fn (string $dominio): bool => \in_array($dominio, $duplic
         <p class="mt-4 text-gray-500">
             <?= $hasFilters
                 ? 'Nenhum site corresponde aos filtros aplicados.'
-                : 'Nenhum site descoberto ainda. Os dominios aparecem aqui apos a primeira coleta do agente.' ?>
+                : 'Nenhum site descoberto ainda. Os domínios aparecem aqui após a primeira coleta do agente.' ?>
         </p>
         <?php if ($hasFilters) : ?>
             <a href="<?= e(url('/sites')) ?>" class="inline-block mt-4 text-sm text-primary font-medium">Limpar filtros</a>

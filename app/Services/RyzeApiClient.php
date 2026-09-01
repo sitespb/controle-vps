@@ -56,13 +56,13 @@ final class RyzeApiClient
     public function sendText(string $number, string $message): array
     {
         if ($this->instance === '' || $this->token === '') {
-            return ['ok' => false, 'error' => 'Instancia ou token nao configurados.', 'message_id' => null];
+            return ['ok' => false, 'error' => 'Instância ou token não configurados.', 'message_id' => null];
         }
 
         $number = preg_replace('/\D/', '', $number) ?? '';
 
         if ($number === '') {
-            return ['ok' => false, 'error' => 'Numero de destino invalido.', 'message_id' => null];
+            return ['ok' => false, 'error' => 'Número de destino inválido.', 'message_id' => null];
         }
 
         $response = $this->request(
@@ -104,7 +104,7 @@ final class RyzeApiClient
         if ($this->instance === '' || $this->token === '') {
             return [
                 'ok'        => false,
-                'error'     => 'Instancia ou token nao configurados.',
+                'error'     => 'Instância ou token não configurados.',
                 'state'     => null,
                 'name'      => null,
                 'connected' => false,
@@ -204,7 +204,7 @@ final class RyzeApiClient
         $ch = curl_init($this->baseUrl . $path);
 
         if ($ch === false) {
-            return ['ok' => false, 'error' => 'Nao foi possivel iniciar a requisicao.', 'data' => []];
+            return ['ok' => false, 'error' => 'Não foi possível iniciar a requisição.', 'data' => []];
         }
 
         $headers = ['token: ' . $this->token, 'Accept: application/json'];
@@ -235,7 +235,7 @@ final class RyzeApiClient
         if ($raw === false) {
             Logger::error('RyzeAPI inacessivel: ' . $err);
 
-            return ['ok' => false, 'error' => 'Nao foi possivel falar com a RyzeAPI: ' . $err, 'data' => []];
+            return ['ok' => false, 'error' => 'Não foi possível falar com a RyzeAPI: ' . $err, 'data' => []];
         }
 
         $decoded = json_decode((string) $raw, true);
@@ -243,7 +243,7 @@ final class RyzeApiClient
         if (!\is_array($decoded)) {
             return [
                 'ok'    => false,
-                'error' => sprintf('Resposta invalida da RyzeAPI (HTTP %d).', $status),
+                'error' => sprintf('Resposta inválida da RyzeAPI (HTTP %d).', $status),
                 'data'  => [],
             ];
         }

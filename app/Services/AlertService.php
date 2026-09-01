@@ -137,7 +137,7 @@ final class AlertService
             [Alert::STATUS_RESOLVED, $now, $now, $id]
         );
 
-        AlertEvent::record($id, AlertEvent::RESOLVED, $reason !== '' ? $reason : 'Condicao normalizada.');
+        AlertEvent::record($id, AlertEvent::RESOLVED, $reason !== '' ? $reason : 'Condição normalizada.');
 
         Logger::info('Alerta resolvido automaticamente: ' . $existing['title'], [
             'alert_id' => $id,
@@ -213,7 +213,7 @@ final class AlertService
             Alert::TYPE_SERVER_MEMORY_HIGH => [
                 'metric' => 'ram',
                 'value'  => isset($metric['ram_percent']) ? (float) $metric['ram_percent'] : null,
-                'label'  => 'memoria RAM',
+                'label'  => 'memória RAM',
             ],
             Alert::TYPE_SERVER_DISK_HIGH => [
                 'metric' => 'disk',
@@ -246,7 +246,7 @@ final class AlertService
                 $type,
                 sprintf('%s: %s em %s', $serverName, ucfirst($check['label']), format_percent($value, 1)),
                 sprintf(
-                    'O servidor %s esta utilizando %s de %s.',
+                    'O servidor %s está utilizando %s de %s.',
                     $serverName,
                     format_percent($value, 1),
                     $check['label']
@@ -267,7 +267,7 @@ final class AlertService
             Alert::TYPE_SERVER_OFFLINE,
             sprintf('Servidor %s offline', $serverName),
             sprintf(
-                'O servidor %s nao envia dados desde %s.',
+                'O servidor %s não envia dados desde %s.',
                 $serverName,
                 $lastSeen === null ? 'o cadastro' : format_datetime($lastSeen)
             ),
@@ -313,7 +313,7 @@ final class AlertService
 
         $detail = $httpStatus !== null
             ? sprintf('retornou HTTP %d', $httpStatus)
-            : sprintf('nao respondeu (%s)', $error ?? 'sem resposta');
+            : sprintf('não respondeu (%s)', $error ?? 'sem resposta');
 
         self::raise(
             Alert::TYPE_SITE_OFFLINE,
@@ -464,7 +464,7 @@ final class AlertService
     public static function resolveForUndiscoveredSite(int $serverId, int $siteId, string $domain): int
     {
         $reason = sprintf(
-            'Dominio %s nao foi mais encontrado no servidor: alerta encerrado automaticamente.',
+            'Domínio %s não foi mais encontrado no servidor: alerta encerrado automaticamente.',
             $domain
         );
 

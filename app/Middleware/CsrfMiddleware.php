@@ -34,10 +34,10 @@ final class CsrfMiddleware implements MiddlewareInterface
         }
 
         if ($request->wantsJson()) {
-            throw new HttpException(419, 'Token CSRF invalido ou expirado. Recarregue a pagina.');
+            throw new HttpException(419, 'Token CSRF inválido ou expirado. Recarregue a página.');
         }
 
-        Session::flash('error', 'Sua sessao expirou. Envie o formulario novamente.');
+        Session::flash('error', 'Sua sessão expirou. Envie o formulário novamente.');
 
         return Response::redirect($request->header('referer') ?? url('/'));
     }

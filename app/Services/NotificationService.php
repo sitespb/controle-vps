@@ -96,7 +96,7 @@ final class NotificationService
                 'domain'    => $domain,
                 'recipient' => '-',
                 'status'    => NotificationLog::STATUS_SKIPPED,
-                'error'     => 'Dominio marcado como ciente pelo operador.',
+                'error'     => 'Domínio marcado como ciente pelo operador.',
             ]);
 
             return 'skipped';
@@ -111,7 +111,7 @@ final class NotificationService
                 'domain'    => $domain,
                 'recipient' => '-',
                 'status'    => NotificationLog::STATUS_SKIPPED,
-                'error'     => sprintf('Ja avisado nas ultimas %d hora(s).', (int) round(self::windowMinutes() / 60)),
+                'error'     => sprintf('Já avisado nas últimas %d hora(s).', (int) round(self::windowMinutes() / 60)),
             ]);
 
             return 'skipped';
@@ -129,7 +129,7 @@ final class NotificationService
                 'error'     => sprintf('Teto de %d mensagens por hora atingido.', self::hourlyCap()),
             ]);
 
-            Logger::warning('Teto horario de avisos atingido: mensagens seguintes serao suprimidas.', [
+            Logger::warning('Teto horário de avisos atingido: mensagens seguintes serão suprimidas.', [
                 'channel' => $channel,
             ]);
 
@@ -169,15 +169,15 @@ final class NotificationService
     {
         $config = SecureSetting::all(SecureSetting::SCOPE_EMAIL);
 
-        $assunto = '[Controle VPS] Teste de configuracao';
-        $texto   = "Este e um e-mail de teste do Controle VPS.\n\n"
-            . "Se voce recebeu esta mensagem, o envio de avisos por e-mail esta funcionando.\n\n"
+        $assunto = '[Controle VPS] Teste de configuração';
+        $texto   = "Este é um e-mail de teste do Controle VPS.\n\n"
+            . "Se você recebeu esta mensagem, o envio de avisos por e-mail está funcionando.\n\n"
             . 'Enviado em ' . format_datetime(now_string()) . '.';
 
         $resultado = Mailer::fromConfig($config)->send($to, $assunto, $texto, self::htmlWrapper(
-            'Teste de configuracao',
-            '<p>Este e um e-mail de teste do <strong>Controle VPS</strong>.</p>'
-            . '<p>Se voce recebeu esta mensagem, o envio de avisos por e-mail esta funcionando.</p>'
+            'Teste de configuração',
+            '<p>Este é um e-mail de teste do <strong>Controle VPS</strong>.</p>'
+            . '<p>Se você recebeu esta mensagem, o envio de avisos por e-mail está funcionando.</p>'
         ));
 
         NotificationLog::record([
@@ -212,7 +212,7 @@ final class NotificationService
             return ['ok' => false, 'error' => $estado['error'], 'detail' => []];
         }
 
-        $detail = ['Estado da instancia: ' . ($estado['state'] ?? 'desconhecido')];
+        $detail = ['Estado da instância: ' . ($estado['state'] ?? 'desconhecido')];
 
         $configurada = (string) ($config['instance'] ?? '');
         $real        = (string) ($estado['name'] ?? '');
@@ -226,38 +226,38 @@ final class NotificationService
             return [
                 'ok'    => false,
                 'error' => sprintf(
-                    'O token pertence a instancia "%s", mas voce configurou "%s". '
-                    . 'Corrija o nome da instancia para "%s" e salve.',
+                    'O token pertence a instância "%s", mas você configurou "%s". '
+                    . 'Corrija o nome da instância para "%s" e salve.',
                     $real,
                     $configurada,
                     $real
                 ),
-                'detail' => array_merge($detail, ['Nome real da instancia: ' . $real]),
+                'detail' => array_merge($detail, ['Nome real da instância: ' . $real]),
             ];
         }
 
         if ($real !== '') {
-            $detail[] = 'Nome da instancia confere: ' . $real;
+            $detail[] = 'Nome da instância confere: ' . $real;
         }
 
         if (!$estado['connected']) {
             return [
                 'ok'     => false,
-                'error'  => 'A instancia existe, mas nao esta conectada ao WhatsApp (estado: '
+                'error'  => 'A instância existe, mas não está conectada ao WhatsApp (estado: '
                     . ($estado['state'] ?? 'desconhecido') . '). Leia o QR Code na RyzeAPI.',
                 'detail' => $detail,
             ];
         }
 
         if ($number === null || trim($number) === '') {
-            $detail[] = 'Token e instancia validos. Informe um numero para receber a mensagem de teste.';
+            $detail[] = 'Token e instância validos. Informe um número para receber a mensagem de teste.';
 
             return ['ok' => true, 'error' => null, 'detail' => $detail];
         }
 
         $envio = $client->sendText(
             $number,
-            "*Controle VPS*\n\nTeste de configuracao. Se voce recebeu esta mensagem, "
+            "*Controle VPS*\n\nTeste de configuração. Se você recebeu esta mensagem, "
             . 'os avisos por WhatsApp estao funcionando.'
         );
 
@@ -313,23 +313,23 @@ final class NotificationService
     {
         $motivo = $httpStatus !== null
             ? sprintf('retornou HTTP %d', $httpStatus)
-            : sprintf('nao respondeu (%s)', $error ?? 'sem resposta');
+            : sprintf('não respondeu (%s)', $error ?? 'sem resposta');
 
         $quando = format_datetime(now_string());
         $url    = rtrim((string) Config::get('app.url', ''), '/') . '/sites';
 
-        $texto = "*{$domain} esta fora do ar*\n\n"
+        $texto = "*{$domain} está fora do ar*\n\n"
             . "O site {$motivo}.\n"
             . "Detectado em {$quando}.\n\n"
             . "Painel: {$url}\n\n"
-            . 'Para parar de receber avisos deste dominio, marque "Ciente" na tela de Sites.';
+            . 'Para parar de receber avisos deste domínio, marque "Ciente" na tela de Sites.';
 
         $html = self::htmlWrapper(
-            $domain . ' esta fora do ar',
+            $domain . ' está fora do ar',
             sprintf(
                 '<p>O site <strong>%s</strong> %s.</p><p>Detectado em %s.</p>'
                 . '<p><a href="%s" style="color:#dc2626">Abrir o painel</a></p>'
-                . '<p style="color:#6b7280;font-size:13px">Para parar de receber avisos deste dominio, '
+                . '<p style="color:#6b7280;font-size:13px">Para parar de receber avisos deste domínio, '
                 . 'marque <strong>Ciente</strong> na tela de Sites.</p>',
                 e($domain),
                 e($motivo),
@@ -339,7 +339,7 @@ final class NotificationService
         );
 
         return [
-            'subject' => sprintf('[Controle VPS] %s esta fora do ar', $domain),
+            'subject' => sprintf('[Controle VPS] %s está fora do ar', $domain),
             'text'    => $texto,
             'html'    => $html,
         ];
@@ -359,7 +359,7 @@ final class NotificationService
             . '<h1 style="margin:0 0 16px;font-size:18px">' . e($title) . '</h1>'
             . $body
             . '<hr style="border:0;border-top:1px solid #e5e7eb;margin:20px 0">'
-            . '<p style="margin:0;color:#9ca3af;font-size:12px">Controle VPS - aviso automatico. Nao responda este e-mail.</p>'
+            . '<p style="margin:0;color:#9ca3af;font-size:12px">Controle VPS - aviso automático. Não responda este e-mail.</p>'
             . '</div></body></html>';
     }
 

@@ -36,10 +36,10 @@ $badgeClass = match ($tone) {
     <h1 class="mt-1 text-2xl font-bold text-gray-900">
         <?= e(match ($status) {
             403     => 'Acesso negado',
-            404     => 'Pagina nao encontrada',
-            405     => 'Metodo nao permitido',
-            419     => 'Sessao expirada',
-            429     => 'Muitas requisicoes',
+            404     => 'Página não encontrada',
+            405     => 'Metodo não permitido',
+            419     => 'Sessão expirada',
+            429     => 'Muitas requisições',
             default => 'Algo deu errado',
         }) ?>
     </h1>

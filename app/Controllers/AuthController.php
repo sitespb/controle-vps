@@ -76,7 +76,7 @@ final class AuthController extends Controller
 
             if ($remaining > 0 && $remaining <= 2) {
                 $this->flashWarning(sprintf(
-                    'Restam %d tentativa(s) antes do bloqueio temporario.',
+                    'Restam %d tentativa(s) antes do bloqueio temporário.',
                     $remaining
                 ));
             }
@@ -103,7 +103,7 @@ final class AuthController extends Controller
 
         // Sessao nova apenas para carregar a mensagem de despedida.
         Session::start();
-        Session::flash('info', 'Voce saiu do painel.');
+        Session::flash('info', 'Você saiu do painel.');
 
         return $this->redirect('/login');
     }

@@ -79,7 +79,7 @@ final class SiteController extends Controller
         $site = Site::findDetailed($id);
 
         if ($site === null) {
-            throw HttpException::notFound('Site nao encontrado.');
+            throw HttpException::notFound('Site não encontrado.');
         }
 
         $hours = \in_array($request->int('horas', 24), [6, 24, 72, 168], true)
@@ -129,7 +129,7 @@ final class SiteController extends Controller
         $site = Site::find($id);
 
         if ($site === null) {
-            throw HttpException::notFound('Site nao encontrado.');
+            throw HttpException::notFound('Site não encontrado.');
         }
 
         $muted = !$request->input('ciente');
@@ -143,7 +143,7 @@ final class SiteController extends Controller
         );
 
         $this->flashSuccess($muted
-            ? sprintf('Voce esta ciente de %s. Nao enviaremos avisos deste dominio ate ele voltar ao ar.', $site['domain'])
+            ? sprintf('Você está ciente de %s. Não enviaremos avisos deste domínio até ele voltar ao ar.', $site['domain'])
             : sprintf('Avisos de %s reativados.', $site['domain']));
 
         return $this->redirect('/sites/' . $id);

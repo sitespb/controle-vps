@@ -45,7 +45,7 @@ final class RateLimiter
             );
         } catch (\Throwable $e) {
             // Falha no controle de limite nao pode bloquear a coleta legitima.
-            Logger::warning('Rate limiter indisponivel: ' . $e->getMessage(), ['bucket' => $bucket]);
+            Logger::warning('Rate limiter indisponível: ' . $e->getMessage(), ['bucket' => $bucket]);
 
             return ['allowed' => true, 'hits' => 0, 'limit' => $limit, 'retry_after' => 0];
         }

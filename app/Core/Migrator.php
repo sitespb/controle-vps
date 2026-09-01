@@ -196,7 +196,7 @@ final class Migrator
         $charset = (string) Config::get('database.charset', 'utf8mb4');
 
         if ($name === '' || preg_match('/^[A-Za-z0-9_\-]+$/', $name) !== 1) {
-            throw new \RuntimeException('Nome de banco invalido em DB_DATABASE: ' . $name);
+            throw new \RuntimeException('Nome de banco inválido em DB_DATABASE: ' . $name);
         }
 
         $pdo = Database::serverConnection();

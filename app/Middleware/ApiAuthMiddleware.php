@@ -26,7 +26,7 @@ final class ApiAuthMiddleware implements MiddlewareInterface
     public function handle(Request $request, Closure $next, ?string $parameter = null): Response
     {
         if (!AuthService::check() || AuthService::user() === null) {
-            throw HttpException::unauthorized('Sessao expirada. Faca login novamente.');
+            throw HttpException::unauthorized('Sessão expirada. Faca login novamente.');
         }
 
         SettingsService::applyOverrides();

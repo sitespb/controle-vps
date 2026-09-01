@@ -80,7 +80,7 @@ final class SettingsController extends Controller
             $secretGravado = SecureSetting::get(SecureSetting::SCOPE_TURNSTILE, 'secret_key');
 
             if ($siteKey === '' || ($secret === '' && $secretGravado === '')) {
-                $this->flashError('Informe a chave do site e a chave secreta antes de ativar a verificacao.');
+                $this->flashError('Informe a chave do site e a chave secreta antes de ativar a verificação.');
 
                 return $this->redirect('/configuracoes?aba=recaptcha');
             }
@@ -92,11 +92,11 @@ final class SettingsController extends Controller
             'secret_key' => $secret,
         ], AuthService::id());
 
-        AuditService::log('settings.turnstile.update', 'Configuracao do Turnstile alterada', [
+        AuditService::log('settings.turnstile.update', 'Configuração do Turnstile alterada', [
             'context' => ['ativo' => $ligar ? '1' : '0'],
         ]);
 
-        $this->flashSuccess('Configuracao do Turnstile salva.');
+        $this->flashSuccess('Configuração do Turnstile salva.');
 
         return $this->redirect('/configuracoes?aba=recaptcha');
     }
@@ -126,7 +126,7 @@ final class SettingsController extends Controller
         $input = $request->input('settings', []);
 
         if (!\is_array($input) || $input === []) {
-            $this->flashWarning('Nenhuma alteracao enviada.');
+            $this->flashWarning('Nenhuma alteração enviada.');
 
             return $this->redirect('/configuracoes');
         }
@@ -140,7 +140,7 @@ final class SettingsController extends Controller
 
         if ($coherence !== []) {
             Session::flashErrors($coherence);
-            $this->flashError('Corrija os limites destacados. O valor critico deve ser mais severo que o de atencao.');
+            $this->flashError('Corrija os limites destacados. O valor crítico deve ser mais severo que o de atenção.');
 
             return $this->redirect('/configuracoes');
         }
@@ -149,7 +149,7 @@ final class SettingsController extends Controller
 
         if ($result['errors'] !== []) {
             Session::flashErrors($result['errors']);
-            $this->flashError('Alguns valores nao foram aceitos. Verifique os campos destacados.');
+            $this->flashError('Alguns valores não foram aceitos. Verifique os campos destacados.');
 
             return $this->redirect('/configuracoes');
         }
@@ -157,7 +157,7 @@ final class SettingsController extends Controller
         if ($result['updated'] === 0) {
             $this->flashInfo('Nenhum valor foi alterado.');
         } else {
-            $this->flashSuccess(sprintf('%d configuracao(oes) atualizada(s).', $result['updated']));
+            $this->flashSuccess(sprintf('%d configuração(oes) atualizada(s).', $result['updated']));
         }
 
         return $this->redirect('/configuracoes');
@@ -175,11 +175,11 @@ final class SettingsController extends Controller
         }
 
         return [
-            'Versao da aplicacao' => App::VERSION,
+            'Versão da aplicacao' => App::VERSION,
             'Ambiente'            => (string) Config::get('app.env', 'production'),
             'Modo debug'          => Config::get('app.debug', false) ? 'ativo' : 'desativado',
             'URL base'            => (string) Config::get('app.url', ''),
-            'Fuso horario'        => (string) Config::get('app.timezone', ''),
+            'Fuso horário'        => (string) Config::get('app.timezone', ''),
             'PHP'                 => \PHP_VERSION,
             'Banco de dados'      => $dbVersion,
             'Intervalo do agente' => sprintf('%d s', (int) Config::get('monitoring.agent_interval', 300)),

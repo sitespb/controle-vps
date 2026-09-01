@@ -86,12 +86,12 @@ final class AgentController extends Controller
         $payload = $request->all();
 
         if ($payload === []) {
-            return $this->apiError('Corpo da requisicao vazio.', 422, 'empty_payload');
+            return $this->apiError('Corpo da requisição vazio.', 422, 'empty_payload');
         }
 
         $result = MetricsIngestService::store($serverId, (string) $server['name'], $payload);
 
-        Logger::info('Metricas recebidas', [
+        Logger::info('Métricas recebidas', [
             'server_id' => $serverId,
             'metric_id' => $result['metric_id'],
         ]);
@@ -205,7 +205,7 @@ final class AgentController extends Controller
 
         if (!\is_array($server)) {
             // Nao deve acontecer: o middleware garante a presenca.
-            throw new \RuntimeException('Servidor nao resolvido pelo middleware de agente.');
+            throw new \RuntimeException('Servidor não resolvido pelo middleware de agente.');
         }
 
         return $server;

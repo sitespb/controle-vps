@@ -90,27 +90,27 @@ final class HttpStatusService
     public static function explain(?int $httpStatus, ?string $error = null): string
     {
         if ($httpStatus === null || $httpStatus === 0) {
-            return $error !== null && $error !== '' ? $error : 'Nao foi possivel conectar ao dominio.';
+            return $error !== null && $error !== '' ? $error : 'Não foi possível conectar ao domínio.';
         }
 
         if ($httpStatus >= 500) {
-            return 'O servidor web respondeu com erro. O site esta indisponivel para os visitantes.';
+            return 'O servidor web respondeu com erro. O site está indisponível para os visitantes.';
         }
 
         if ($httpStatus === 404) {
-            return 'Pagina nao encontrada. O servidor esta no ar, mas o conteudo respondeu 404.';
+            return 'Página não encontrada. O servidor está no ar, mas o conteúdo respondeu 404.';
         }
 
         if ($httpStatus === 403) {
-            return 'Acesso negado. O servidor esta no ar, mas bloqueou a requisicao.';
+            return 'Acesso negado. O servidor está no ar, mas bloqueou a requisição.';
         }
 
         if ($httpStatus >= 400) {
-            return 'O servidor esta no ar, mas retornou um erro de requisicao.';
+            return 'O servidor está no ar, mas retornou um erro de requisição.';
         }
 
         if ($httpStatus >= 300) {
-            return 'O dominio esta redirecionando.';
+            return 'O domínio está redirecionando.';
         }
 
         return 'O site respondeu normalmente.';

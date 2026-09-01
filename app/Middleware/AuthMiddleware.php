@@ -25,7 +25,7 @@ final class AuthMiddleware implements MiddlewareInterface
     {
         if (!AuthService::check() || AuthService::user() === null) {
             if ($request->wantsJson()) {
-                throw HttpException::unauthorized('Sessao expirada ou inexistente.');
+                throw HttpException::unauthorized('Sessão expirada ou inexistente.');
             }
 
             // Guarda o destino para retomar depois do login.

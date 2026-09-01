@@ -24,7 +24,7 @@ use App\Core\View;
     <?= View::partial('users/_form', [
         'user'        => null,
         'action'      => url('/usuarios'),
-        'submitLabel' => 'Cadastrar usuario',
+        'submitLabel' => 'Cadastrar usuário',
         'roles'       => $roles,
         'errors'      => $errors,
         'old'         => $old,

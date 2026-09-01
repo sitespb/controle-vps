@@ -62,7 +62,7 @@ final class PanelController extends Controller
         $server = Server::find($request->routeInt('id'));
 
         if ($server === null) {
-            throw HttpException::notFound('Servidor nao encontrado.');
+            throw HttpException::notFound('Servidor não encontrado.');
         }
 
         return $this->apiOk([
@@ -112,7 +112,7 @@ final class PanelController extends Controller
         $id = $request->routeInt('id');
 
         if (Server::find($id) === null) {
-            throw HttpException::notFound('Servidor nao encontrado.');
+            throw HttpException::notFound('Servidor não encontrado.');
         }
 
         $hours = $this->validHours($request->int('horas', 24));
@@ -171,7 +171,7 @@ final class PanelController extends Controller
         $id = $request->routeInt('id');
 
         if (Site::find($id) === null) {
-            throw HttpException::notFound('Site nao encontrado.');
+            throw HttpException::notFound('Site não encontrado.');
         }
 
         $hours = $this->validHours($request->int('horas', 24));
@@ -233,7 +233,7 @@ final class PanelController extends Controller
         }
 
         if (!AlertService::acknowledge($id, $userId)) {
-            return $this->apiError('Alerta nao encontrado ou nao esta aberto.', 409, 'invalid_state');
+            return $this->apiError('Alerta não encontrado ou não está aberto.', 409, 'invalid_state');
         }
 
         AuditService::log('alert.acknowledged', sprintf('Alerta #%d reconhecido.', $id), [
@@ -255,7 +255,7 @@ final class PanelController extends Controller
         }
 
         if (!AlertService::resolveManually($id, $userId)) {
-            return $this->apiError('Alerta nao encontrado ou ja resolvido.', 409, 'invalid_state');
+            return $this->apiError('Alerta não encontrado ou já resolvido.', 409, 'invalid_state');
         }
 
         AuditService::log('alert.resolved', sprintf('Alerta #%d resolvido manualmente.', $id), [

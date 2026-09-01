@@ -96,11 +96,11 @@ final class NotifyController extends Controller
             AuthService::id()
         );
 
-        AuditService::log('notify.email.update', 'Configuracao de avisos por e-mail alterada', [
+        AuditService::log('notify.email.update', 'Configuração de avisos por e-mail alterada', [
             'context' => ['enabled' => $values['enabled'], 'host' => $values['smtp_host']],
         ]);
 
-        $this->flashSuccess('Configuracao de e-mail salva.');
+        $this->flashSuccess('Configuração de e-mail salva.');
 
         return $this->redirect('/avisos?aba=email');
     }
@@ -118,7 +118,7 @@ final class NotifyController extends Controller
         ];
 
         if ($values['enabled'] === '1' && $values['instance'] === '') {
-            $this->flashError('Informe o nome da instancia antes de ativar os avisos por WhatsApp.');
+            $this->flashError('Informe o nome da instância antes de ativar os avisos por WhatsApp.');
 
             return $this->redirect('/avisos?aba=whatsapp');
         }
@@ -129,11 +129,11 @@ final class NotifyController extends Controller
             AuthService::id()
         );
 
-        AuditService::log('notify.whatsapp.update', 'Configuracao de avisos por WhatsApp alterada', [
+        AuditService::log('notify.whatsapp.update', 'Configuração de avisos por WhatsApp alterada', [
             'context' => ['enabled' => $values['enabled'], 'instance' => $values['instance']],
         ]);
 
-        $this->flashSuccess('Configuracao de WhatsApp salva.');
+        $this->flashSuccess('Configuração de WhatsApp salva.');
 
         return $this->redirect('/avisos?aba=whatsapp');
     }
@@ -182,7 +182,7 @@ final class NotifyController extends Controller
 
         AuditService::log('notify.whatsapp.test', 'Teste de envio de WhatsApp', [
             'context' => [
-                'destino'   => $numero !== '' ? $numero : '(so estado da instancia)',
+                'destino'   => $numero !== '' ? $numero : '(so estado da instância)',
                 'resultado' => $resultado['ok'] ? 'ok' : 'falha',
             ],
         ]);

@@ -156,7 +156,7 @@ final class Router
 
                 $class = $this->middlewareAliases[$name] ?? null;
                 if ($class === null || !class_exists($class)) {
-                    throw new \RuntimeException('Middleware nao registrado: ' . $name);
+                    throw new \RuntimeException('Middleware não registrado: ' . $name);
                 }
 
                 /** @var \App\Middleware\MiddlewareInterface $instance */
@@ -183,12 +183,12 @@ final class Router
             $controller = new $class();
 
             if (!method_exists($controller, $method)) {
-                throw new \RuntimeException(sprintf('Acao %s::%s inexistente.', $class, (string) $method));
+                throw new \RuntimeException(sprintf('Ação %s::%s inexistente.', $class, (string) $method));
             }
 
             $result = $controller->{$method}($request);
         } else {
-            throw new \RuntimeException('Definicao de rota invalida.');
+            throw new \RuntimeException('Definicao de rota inválida.');
         }
 
         if ($result instanceof Response) {
