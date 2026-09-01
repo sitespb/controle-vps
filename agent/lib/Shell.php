@@ -137,6 +137,8 @@ final class Shell
      */
     public static function serviceIsActive(string $unit, array $processNames = []): ?bool
     {
+        $systemd = null;
+
         if (self::isAvailable('systemctl')) {
             $state = self::run('systemctl', ['is-active', $unit], 4);
 
@@ -148,19 +150,35 @@ final class Shell
                 }
 
                 if (\in_array($state, ['inactive', 'failed', 'deactivating'], true)) {
-                    return false;
+                    // Anota, mas NAO decide ainda - ver abaixo.
+                    $systemd = false;
                 }
-                // "unknown" ou unidade inexistente: cai para o pgrep abaixo.
             }
         }
 
+        // ------------------------------------------------------------------
+        // O PROCESSO E A VERDADE FINAL
+        // ------------------------------------------------------------------
+        // Esta verificacao roda mesmo quando o systemd disse "inactive", e
+        // nao apenas quando ele nao sabe. O motivo apareceu em producao: num
+        // servidor aaPanel, `systemctl is-active mariadb` responde "inactive"
+        // porque o painel sobe o banco pelo mysqld_safe sob a unit `mysql` -
+        // e o painel reportou "MariaDB parado" com o mariadbd rodando ha sete
+        // dias.
+        //
+        // A versao anterior saia com `return false` no primeiro sinal
+        // negativo, tornando este bloco inalcancavel exatamente no caso em
+        // que ele era necessario. Um nome de unit diferente nao pode
+        // sobrepor a evidencia de que o processo esta no ar.
         foreach ($processNames as $process) {
             if (self::isAvailable('pgrep') && self::run('pgrep', ['-x', $process], 4) !== null) {
                 return true;
             }
         }
 
-        return null;
+        // false quando o systemd negou e nenhum processo apareceu;
+        // null quando ninguem soube responder.
+        return $systemd;
     }
 
     /** Le um arquivo do sistema com tratamento de erro silencioso. */

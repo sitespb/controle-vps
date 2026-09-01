@@ -73,7 +73,7 @@ return [
      * duas pontas andam sempre no mesmo passo.
      */
     'agent_repo' => Env::get('AGENT_REPO', 'sitespb/controle-vps'),
-    'agent_ref'  => Env::get('AGENT_REF', 'v1.2.0'),
+    'agent_ref'  => Env::get('AGENT_REF', 'v1.2.1'),
 
     /* Sem heartbeat por este periodo (segundos) => servidor OFFLINE. */
     'server_offline_after' => Env::int('SERVER_OFFLINE_AFTER', 600),

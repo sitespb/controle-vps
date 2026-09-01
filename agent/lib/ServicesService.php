@@ -72,8 +72,16 @@ final class ServicesService
     {
         $active = Shell::serviceIsActive('mariadb', ['mariadbd', 'mysqld']);
 
-        if ($active === null) {
-            $active = Shell::serviceIsActive('mysql', ['mysqld']);
+        // Tenta a unit alternativa sempre que a primeira NAO confirmou - e
+        // nao apenas quando ela devolveu null. O aaPanel registra o banco
+        // como `mysql`, entao perguntar so por `mariadb` da negativo num
+        // servidor onde o servico esta perfeitamente no ar.
+        if ($active !== true) {
+            $alternativa = Shell::serviceIsActive('mysql', ['mysqld', 'mariadbd']);
+
+            if ($alternativa !== null) {
+                $active = $alternativa;
+            }
         }
 
         $version = null;

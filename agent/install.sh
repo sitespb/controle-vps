@@ -5,7 +5,7 @@
 # ============================================================================
 #
 #  Uso (o comando pronto esta no painel, na tela do servidor):
-#      curl -fsSL https://raw.githubusercontent.com/sitespb/controle-vps/v1.2.0/agent/install.sh \
+#      curl -fsSL https://raw.githubusercontent.com/sitespb/controle-vps/v1.2.1/agent/install.sh \
 #        | sudo bash -s -- --token cvps_27_xxxxxxxx \
 #                          --url https://monitoramento.exemplo.com.br/api
 #
@@ -20,7 +20,7 @@
 #      --yes                 instala automaticamente as extensoes PHP que
 #                             faltarem, sem perguntar (uso nao interativo)
 #      --php /caminho/php    usa este binario em vez de procurar sozinho
-#      --ref v1.2.0          versao do agente a baixar (padrao: a deste script)
+#      --ref v1.2.1          versao do agente a baixar (padrao: a deste script)
 #      --force               substitui um agente ja instalado que pertence a
 #                             OUTRO servidor (sem isto, o script recusa)
 #
@@ -68,7 +68,7 @@ FORCE=0
 # comando de instalacao apontando para a versao que ele conhece. Assim um
 # painel antigo nunca instala um agente novo demais para ele.
 AGENT_REPO="sitespb/controle-vps"
-AGENT_REF="v1.2.0"
+AGENT_REF="v1.2.1"
 
 # Executado por `curl ... | bash`, BASH_SOURCE fica VAZIO - e com `set -u`
 # isso seria "unbound variable" na primeira linha util do script. O fallback

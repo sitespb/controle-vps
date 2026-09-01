@@ -1307,3 +1307,61 @@ precisaram ser refeitas.
 - arquivos agora em UTF-8, e o layout já declarava `charset=UTF-8`;
 - 168 testes passando — o único que quebrou foi uma asserção que procurava o
   texto antigo, o que é o comportamento desejado de um teste de interface.
+
+---
+
+## 20. "MariaDB parado" com o banco rodando há 7 dias (01/09/2026)
+
+Investigando um pico de CPU no servidor aaPanel, o operador notou que o painel
+mostrava **MariaDB / MySQL — Parado**, enquanto no servidor o `mariadbd` estava
+no ar havia 7 dias e 13 horas, consumindo 1,1 GB.
+
+Pior: o painel **detectou a versão** (`v15.1`). Ou seja, encontrou o serviço e
+errou apenas o estado.
+
+### A causa: um `return false` cedo demais
+
+`Shell::serviceIsActive()` perguntava ao systemd e, ao receber `inactive`,
+devolvia `false` na hora:
+
+```php
+if (in_array($state, ['inactive','failed','deactivating'], true)) {
+    return false;   // <- saía aqui
+}
+
+foreach ($processNames as $process) {   // <- inalcançável
+    if (... pgrep ...) return true;
+}
+```
+
+O fallback por nome de processo existia — e era **inalcançável exatamente no
+caso em que seria útil**.
+
+No aaPanel o banco sobe pelo `mysqld_safe` sob a unit `mysql`, então
+`systemctl is-active mariadb` responde `inactive` com toda a razão: aquela unit
+realmente não está ativa. O serviço, porém, está.
+
+`ServicesService::database()` até tentava a unit alternativa, mas só quando a
+primeira devolvia `null` — e ela devolvia `false`.
+
+### A correção
+
+O processo passou a ser a **verdade final**: a checagem por `pgrep` roda mesmo
+quando o systemd disse `inactive`, e não apenas quando ele não sabe. Um nome de
+unit diferente não pode sobrepor a evidência de que o processo está no ar.
+
+`false` continua sendo devolvido quando o systemd nega **e** nenhum processo
+aparece — um serviço genuinamente parado continua sendo reportado como parado.
+Há teste para os cinco cenários, incluindo esse.
+
+`database()` também passou a tentar a unit `mysql` sempre que a primeira não
+confirmou, em vez de apenas quando ela não soube.
+
+### Por que isso importa mais que o bug em si
+
+Um monitoramento que reporta um serviço crítico como parado, sem que esteja,
+gasta o crédito que ele precisa ter quando o serviço parar de verdade. É a
+mesma categoria do falso alarme de site offline (seção 15) e do alerta de CPU
+por amostra única: **o custo não é o erro, é a desconfiança que ele instala.**
+
+Publicado como `v1.2.1`.
