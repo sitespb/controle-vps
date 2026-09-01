@@ -11,6 +11,7 @@
  * @var array<int,array<string,mixed>> $servers
  * @var array<string,int>              $summary
  * @var array<string,int>              $sslSummary
+ * @var array<int,string>              $duplicados  dominios em mais de um servidor
  */
 
 use App\Core\View;
@@ -25,8 +26,9 @@ $sortLink = static function (string $column) use ($filters, $currentSort, $curre
         'q'         => $filters['search'] ?? '',
         'servidor'  => $filters['server_id'] ?? 0,
         'status'    => $filters['status'] ?? '',
-        'ssl'       => $filters['ssl'] ?? '',
-        'wordpress' => $filters['wordpress'] ?? '',
+        'ssl'        => $filters['ssl'] ?? '',
+        'wordpress'  => $filters['wordpress'] ?? '',
+        'duplicados' => $filters['duplicados'] ?? '',
     ], static fn ($v): bool => $v !== '' && $v !== 0);
 
     $params['sort'] = $column;
@@ -48,7 +50,16 @@ $hasFilters = !empty($filters['search'])
     || !empty($filters['server_id'])
     || !empty($filters['status'])
     || !empty($filters['ssl'])
-    || !empty($filters['wordpress']);
+    || !empty($filters['wordpress'])
+    || !empty($filters['duplicados']);
+
+/*
+ * Busca em array e barata aqui de proposito: `$duplicados` costuma ter zero ou
+ * poucos itens, e resolver linha a linha no banco custaria uma subconsulta por
+ * dominio exibido.
+ */
+$duplicados   = $duplicados ?? [];
+$ehDuplicado  = static fn (string $dominio): bool => \in_array($dominio, $duplicados, true);
 ?>
 
 <div class="mb-6">
@@ -138,12 +149,26 @@ $hasFilters = !empty($filters['search'])
     </div>
 
     <div class="flex items-center justify-between mt-3">
-        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-            <input type="checkbox" name="wordpress" value="yes" data-auto-submit
-                   <?= ($filters['wordpress'] ?? '') === 'yes' ? 'checked' : '' ?>
-                   class="rounded border-gray-300 text-primary focus:ring-primary">
-            Somente WordPress
-        </label>
+        <div class="flex items-center gap-5 flex-wrap">
+            <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <input type="checkbox" name="wordpress" value="yes" data-auto-submit
+                       <?= ($filters['wordpress'] ?? '') === 'yes' ? 'checked' : '' ?>
+                       class="rounded border-gray-300 text-primary focus:ring-primary">
+                Somente WordPress
+            </label>
+
+            <!-- So aparece quando ha o que filtrar: um filtro que nunca
+                 encontra nada e ruido permanente na tela. -->
+            <?php if ($duplicados !== []) : ?>
+                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                    <input type="checkbox" name="duplicados" value="yes" data-auto-submit
+                           <?= ($filters['duplicados'] ?? '') === 'yes' ? 'checked' : '' ?>
+                           class="rounded border-gray-300 text-primary focus:ring-primary">
+                    Somente duplicados
+                    <span class="px-1.5 py-0.5 bg-orange-100 text-orange-800 text-[10px] font-bold rounded"><?= \count($duplicados) ?></span>
+                </label>
+            <?php endif; ?>
+        </div>
 
         <?php if ($hasFilters) : ?>
             <a href="<?= e(url('/sites')) ?>" class="text-sm text-gray-500 hover:text-gray-700">Limpar filtros</a>
@@ -221,6 +246,10 @@ $hasFilters = !empty($filters['search'])
                                 <?php if ((int) ($site['notify_muted'] ?? 0) === 1) : ?>
                                     <span title="Voce marcou ciente: avisos deste dominio estao silenciados ate ele voltar ao ar"
                                           class="ml-1.5 px-1.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider rounded">Ciente</span>
+                                <?php endif; ?>
+                                <?php if ($ehDuplicado((string) $site['domain'])) : ?>
+                                    <span title="Este dominio existe em mais de um servidor. Abra o site para ver qual copia esta no ar."
+                                          class="ml-1.5 px-1.5 py-0.5 bg-orange-100 text-orange-800 text-[10px] font-bold uppercase tracking-wider rounded">Duplicado</span>
                                 <?php endif; ?>
                             </td>
 

@@ -1108,3 +1108,73 @@ existir. O `docs/INSTALACAO-VPS.md` também deixou de pedir Node no servidor.
 
 **Regra que fica:** ao alterar qualquer view, rodar `npm run build:css` antes
 de commitar.
+
+---
+
+## 17. Domínios duplicados entre servidores (29/08/2026)
+
+O operador encontrou o mesmo site, com conteúdo idêntico, em dois servidores.
+Significa que o DNS aponta para um deles e o outro é sobra: espaço ocupado,
+backup inflado, e o risco de alguém editar a cópia que ninguém vê.
+
+### Detecção era grátis; dizer quem serve, não
+
+A chave única de `sites` é `(server_id, domain)`, então o mesmo domínio em dois
+servidores **já existia como duas linhas**. Detectar é um `GROUP BY` sobre o
+índice `idx_sites_domain` que já existia. Nenhuma mudança no agente, nenhuma
+coleta nova, nenhuma migration.
+
+O problema real é outro: **não dá para saber pelo status HTTP qual cópia está no
+ar**. Cada agente faz `curl` no domínio, o DNS resolve para o mesmo lugar, e os
+dois servidores reportam o site como online — inclusive aquele que só tem
+arquivos parados no disco.
+
+O sinal certo já estava sendo coletado: `sites.ip` vem de
+`CURLINFO_PRIMARY_IP` ([HttpCheckService.php:202](../agent/lib/HttpCheckService.php#L202)),
+o IP em que a requisição **de fato conectou**. Comparando com `servers.ip`:
+
+```
+sites.ip == servers.ip  ->  este servidor é quem responde
+sites.ip != servers.ip  ->  esta cópia está obsoleta
+```
+
+### O caso em que a resposta é "não sei"
+
+Com Cloudflare ou qualquer proxy na frente, o IP conectado é o do proxy e não
+bate com servidor nenhum. `DuplicateSiteService` devolve `SERVING_UNKNOWN` e a
+tela diz isso com todas as letras, pedindo conferência manual.
+
+Chutar um servidor seria pior que não apontar nenhum: a tela sugere apagar a
+cópia inútil, e o operador apagaria o site que funciona. Há teste para esse
+cenário.
+
+### Onde ficou na interface
+
+Deliberadamente **não** em Alertas. Alerta é para algo que mudou e exige ação
+agora; uma duplicidade está assim há meses. Colocá-la ali poluiria a tela,
+dispararia e-mail e WhatsApp por algo não urgente, e ficaria aberta para sempre
+— o mesmo problema dos alertas órfãos corrigidos na seção 12.
+
+| Onde | O quê |
+|---|---|
+| Lista de Sites | selo **Duplicado** ao lado do domínio |
+| Filtro da lista | "Somente duplicados", com contagem — **só aparece quando há** |
+| Página do site | faixa no topo com as duas cópias, quem serve, caminho e espaço |
+
+A faixa fica acima de tudo porque muda a leitura da página inteira: se aquela
+cópia não é a que responde, o status, o SSL e o tempo de resposta exibidos
+descrevem o site de *outro* servidor.
+
+### Detalhe que quase repetiu o bug do CSS
+
+A faixa muda de cor conforme o caso (laranja quando exige ação, azul quando é
+informação). A primeira versão montava a classe como `bg-{$cor}-50` — que o
+Tailwind **nunca encontraria** no código-fonte, produzindo uma caixa sem cor
+nenhuma e sem erro nenhum, exatamente a falha da seção 16. As classes ficaram
+por extenso em cada ramo do ternário, com comentário explicando o porquê.
+
+### Testes
+
+12 novos (161 no total). Cobrem detecção, o caso `discovered = 0` que não conta
+como duplicidade, os três veredictos de quem serve — incluindo o proxy —, o
+filtro, e a renderização real das duas telas.

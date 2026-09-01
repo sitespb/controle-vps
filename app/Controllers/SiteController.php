@@ -15,6 +15,7 @@ use App\Repositories\AlertRepository;
 use App\Repositories\SiteRepository;
 use App\Services\AuditService;
 use App\Services\AuthService;
+use App\Services\DuplicateSiteService;
 use App\Services\HttpStatusService;
 
 /**
@@ -40,6 +41,7 @@ final class SiteController extends Controller
             'status'    => $this->validStatus($request->string('status')),
             'ssl'       => $this->validSsl($request->string('ssl')),
             'wordpress' => $this->validWordpress($request->string('wordpress')),
+            'duplicados' => $request->string('duplicados') === 'yes' ? 'yes' : '',
             'sort'      => $request->string('sort', 'domain'),
             'direction' => $request->string('dir', 'asc'),
         ];
@@ -64,6 +66,10 @@ final class SiteController extends Controller
             'servers'    => Server::options(),
             'summary'    => $this->repository->statusSummary(),
             'sslSummary' => $this->repository->sslSummary(),
+
+            // Lista pequena (normalmente vazia) usada para marcar as linhas.
+            // Enviar o conjunto de uma vez evita uma subconsulta por linha.
+            'duplicados' => $this->repository->duplicateDomains(),
         ]);
     }
 
@@ -98,6 +104,13 @@ final class SiteController extends Controller
             'uptime7d'    => SiteCheck::uptimePercent($id, 168),
             'alerts'      => (new AlertRepository())->forSite($id, 10),
             'hours'       => $hours,
+
+            // Mesmo dominio em outro servidor. Quase sempre vazio; quando nao
+            // esta, e a informacao mais importante da pagina.
+            'duplicado'   => DuplicateSiteService::analyse(
+                $site,
+                $this->repository->otherCopiesOf((string) $site['domain'], $id)
+            ),
         ]);
     }
 

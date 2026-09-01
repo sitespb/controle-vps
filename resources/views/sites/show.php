@@ -61,6 +61,92 @@ $ranges    = [6 => '6 h', 24 => '24 h', 72 => '3 dias', 168 => '7 dias'];
 </div>
 
 <!-- ======================================================================
+     DUPLICADO - mesmo dominio em mais de um servidor
+     ======================================================================
+     Fica no topo porque muda a leitura da pagina inteira: se esta copia nao e
+     a que responde, todo o resto - status, SSL, tempo de resposta - esta
+     descrevendo o site de OUTRO servidor, e nao os arquivos deste.
+     ====================================================================== -->
+<?php if (($duplicado['copies'] ?? []) !== []) : ?>
+    <?php
+    $servindo = $duplicado['serving'];
+
+    // Laranja quando esta copia e a inutil (exige acao); azul quando e apenas
+    // informacao. Vermelho fica reservado a indisponibilidade real.
+    //
+    // As classes aparecem por extenso em cada ternario, e nao montadas como
+    // "bg-{$cor}-50". O Tailwind so inclui no CSS as classes que ENCONTRA no
+    // codigo-fonte: um nome montado em runtime existe no HTML e nao existe na
+    // folha de estilo - a caixa apareceria sem cor nenhuma, sem erro nenhum.
+    ?>
+
+    <div class="<?= $servindo === 'other' ? 'bg-orange-50 border-orange-200' : 'bg-blue-50 border-blue-200' ?> border rounded-xl p-5 mb-6">
+        <div class="flex items-start gap-3">
+            <svg class="h-5 w-5 flex-shrink-0 mt-0.5 <?= $servindo === 'other' ? 'text-orange-600' : 'text-blue-600' ?>"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold <?= $servindo === 'other' ? 'text-orange-900' : 'text-blue-900' ?>">
+                    <?php if ($servindo === 'this') : ?>
+                        Este dominio existe em outro servidor &mdash; mas quem responde e este aqui.
+                    <?php elseif ($servindo === 'other') : ?>
+                        Esta copia nao esta sendo usada.
+                    <?php else : ?>
+                        Este dominio existe em mais de um servidor.
+                    <?php endif; ?>
+                </p>
+
+                <p class="text-xs <?= $servindo === 'other' ? 'text-orange-800' : 'text-blue-800' ?> mt-1 leading-relaxed">
+                    <?php if ($servindo === 'this') : ?>
+                        O DNS aponta para <code class="font-mono"><?= e((string) $duplicado['resolved_ip']) ?></code>,
+                        que e o IP deste servidor. A copia abaixo ocupa espaco sem receber acesso.
+                    <?php elseif ($servindo === 'other') : ?>
+                        O DNS aponta para <code class="font-mono"><?= e((string) $duplicado['resolved_ip']) ?></code>,
+                        que e o servidor <strong><?= e((string) $duplicado['serving_server']) ?></strong>.
+                        Os arquivos <em>deste</em> servidor nao recebem acesso nenhum &mdash; o status e o SSL
+                        desta pagina descrevem o site do outro servidor.
+                    <?php else : ?>
+                        Nao foi possivel determinar qual copia responde: o DNS aponta para
+                        <code class="font-mono"><?= e((string) ($duplicado['resolved_ip'] ?? 'endereco desconhecido')) ?></code>,
+                        que nao e o IP de nenhum servidor cadastrado. E o esperado quando ha Cloudflare
+                        ou outro proxy na frente. <strong>Confira manualmente antes de apagar qualquer coisa.</strong>
+                    <?php endif; ?>
+                </p>
+
+                <div class="mt-4 space-y-2">
+                    <?php foreach ($duplicado['copies'] as $copia) : ?>
+                        <div class="flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-lg px-3 py-2">
+                            <div class="min-w-0">
+                                <a href="<?= e(url('/sites/' . $copia['id'])) ?>" class="text-sm font-medium text-gray-900 hover:text-primary">
+                                    <?= e((string) $copia['server_name']) ?>
+                                </a>
+                                <?php if ($copia['is_serving']) : ?>
+                                    <span class="ml-1.5 px-1.5 py-0.5 bg-green-100 text-green-800 text-[10px] font-bold uppercase rounded">servindo</span>
+                                <?php endif; ?>
+                                <p class="text-xs text-gray-500 font-mono truncate mt-0.5">
+                                    <?= e((string) ($copia['document_root'] ?? 'caminho desconhecido')) ?>
+                                </p>
+                            </div>
+                            <div class="text-right flex-shrink-0">
+                                <p class="text-sm text-gray-900"><?= e(format_bytes($copia['disk_usage'] === null ? null : (float) $copia['disk_usage'])) ?></p>
+                                <p class="text-xs text-gray-500">verificado <?= e(time_ago($copia['last_check_at'])) ?></p>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <p class="text-xs <?= $servindo === 'other' ? 'text-orange-700' : 'text-blue-700' ?> mt-3">
+                    O painel nao apaga nada &mdash; a remocao e feita no painel de hospedagem do servidor que sobrar.
+                </p>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+<!-- ======================================================================
      CIENTE - silencia os avisos deste dominio
      ======================================================================
      Aparece apenas para admin. Fica no topo, junto do status, porque e a

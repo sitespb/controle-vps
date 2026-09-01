@@ -30,9 +30,26 @@ final class SiteRepository
     ];
 
     /**
+     * Dominios hospedados em MAIS DE UM servidor.
+     *
+     * A chave unica de `sites` e (server_id, domain), entao o mesmo dominio em
+     * dois servidores ja existe como duas linhas - detectar e so agrupar. Usa
+     * o indice `idx_sites_domain`.
+     *
+     * `COUNT(DISTINCT server_id)` em vez de `COUNT(*)`: a unicidade ja impede
+     * duas linhas do mesmo par, mas o DISTINCT deixa a intencao explicita e
+     * sobrevive a uma mudanca futura no indice.
+     */
+    private const DUPLICATE_DOMAINS_SQL = 'SELECT domain
+             FROM sites
+             WHERE discovered = 1
+             GROUP BY domain
+             HAVING COUNT(DISTINCT server_id) > 1';
+
+    /**
      * @param array{
      *     search?:string, server_id?:int, status?:string, ssl?:string,
-     *     wordpress?:string, sort?:string, direction?:string
+     *     wordpress?:string, duplicados?:string, sort?:string, direction?:string
      * } $filters
      *
      * @return array{items:array<int,array<string,mixed>>,total:int,page:int,per_page:int,pages:int}
@@ -69,6 +86,12 @@ final class SiteRepository
         if (isset($filters['wordpress']) && $filters['wordpress'] !== '') {
             $where[]    = 's.wordpress_detected = ?';
             $bindings[] = $filters['wordpress'] === 'yes' ? 1 : 0;
+        }
+
+        if (!empty($filters['duplicados'])) {
+            // Tabela derivada em vez de IN (SELECT ... GROUP BY): assim o
+            // agrupamento e materializado uma vez, e nao reavaliado por linha.
+            $where[] = 's.domain IN (SELECT d.domain FROM (' . self::DUPLICATE_DOMAINS_SQL . ') AS d)';
         }
 
         $whereSql = 'WHERE ' . implode(' AND ', $where);
@@ -115,6 +138,45 @@ final class SiteRepository
             'per_page' => $perPage,
             'pages'    => $pages,
         ];
+    }
+
+    /**
+     * Lista dos dominios duplicados, para marcar as linhas e contar.
+     *
+     * Devolve so os nomes - normalmente zero ou um punhado. A tela usa a lista
+     * para decidir quais linhas ganham selo, o que evita uma subconsulta por
+     * linha na listagem.
+     *
+     * @return array<int,string>
+     */
+    public function duplicateDomains(): array
+    {
+        $rows = Database::select(self::DUPLICATE_DOMAINS_SQL . ' ORDER BY domain');
+
+        return array_map(static fn (array $row): string => (string) $row['domain'], $rows);
+    }
+
+    /**
+     * As OUTRAS copias de um dominio, em servidores diferentes.
+     *
+     * Traz o que a decisao exige: onde o arquivo esta, quanto ocupa, e o IP em
+     * que o agente daquele servidor conectou ao verificar o dominio. Esse
+     * ultimo e o que permite dizer qual copia esta realmente no ar.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function otherCopiesOf(string $domain, int $exceptSiteId): array
+    {
+        return Database::select(
+            'SELECT s.id, s.server_id, s.status, s.ip, s.document_root, s.disk_usage,
+                    s.last_check_at, s.notify_muted,
+                    srv.name AS server_name, srv.ip AS server_ip, srv.status AS server_status
+             FROM sites s
+             INNER JOIN servers srv ON srv.id = s.server_id
+             WHERE s.domain = ? AND s.id <> ? AND s.discovered = 1
+             ORDER BY srv.name ASC',
+            [mb_strtolower($domain), $exceptSiteId]
+        );
     }
 
     /**
